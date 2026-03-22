@@ -1,43 +1,90 @@
 # MPR_Model
-MPR_Model 是基於機器學習的多元多項式水質分析模型，可幫助您快速分析 DO、BOD、NH3-N、EC 及 SS 等水質資料，並基於水質指標（Water Quality Index, WQI、WQI5）進行評估。  
 
-# 如何使用
-1. 首先您需要 Clone 此專案。  
+[![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](LICENSE) [![Python](https://img.shields.io/badge/python-3.8%2B-green.svg)](https://www.python.org)
+
+Project Summary
+---------------
+MPR_Model provides a model training and prediction framework for water quality evaluation based on multivariate polynomial regression and machine learning approaches. The solution supports standard indicators and generates Water Quality Index (WQI/WQI5) estimates.
+
+Key Features
+------------
+- Support for science-backed indicators: DO, BOD, NH3-N, EC, SS
+- Model variants maintained in `models/` (e.g., LR, RF, SVM, XGBoost, LightGBM, MPR)
+- REST API implementation under `src/api.py` for inference and data ingestion
+- Training scripts in `src/training` for reproducibility on various datasets
+- Example data in `data/` for quick evaluation and comparison
+
+Getting Started
+---------------
+### Prerequisites
+- Python 3.8 or later
+- Virtual environment manager (recommended): `venv` or `conda`
+
+### Install
 ```bash
 git clone https://github.com/KageRyo/MPR_Model.git
-```
-2. 接著您必須安裝所需的函式庫。  
-> 請確保您的裝置中有可使用的 Python 版本。  
-> 當然，您也可以建立 venv 虛擬環境或使用 Conda 後再執行。  
-```bash
+cd MPR_Model
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
-3. 您可以在 `main.py` 中修改您希望使用的IP（預設直接使用 0.0.0.0）和端口（預設為 8000）。  
-4. 進入 MPR_Model 的路徑後於 Terminal 中執行 MPR_Model。  
+
+Configuration
+-------------
+- `main.py` defaults to listening on `0.0.0.0:8000`.
+- Update host/port in `main.py` or extend configuration handling in `src/api.py` as needed.
+
+Usage
+-----
+#### Start the API server
 ```bash
-cd MPR_Model
 python3 main.py
 ```
 
-# 建議
-- 本應用程式可接收之CSV格式如下：
+#### Train a model (example)
+```bash
+python3 src/training/mainLGBMVer.1.0.py
+```
 
-| DO     	| BOD     	| NH3N     	| EC     	| SS     	|
-|--------	|---------	|----------	|--------	|--------	|
-| DO數值 	| BOD數值 	| NH3N數值 	| EC數值 	| SS數值 	|
-| ...    	                                          	|
-  
-- 您可以搭配 [WaterMirror](https://github.com/KageRyo/WaterMirror) 作為前端行動裝置應用程式使用。
-- 當然，您也可以在不違反 [Apache License 2.0](LICENSE) 的前提下自由修改。
+API Endpoints
+-------------
+- `POST /predict` : accepts JSON or CSV payload for one-to-many inference
+- `GET /status` : health check endpoint
 
-## 貢獻
-歡迎貢獻！ 如果您發現任何錯誤或有改進建議，歡迎提出 Issues 或 Pull Requests。  
+Refer to `src/api.py` for exact endpoint paths and data schemas.
 
-## LICENSE  
-本程式採用 Apache License 2.0 授權 - 有關詳細信息，請參閱 [LICENSE](LICENSE) 文件。  
-有任何疑問請洽 kageryo@coderyo.com  
-+ 張健勳 Chien-Hsun Chang [@KageRyo](https://github.com/KageRyo)   
-+ 吳國維 Kuo-Wei Wu [@RRAaru](https://github.com/RRAaru)
+Data Format
+-----------
+Accepted CSV shape:
+| DO | BOD | NH3N | EC | SS |
+Rows should contain numeric values.
 
-${{\color{orange}{\textsf{本作品為 張健勳 與 吳國維 用於「國立臺中科技大學智慧生產工程系」畢業專題之作品，其著作權由兩人共同擁有。}}}}\$  
-${{\color{yellow}{\textsf{特別感謝「國立臺中科技大學資訊與流通學院」蔡文宗 教授指導。}}}}\$  
+Project Structure
+-----------------
+- `data/` : training and validation datasets
+- `models/` : persisted model artifacts
+- `src/` : API and training implementations
+- `main.py` : service entrypoint
+
+Code Quality
+------------
+- Include linting (`flake8`, `pylint`) in your development process.
+- Add tests for new behavior under `src/test`.
+
+Contributing
+------------
+1. Fork the repository
+2. Create a feature branch
+3. Add tests and documentation updates
+4. Submit a pull request with verification steps
+
+License
+-------
+Apache License Version 2.0. See `LICENSE`.
+
+Maintainers
+-----------
+- Chien-Hsun Chang (KageRyo)
+- Kuo-Wei Wu (RRAaru)
+
