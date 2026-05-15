@@ -19,6 +19,10 @@ The task is not forecasting. The committed dataset has no timestamp field.
 - Stratification target: WQI5 category derived from `Score`
 - Seeds: `0, 1, 2, 3, 4`
 - Test size: `20%`
+- Default split counts on the committed `60,714`-row dataset:
+  - train: `48,571`
+  - test: `12,143`
+- No timestamp, station-sequence, or lag feature is used in the current protocol.
 
 ## Models
 
@@ -31,6 +35,8 @@ The task is not forecasting. The committed dataset has no timestamp field.
 - `lightgbm`
 
 `direct_wqi5` is the non-ML baseline and should always be reported beside ML surrogates.
+
+If `xgboost` or `lightgbm` is missing from the runtime environment, treat that as an environment setup failure rather than silently dropping the model from the configured experiment.
 
 ## Metrics
 

@@ -11,6 +11,8 @@
 ## Current Repository State
 
 - Current processed rows: `60,714`
+- Current committed features: `DO`, `BOD`, `NH3N`, `EC`, `SS`
+- Current committed target: `Score` interpreted as WQI5 score
 - Missing-value ratio in the committed processed dataset:
   - `DO`: `0.0%`
   - `BOD`: `0.0%`
@@ -33,6 +35,14 @@ The following items must be preserved in the paper revision and any future raw-d
 
 This repository currently documents the processed endpoint only. If raw provenance is added later, extend this file with row counts after each cleaning stage.
 
+## Paper-Safe Provenance Wording
+
+Until the upstream audit trail is recovered and versioned, the manuscript should use wording such as:
+
+> The released repository provides the processed 60,714-row modeling dataset. The study also references a larger upstream source pool of 87,005 observations, but exact intermediate filtering counts are not yet versioned in the public repository and are therefore documented as a current reproducibility limitation.
+
+Use `merged`, `aligned`, `filtered`, or `processed` unless actual synthetic data generation can be demonstrated. At the current repository state, there is no versioned evidence that the committed modeling dataset was synthetically generated.
+
 ## Imputation and Trimming
 
 - Existing training scripts use `mean` imputation. That is acceptable only as a simple baseline because the committed processed dataset is already complete.
@@ -50,6 +60,18 @@ This repository currently documents the processed endpoint only. If raw provenan
 - No temporal independence is claimed.
 - Recommended seeds: `0, 1, 2, 3, 4`
 - Recommended report format: `mean ± std`
+- With the current default protocol on `60,714` rows and `test_size=0.2`, each repeated split yields:
+  - train: `48,571`
+  - test: `12,143`
+
+## Remaining Gap
+
+The following details are still not recoverable from the committed repository alone and should remain explicitly acknowledged until the upstream sources are restored:
+
+1. Qilintan row count within the original `87,005` records.
+2. MOENV row count within the original `87,005` records.
+3. Exact stage-by-stage row counts for field alignment, invalid-value removal, duplicate removal, and any 1% trimming step.
+4. Whether any upstream imputation or trimming occurred before the public `dataV1.csv` snapshot was exported.
 
 ## Subset Sampling
 
