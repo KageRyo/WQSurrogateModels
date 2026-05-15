@@ -73,6 +73,12 @@ For development and tests:
 pip install -e ".[dev]"
 ```
 
+To also enable the full set of surrogate models (`xgboost`, `lightgbm`):
+
+```bash
+pip install -e ".[dev,models]"
+```
+
 ## Run
 
 ```bash
@@ -134,11 +140,11 @@ python scripts/reproduce_results.py --config configs/experiment_config.yaml --ou
 
 Outputs are written to the configured output directory.
 
-If you use the local `WQI` conda environment, ensure optional gradient-boosting dependencies are installed before running the full experiment:
+If you use the local `WQI` conda environment and want to run the full experiment (all models including xgboost/lightgbm):
 
 ```bash
 conda activate WQI
-pip install lightgbm xgboost
+pip install -e ".[models]"
 python scripts/reproduce_results.py --config configs/experiment_config.yaml --output-dir results_verification
 ```
 
