@@ -1,90 +1,122 @@
-# MPR_Model
+# WQSurrogateModels
 
-[![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](LICENSE) [![Python](https://img.shields.io/badge/python-3.8%2B-green.svg)](https://www.python.org)
+[![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%2B-green.svg)](https://www.python.org)
 
-Project Summary
----------------
-MPR_Model provides a model training and prediction framework for water quality evaluation based on multivariate polynomial regression and machine learning approaches. The solution supports standard indicators and generates Water Quality Index (WQI/WQI5) estimates.
+`WQSurrogateModels` is the backend and model repository for `WaterMirror`.
 
-Key Features
-------------
-- Support for science-backed indicators: DO, BOD, NH3-N, EC, SS
-- Model variants maintained in `models/` (e.g., LR, RF, SVM, XGBoost, LightGBM, MPR)
-- REST API implementation under `src/api.py` for inference and data ingestion
-- Training scripts in `src/training` for reproducibility on various datasets
-- Example data in `data/` for quick evaluation and comparison
+It supports `WQI5-based current-state water quality assessment`, not future forecasting. The committed dataset does not contain timestamps, so this project must be described as `cross-sectional surrogate regression` and `current-state assessment`.
 
-Getting Started
----------------
-### Prerequisites
-- Python 3.8 or later
-- Virtual environment manager (recommended): `venv` or `conda`
+## What This Repository Does
 
-### Install
+- serves a FastAPI backend for WQI5 assessment
+- supports a `direct_wqi5` formula baseline
+- supports surrogate regression models: `lr`, `mpr`, `svm`, `rf`, `xgboost`, `lightgbm`
+- provides reproducibility scripts and experiment configuration
+- keeps compatibility with the legacy CSV upload endpoint used by `WaterMirror`
+
+## Environment
+
+Copy `.env.example` to `.env` and adjust values if needed.
+
 ```bash
-git clone https://github.com/KageRyo/MPR_Model.git
-cd MPR_Model
-python3 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
+cp .env.example .env
+```
+
+Key variables:
+
+- `MODEL_DIR=models`
+- `DEFAULT_MODEL=direct_wqi5`
+- `API_HOST=0.0.0.0`
+- `API_PORT=8001`
+
+## Install
+
+```bash
 pip install -r requirements.txt
 ```
 
-Configuration
--------------
-- `main.py` defaults to listening on `0.0.0.0:8000`.
-- Update host/port in `main.py` or extend configuration handling in `src/api.py` as needed.
+## Run
 
-Usage
------
-#### Start the API server
 ```bash
-python3 main.py
+python main.py
 ```
 
-#### Train a model (example)
-```bash
-python3 src/training/mainLGBMVer.1.0.py
+## API
+
+### `POST /predict`
+
+```json
+{
+  "DO": 7.2,
+  "BOD": 2.1,
+  "NH3N": 0.3,
+  "EC": 450,
+  "SS": 12,
+  "model_type": "lightgbm"
+}
 ```
 
-API Endpoints
--------------
-- `POST /predict` : accepts JSON or CSV payload for one-to-many inference
-- `GET /status` : health check endpoint
+Response:
 
-Refer to `src/api.py` for exact endpoint paths and data schemas.
+```json
+{
+  "score": 82.5,
+  "category": "Good",
+  "rating_range": "70 < WQI5 ≤ 85",
+  "model_type": "lightgbm",
+  "latency_ms": 12.4,
+  "assessment": {
+    "DO": "Good",
+    "BOD": "Fair",
+    "NH3N": "Fair",
+    "EC": "Fair",
+    "SS": "Fair"
+  },
+  "warnings": []
+}
+```
 
-Data Format
------------
-Accepted CSV shape:
-| DO | BOD | NH3N | EC | SS |
-Rows should contain numeric values.
+### Other endpoints
 
-Project Structure
------------------
-- `data/` : training and validation datasets
-- `models/` : persisted model artifacts
-- `src/` : API and training implementations
-- `main.py` : service entrypoint
+- `GET /status`
+- `GET /models`
+- `GET /percentile?score=82.5`
+- `GET /categories`
+- `POST /score/total/` for legacy CSV mean-score compatibility
+- `POST /score/all/` for legacy CSV per-row scores
 
-Code Quality
-------------
-- Include linting (`flake8`, `pylint`) in your development process.
-- Add tests for new behavior under `src/test`.
+## Reproducibility
 
-Contributing
-------------
-1. Fork the repository
-2. Create a feature branch
-3. Add tests and documentation updates
-4. Submit a pull request with verification steps
+Run:
 
-License
--------
-Apache License Version 2.0. See `LICENSE`.
+```bash
+python scripts/reproduce_results.py --config configs/experiment_config.yaml
+```
 
-Maintainers
------------
-- Chien-Hsun Chang (KageRyo)
-- Kuo-Wei Wu (RRAaru)
+Outputs are written to `results/`.
 
+Supporting documentation:
+
+- [docs/data_preparation.md](/mnt/8tb_hdd/ryo/WQSurrogateModels/docs/data_preparation.md)
+- [docs/experiment_protocol.md](/mnt/8tb_hdd/ryo/WQSurrogateModels/docs/experiment_protocol.md)
+
+## Project Structure
+
+- `data/`: processed datasets and subsets
+- `models/`: persisted surrogate model artifacts
+- `src/`: API and reusable backend logic
+- `scripts/`: reproducibility runners
+- `configs/`: experiment settings
+- `tests/`: pytest suite
+
+## Limitations
+
+- no timestamp column is available in the committed dataset
+- no claim of temporal forecasting should be made
+- direct raw-data provenance from the upstream `87,005` records still needs a versioned audit trail in the repo
+- optional dependencies such as `xgboost` and `lightgbm` must exist in the runtime environment to retrain those models
+
+## License
+
+Apache License 2.0. See `LICENSE`.
