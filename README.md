@@ -2,6 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-green.svg)](https://www.python.org)
+[![CI](https://github.com/KageRyo/WQSurrogateModels/actions/workflows/ci.yml/badge.svg)](https://github.com/KageRyo/WQSurrogateModels/actions/workflows/ci.yml)
 
 `WQSurrogateModels` is the backend and model repository for `WaterMirror`.
 
