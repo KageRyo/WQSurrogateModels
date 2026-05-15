@@ -97,10 +97,33 @@ Response:
 Run:
 
 ```bash
+pip install -e ".[dev]"
 python scripts/reproduce_results.py --config configs/experiment_config.yaml
 ```
 
 Outputs are written to `results/`.
+
+If you use the local `WQI` conda environment, ensure optional gradient-boosting dependencies are installed before running the full experiment:
+
+```bash
+conda activate WQI
+pip install lightgbm xgboost
+python scripts/reproduce_results.py --config configs/experiment_config.yaml
+```
+
+### Reproducibility Hyperparameters
+
+| Model | Library | Preprocessing | Key Hyperparameters |
+| --- | --- | --- | --- |
+| `direct_wqi5` | formula baseline | none | direct WQI5 equation |
+| `lr` | scikit-learn | mean imputation + standard scaling | default `LinearRegression()` |
+| `mpr` | scikit-learn | mean imputation + polynomial features + standard scaling | `degree=2`, `include_bias=False` |
+| `svm` | scikit-learn | mean imputation + standard scaling | `kernel=rbf`, `C=10.0`, `epsilon=0.1` |
+| `rf` | scikit-learn | mean imputation | `n_estimators=300`, `random_state=0`, `n_jobs=-1` |
+| `xgboost` | xgboost | mean imputation | `n_estimators=300`, `max_depth=6`, `learning_rate=0.05`, `subsample=0.9`, `colsample_bytree=0.9`, `random_state=0` |
+| `lightgbm` | lightgbm | mean imputation | `n_estimators=300`, `learning_rate=0.05`, `random_state=0` |
+
+Repeated validation uses stratified random splits over WQI5 categories with seeds `0, 1, 2, 3, 4`.
 
 Supporting documentation:
 
