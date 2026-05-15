@@ -8,6 +8,19 @@
 - The manuscript discussion refers to an upstream pool of `87,005` records before project-level cleaning and filtering. That raw upstream source is not currently versioned in this repository, so this document records the intended audit trail and the remaining gap explicitly.
 - The current repository dataset does not contain timestamps. Validation must therefore be described as `cross-sectional`, not temporal forecasting.
 
+## Source-Level Provenance
+
+At the source level, the current modeling dataset is understood to come from:
+
+1. prior experimental / field-study data associated with earlier water-quality publications by the project team, including:
+   - *Using intelligent water purification and ecological conservation system to improve environmental conservation benefits evaluation* (Environmental Technology & Innovation, 2025, DOI: `10.1016/j.eti.2025.104046`)
+   - the later study referenced by the project team at `https://www.sciencedirect.com/science/article/abs/pii/S1642359326000200`
+2. Ministry of Environment open data, especially river water quality monitoring resources such as:
+   - MOENV open data platform: `https://data.moenv.gov.tw/en/dataset/detail/WQX_P_01`
+   - Taiwan government open data mirror: `https://data.gov.tw/en/datasets/6078`
+
+This means the repository can now document the source families used to assemble the processed modeling data. However, the repository still does not contain the exact versioned upstream extraction scripts or intermediate row-count logs needed to reconstruct every transition from `87,005` source observations to the committed `60,714`-row modeling table.
+
 ## Current Repository State
 
 - Current processed rows: `60,714`
