@@ -15,6 +15,36 @@ It supports `WQI5-based current-state water quality assessment`, not future fore
 - provides reproducibility scripts and experiment configuration
 - keeps compatibility with the legacy CSV upload endpoint used by `WaterMirror`
 
+## Architecture
+
+```mermaid
+flowchart LR
+    A[WaterMirror user input or CSV upload] --> B[WaterMirror frontend]
+    B --> C[POST /predict or /score/total/]
+    C --> D[WQSurrogateModels FastAPI service]
+    D --> E[Input validation and assessment warnings]
+    E --> F{Model selection}
+    F --> G[direct_wqi5 baseline]
+    F --> H[Surrogate regressors: lr mpr svm rf xgboost lightgbm]
+    G --> I[WQI5 score category rating range]
+    H --> I
+    I --> J[Result payload]
+    J --> B
+```
+
+## Data Flow
+
+1. WaterMirror or another client submits five current-state indicators.
+2. The backend validates the payload and selects either `direct_wqi5` or a surrogate regressor.
+3. The service returns `score`, `category`, `rating_range`, `assessment`, and `warnings`.
+4. The frontend displays the assessment result without recalculating category thresholds locally.
+
+## Design Rationale
+
+- `direct_wqi5` provides an explicit non-ML baseline for reviewer-facing comparisons.
+- Surrogate regressors are retained to study speed/accuracy trade-offs and deployment flexibility.
+- The repository intentionally frames the task as present-state assessment because the committed dataset does not retain timestamps.
+
 ## Environment
 
 Copy `.env.example` to `.env` and adjust values if needed.
