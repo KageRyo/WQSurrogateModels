@@ -33,7 +33,13 @@ Key variables:
 ## Install
 
 ```bash
-pip install -r requirements.txt
+pip install .
+```
+
+For development and tests:
+
+```bash
+pip install -e ".[dev]"
 ```
 
 ## Run
