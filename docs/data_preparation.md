@@ -21,6 +21,19 @@ At the source level, the current modeling dataset is understood to come from:
 
 This means the repository can now document the source families used to assemble the processed modeling data. However, the repository still does not contain the exact versioned upstream extraction scripts or intermediate row-count logs needed to reconstruct every transition from `87,005` source observations to the committed `60,714`-row modeling table.
 
+## Current Team Explanation for the 87,005 -> 60,714 Reduction
+
+Based on current project-team clarification, the major reduction from the upstream `87,005` source observations to the committed `60,714` modeling rows is attributable to trimming extreme values at both tails during preprocessing, together with dataset alignment / filtering.
+
+- The working explanation is that upper and lower `10%` extremes were trimmed during preprocessing.
+- Because trimming can be applied across multiple indicators, the final retained row count should not be interpreted as a simple single-step `80%` keep-rate on one variable.
+- In practice, the retained set reflects the combined effect of:
+  - source alignment between prior experimental data and government open data
+  - validity / preprocessing filters
+  - tail trimming of extreme observations
+
+This explanation is sufficient for revision-era methodological transparency, but the repository still lacks a versioned preprocessing script that emits exact row counts after each individual operation.
+
 ## Current Repository State
 
 - Current processed rows: `60,714`
@@ -66,6 +79,12 @@ Use `merged`, `aligned`, `filtered`, or `processed` unless actual synthetic data
   - It may stabilize regression training.
   - It may also remove true pollution events.
   - It should therefore be treated as a sensitivity-analysis choice, not an unquestioned denoising step.
+
+Revision note:
+
+- The repository previously documented `1%` trimming as a placeholder explanation.
+- The current team clarification is that the practical reduction from `87,005` to `60,714` is associated with more aggressive tail trimming at the upper and lower `10%` extremes during preprocessing, in combination with alignment / filtering steps.
+- Until the original preprocessing script is restored, the safest manuscript wording is to describe this as `extreme-value tail trimming during preprocessing` rather than claim a fully auditable step-by-step public pipeline.
 
 ## Split Protocol
 
