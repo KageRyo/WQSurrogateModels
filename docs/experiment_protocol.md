@@ -68,3 +68,11 @@ Running `scripts/reproduce_results.py` writes:
 - `results/category_metrics.csv`
 
 These files are intended to support reproducible regeneration of the manuscript tables after final hyperparameters are locked.
+
+For verification runs, prefer a separate output directory so archived experiment outputs are not overwritten:
+
+```bash
+python scripts/reproduce_results.py --config configs/experiment_config.yaml --output-dir results_verification
+```
+
+Use `--overwrite` only when you intentionally want to replace an existing result directory.

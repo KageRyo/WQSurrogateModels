@@ -128,18 +128,20 @@ Run:
 
 ```bash
 pip install -e ".[dev]"
-python scripts/reproduce_results.py --config configs/experiment_config.yaml
+python scripts/reproduce_results.py --config configs/experiment_config.yaml --output-dir results_verification
 ```
 
-Outputs are written to `results/`.
+Outputs are written to the configured output directory.
 
 If you use the local `WQI` conda environment, ensure optional gradient-boosting dependencies are installed before running the full experiment:
 
 ```bash
 conda activate WQI
 pip install lightgbm xgboost
-python scripts/reproduce_results.py --config configs/experiment_config.yaml
+python scripts/reproduce_results.py --config configs/experiment_config.yaml --output-dir results_verification
 ```
+
+To protect archived manuscript outputs, the script now refuses to overwrite an existing results directory unless `--overwrite` is passed explicitly.
 
 ### Reproducibility Hyperparameters
 
