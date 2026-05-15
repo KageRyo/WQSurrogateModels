@@ -25,7 +25,7 @@ This means the repository can now document the source families used to assemble 
 
 Based on current project-team clarification, the major reduction from the upstream `87,005` source observations to the committed `60,714` modeling rows is attributable to trimming extreme values at both tails during preprocessing, together with dataset alignment / filtering.
 
-- The working explanation is that upper and lower `10%` extremes were trimmed during preprocessing.
+- The working explanation is that the upper and lower `1%` extremes (i.e., head and tail 1% trimming) were removed during preprocessing.
 - Because trimming can be applied across multiple indicators, the final retained row count should not be interpreted as a simple single-step `80%` keep-rate on one variable.
 - In practice, the retained set reflects the combined effect of:
   - source alignment between prior experimental data and government open data
@@ -75,16 +75,17 @@ Use `merged`, `aligned`, `filtered`, or `processed` unless actual synthetic data
 - If mean imputation was applied upstream before creating `dataV1.csv`, the rationale should be documented as:
   - It preserves dataset size for surrogate-regression training.
   - It avoids introducing model-specific bias from more aggressive imputation schemes.
-- `1%` outlier trimming should be described carefully:
+- Head-and-tail `1%` outlier trimming should be described carefully:
   - It may stabilize regression training.
   - It may also remove true pollution events.
   - It should therefore be treated as a sensitivity-analysis choice, not an unquestioned denoising step.
 
 Revision note:
 
-- The repository previously documented `1%` trimming as a placeholder explanation.
-- The current team clarification is that the practical reduction from `87,005` to `60,714` is associated with more aggressive tail trimming at the upper and lower `10%` extremes during preprocessing, in combination with alignment / filtering steps.
-- Until the original preprocessing script is restored, the safest manuscript wording is to describe this as `extreme-value tail trimming during preprocessing` rather than claim a fully auditable step-by-step public pipeline.
+- An earlier version of this document incorrectly stated `10%` tail trimming.
+- The correct preprocessing step was **head and tail 1% trimming** (removal of the top 1% and bottom 1% extremes).
+- Because the trimming was applied across multiple water quality indicators and combined with alignment/filtering steps, the overall reduction from `87,005` to `60,714` rows is consistent with this 1% per-tail rule.
+- Until the original preprocessing script is restored and audited, it is safest to describe the step in manuscripts as `extreme-value tail trimming (head and tail 1%) during preprocessing`.
 
 ## Split Protocol
 
@@ -102,7 +103,7 @@ The following details are still not recoverable from the committed repository al
 
 1. Qilintan row count within the original `87,005` records.
 2. MOENV row count within the original `87,005` records.
-3. Exact stage-by-stage row counts for field alignment, invalid-value removal, duplicate removal, and any 1% trimming step.
+3. Exact stage-by-stage row counts for field alignment, invalid-value removal, duplicate removal, and the head-and-tail 1% trimming step.
 4. Whether any upstream imputation or trimming occurred before the public `dataV1.csv` snapshot was exported.
 
 ## Subset Sampling
