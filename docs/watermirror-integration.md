@@ -39,7 +39,7 @@ WaterMirror communicates with this backend using the modern v2 contract (preferr
 }
 ```
 
-**Response uses `AssessmentResponse` (formerly PredictionResponse).**
+**Response uses `AssessmentResponseSchema` (Pydantic model).**
 
 ---
 
@@ -64,7 +64,7 @@ All legacy endpoints are annotated with `deprecated=True` in the OpenAPI schema 
 
 ## 3. Shared Response Types
 
-### AssessmentResponse (primary)
+### AssessmentResponseSchema (primary)
 
 ```json
 {
