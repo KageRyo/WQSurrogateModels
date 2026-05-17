@@ -87,47 +87,24 @@ python main.py
 
 ## API
 
-### `POST /predict`
+**Primary endpoints live under `/api/v2/*`** (see `docs/watermirror-integration.md` for full contract).
+
+### Quick example (new)
+
+`POST /api/v2/assessment`
 
 ```json
-{
-  "DO": 7.2,
-  "BOD": 2.1,
-  "NH3N": 0.3,
-  "EC": 450,
-  "SS": 12,
-  "model_type": "lightgbm"
-}
+{ "DO": 7.2, "BOD": 2.1, "NH3N": 0.3, "EC": 450, "SS": 12, "model_type": "lightgbm" }
 ```
 
-Response:
+Response shape is `AssessmentResponse` (identical fields to the old `PredictionResponse`).
 
-```json
-{
-  "score": 82.5,
-  "category": "Good",
-  "rating_range": "70 < WQI5 ≤ 85",
-  "model_type": "lightgbm",
-  "latency_ms": 12.4,
-  "assessment": {
-    "DO": "Good",
-    "BOD": "Fair",
-    "NH3N": "Fair",
-    "EC": "Fair",
-    "SS": "Fair"
-  },
-  "warnings": []
-}
-```
+### Legacy compatibility endpoints (still work)
 
-### Other endpoints
+- `POST /predict`, `POST /score/total/`, `POST /score/all/`, `GET /status`, etc.
+- Marked `deprecated` in OpenAPI / docs. New code should use the v2 paths.
 
-- `GET /status`
-- `GET /models`
-- `GET /percentile?score=82.5`
-- `GET /categories`
-- `POST /score/total/` for legacy CSV mean-score compatibility
-- `POST /score/all/` for legacy CSV per-row scores
+Full details and migration table: [docs/watermirror-integration.md](docs/watermirror-integration.md)
 
 ## Reproducibility
 

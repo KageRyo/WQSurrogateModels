@@ -2,20 +2,31 @@
 
 This document describes the API contract between **WaterMirror** (frontend) and **WQSurrogateModels** (backend).
 
+> **Primary contract (v2):** All new development should use endpoints under `/api/v2/*`.
+> Legacy root-level endpoints are retained **only for backward compatibility** with existing WaterMirror deployments and are marked `deprecated`.
+
 ## Overview
 
-WaterMirror communicates with this backend using two patterns:
-
-1. **Modern JSON API** (recommended for new features)
-2. **Legacy CSV Upload API** (still actively used by WaterMirror for batch CSV analysis)
+WaterMirror communicates with this backend using the modern v2 contract (preferred) with fallback to legacy endpoints.
 
 ---
 
-## 1. Modern Endpoints (JSON)
+## 1. Primary v2 Endpoints (Recommended)
 
-### `POST /predict`
+### Health & Discovery
 
-**Request Body (JSON):**
+- `GET /api/v2/health`
+- `GET /api/v2/models`
+- `GET /api/v2/categories`
+- `GET /api/v2/percentile?score=82.5`
+
+### Assessment
+
+- `POST /api/v2/assessment` — single record assessment (replaces `/predict`)
+- `POST /api/v2/assessment/csv/summary` — CSV batch, returns mean score (replaces `/score/total/`)
+- `POST /api/v2/assessment/csv/rows` — CSV batch, returns per-row scores (replaces `/score/all/`)
+
+**Example `POST /api/v2/assessment` Request:**
 
 ```json
 {
@@ -28,53 +39,32 @@ WaterMirror communicates with this backend using two patterns:
 }
 ```
 
-- `model_type`: One of `direct_wqi5`, `lr`, `mpr`, `svm`, `rf`, `xgboost`, `lightgbm`. Defaults to `direct_wqi5` if omitted.
-
-**Response:**
-
-Uses `PredictionResponse` schema (see below).
+**Response uses `AssessmentResponse` (formerly PredictionResponse).**
 
 ---
 
-## 2. Legacy CSV Endpoints (Used by WaterMirror)
+## 2. Deprecated Legacy Endpoints (Compatibility Only)
 
-These endpoints are called via `multipart/form-data` when users upload CSV files in WaterMirror.
+These are kept so existing WaterMirror and old demos do not break.  
+**Do not use in new code.**
 
-### `POST /score/total/`
+| Deprecated          | New Primary (`/api/v2`)                  | Notes |
+|---------------------|------------------------------------------|-------|
+| `GET /status`       | `GET /api/v2/health`                     | Health check |
+| `GET /models`       | `GET /api/v2/models`                     | Model list |
+| `GET /categories`   | `GET /api/v2/categories`                 | Category distribution |
+| `GET /percentile`   | `GET /api/v2/percentile`                 | Score percentile lookup |
+| `POST /predict`     | `POST /api/v2/assessment`                | Single record |
+| `POST /score/total/`| `POST /api/v2/assessment/csv/summary`    | CSV mean |
+| `POST /score/all/`  | `POST /api/v2/assessment/csv/rows`       | CSV per-row |
 
-Calculates the **mean WQI5 score** across all rows in the uploaded CSV.
-
-**Form Data:**
-- `file`: CSV file (must contain columns: `DO,BOD,NH3N,EC,SS`)
-- `model_type` (optional): string, e.g. `direct_wqi5` or `lightgbm`
-
-**Response:** `PredictionResponse`
-
-### `POST /score/all/`
-
-Calculates WQI5 score **for every row** in the uploaded CSV.
-
-**Form Data:**
-- `file`: CSV file
-- `model_type` (optional)
-
-**Response:**
-
-```json
-{
-  "scores": [82.5, 75.3, ...],
-  "model_type": "lightgbm",
-  "latency_ms": 23.4
-}
-```
-
-> **Important:** `model_type` is always returned as a plain string.
+All legacy endpoints are annotated with `deprecated=True` in the OpenAPI schema and will eventually be removed in a future major version.
 
 ---
 
 ## 3. Shared Response Types
 
-### PredictionResponse
+### AssessmentResponse (primary)
 
 ```json
 {
@@ -92,17 +82,17 @@ Calculates WQI5 score **for every row** in the uploaded CSV.
 }
 ```
 
+Legacy responses keep the exact same shape for compatibility.
+
 ### Other Utility Endpoints Used by WaterMirror
 
-- `GET /status`
-- `GET /percentile?score=82.5`
-- `GET /categories`
+All now have v2 equivalents (see table above).
 
 ---
 
 ## 4. Model Types
 
-Supported values for `model_type`:
+Supported values for `model_type` (unchanged):
 
 | Value        | Description                     | Requires Pre-trained Model |
 |--------------|----------------------------------|------------------------------|
@@ -134,7 +124,8 @@ CORS_ALLOW_ORIGINS=http://localhost:8081,https://your-watermirror-domain.com
 ## 6. Backward Compatibility Notes
 
 - The backend guarantees that `model_type` is always returned as a **plain string** in all responses.
-- The legacy endpoints (`/score/total/`, `/score/all/`) must remain stable as WaterMirror still relies on them for CSV batch processing.
+- Legacy root endpoints continue to function exactly as before (now internally delegate to the v2 service methods).
+- WaterMirror has been updated to call the new `/api/v2/*` paths.
 - When `model_type` is not provided, the backend uses the value from `DEFAULT_MODEL` environment variable (default: `direct_wqi5`).
 
 ---
@@ -146,14 +137,14 @@ CORS_ALLOW_ORIGINS=http://localhost:8081,https://your-watermirror-domain.com
 DEFAULT_MODEL=direct_wqi5
 CORS_ALLOW_ORIGINS=*
 
-# WaterMirror (client)
-EXPO_PUBLIC_API_BASE_URL=http://localhost:8001
+# WaterMirror (client) — now points at v2 by default
+EXPO_PUBLIC_API_BASE_URL=http://localhost:8010
 EXPO_PUBLIC_DEFAULT_MODEL=direct_wqi5
 EXPO_PUBLIC_REQUEST_TIMEOUT_MS=10000
 ```
 
 ---
 
-**Maintained for compatibility between WaterMirror and WQSurrogateModels.**
+**Primary contract moved to /api/v2/* while preserving full backward compatibility.**
 
-Last updated: 2026
+Last updated: 2026 (v2 refactor)
