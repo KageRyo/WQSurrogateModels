@@ -60,6 +60,7 @@ Key variables:
 - `DEFAULT_MODEL=direct_wqi5`
 - `API_HOST=0.0.0.0`
 - `API_PORT=8001`
+- `AUTO_PORT=false`
 
 ## Install
 
@@ -84,6 +85,14 @@ pip install -e ".[dev,models]"
 ```bash
 python main.py
 ```
+
+If `API_PORT` is already occupied, the default behavior is to fail fast with a clearer error message. For local development, you can opt in to automatic fallback ports:
+
+```env
+AUTO_PORT=true
+```
+
+With `AUTO_PORT=true`, the server tries `API_PORT` first and then scans upward (`8002`, `8003`, ...) until it finds a free port.
 
 ## API
 
