@@ -21,7 +21,7 @@ It supports `WQI5-based current-state water quality assessment`, not future fore
 ```mermaid
 flowchart LR
     A[WaterMirror user input or CSV upload] --> B[WaterMirror frontend]
-    B --> C[POST /predict or /score/total/]
+    B --> C[POST /api/v2/assessment or /api/v2/assessment/csv/summary]
     C --> D[WQSurrogateModels FastAPI service]
     D --> E[Input validation and assessment warnings]
     E --> F{Model selection}
