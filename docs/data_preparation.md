@@ -4,7 +4,7 @@
 
 ## Scope
 
-- The processed dataset shipped in this repository is [`data/dataV1.csv`](/mnt/8tb_hdd/ryo/WQSurrogateModels/data/dataV1.csv) with `60,714` rows and `6` columns: `DO`, `BOD`, `NH3N`, `EC`, `SS`, `Score`.
+- The processed dataset shipped in this repository is [`data/dataV1.csv`](../data/dataV1.csv) with `60,714` rows and `6` columns: `DO`, `BOD`, `NH3N`, `EC`, `SS`, `Score`.
 - The manuscript discussion refers to an upstream pool of `87,005` records before project-level cleaning and filtering. That raw upstream source is not currently versioned in this repository, so this document records the intended audit trail and the remaining gap explicitly.
 - The current repository dataset does not contain timestamps. Validation must therefore be described as `cross-sectional`, not temporal forecasting.
 

@@ -9,6 +9,9 @@ This document describes the API contract between **WaterMirror** (frontend) and 
 
 WaterMirror communicates with this backend using the modern v2 contract (preferred) with fallback to legacy endpoints.
 
+WaterMirror is the frontend application.
+WQSurrogateModels is the backend and model repository.
+
 ---
 
 ## 1. Primary v2 Endpoints (Recommended)
@@ -132,13 +135,27 @@ CORS_ALLOW_ORIGINS=http://localhost:8081,https://your-watermirror-domain.com
 
 ## 7. Recommended Environment Variables for WaterMirror Integration
 
-```env
-# Backend
-DEFAULT_MODEL=direct_wqi5
-CORS_ALLOW_ORIGINS=*
+### Local backend on the same machine
 
-# WaterMirror (client) — now points at v2 by default
-EXPO_PUBLIC_API_BASE_URL=http://localhost:8010
+```env
+DEFAULT_MODEL=direct_wqi5
+EXPO_PUBLIC_API_BASE_URL=http://localhost:8001
+EXPO_PUBLIC_DEFAULT_MODEL=direct_wqi5
+EXPO_PUBLIC_REQUEST_TIMEOUT_MS=10000
+```
+
+### Physical phone testing on the same LAN
+
+```env
+EXPO_PUBLIC_API_BASE_URL=http://<your-lan-ip>:8001
+EXPO_PUBLIC_DEFAULT_MODEL=direct_wqi5
+EXPO_PUBLIC_REQUEST_TIMEOUT_MS=10000
+```
+
+### Lab deployed backend
+
+```env
+EXPO_PUBLIC_API_BASE_URL=http://140.123.105.126:8011
 EXPO_PUBLIC_DEFAULT_MODEL=direct_wqi5
 EXPO_PUBLIC_REQUEST_TIMEOUT_MS=10000
 ```

@@ -4,9 +4,26 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-green.svg)](https://www.python.org)
 [![CI](https://github.com/KageRyo/WQSurrogateModels/actions/workflows/ci.yml/badge.svg)](https://github.com/KageRyo/WQSurrogateModels/actions/workflows/ci.yml)
 
-`WQSurrogateModels` is the backend and model repository for `WaterMirror`.
+WQSurrogateModels is a FastAPI backend and reproducibility repository for WQI5-based current-state water quality assessment.
 
-It supports `WQI5-based current-state water quality assessment`, not future forecasting. The committed dataset does not contain timestamps, so this project must be described as `cross-sectional surrogate regression` and `current-state assessment`.
+> Scope: this repository performs WQI5-based current-state water quality assessment.
+> It does not perform temporal forecasting because the committed dataset does not contain timestamps.
+
+It provides:
+
+- a `direct_wqi5` baseline
+- surrogate regression models
+- `/api/v2/*` endpoints for WaterMirror and other HTTP clients
+- reproducibility scripts and experiment documentation
+
+## Relationship with the Companion Repository
+
+This project is part of a two-repository system:
+
+- `WaterMirror`: cross-platform mobile frontend for data entry, CSV upload, and result visualization
+- `WQSurrogateModels`: FastAPI backend and model/reproducibility repository for WQI5-based current-state water quality assessment
+
+WaterMirror depends on the API contract exposed by this repository. `WQSurrogateModels` can also be used independently through `curl`, Postman, or custom scripts.
 
 ## What This Repository Does
 
@@ -14,7 +31,7 @@ It supports `WQI5-based current-state water quality assessment`, not future fore
 - supports a `direct_wqi5` formula baseline
 - supports surrogate regression models: `lr`, `mpr`, `svm`, `rf`, `xgboost`, `lightgbm`
 - provides reproducibility scripts and experiment configuration
-- keeps compatibility with the legacy CSV upload endpoint used by `WaterMirror`
+- keeps compatibility with legacy endpoints while treating `/api/v2/*` as the primary contract
 
 ## Architecture
 
@@ -32,19 +49,6 @@ flowchart LR
     I --> J[Result payload]
     J --> B
 ```
-
-## Data Flow
-
-1. WaterMirror or another client submits five current-state indicators.
-2. The backend validates the payload and selects either `direct_wqi5` or a surrogate regressor.
-3. The service returns `score`, `category`, `rating_range`, `assessment`, and `warnings`.
-4. The frontend displays the assessment result without recalculating category thresholds locally.
-
-## Design Rationale
-
-- `direct_wqi5` provides an explicit non-ML baseline for reviewer-facing comparisons.
-- Surrogate regressors are retained to study speed/accuracy trade-offs and deployment flexibility.
-- The repository intentionally frames the task as present-state assessment because the committed dataset does not retain timestamps.
 
 ## Environment
 
@@ -74,6 +78,8 @@ For development and tests:
 pip install -e ".[dev]"
 ```
 
+The committed scikit-learn surrogate artifacts in `models/` were serialized with `scikit-learn 1.5.2`. Use that same version when loading them, or retrain and re-export the artifacts in your target version.
+
 To also enable the full set of surrogate models (`xgboost`, `lightgbm`):
 
 ```bash
@@ -96,9 +102,9 @@ With `AUTO_PORT=true`, the server tries `API_PORT` first and then scans upward (
 
 ## API
 
-**Primary endpoints live under `/api/v2/*`** (see `docs/watermirror-integration.md` for full contract).
+Primary endpoints live under `/api/v2/*`.
 
-### Quick example (new)
+### Quick example
 
 `POST /api/v2/assessment`
 
@@ -106,14 +112,17 @@ With `AUTO_PORT=true`, the server tries `API_PORT` first and then scans upward (
 { "DO": 7.2, "BOD": 2.1, "NH3N": 0.3, "EC": 450, "SS": 12, "model_type": "lightgbm" }
 ```
 
-Response shape is `AssessmentResponse` (identical fields to the old `PredictionResponse`).
+Legacy compatibility endpoints such as `POST /predict`, `POST /score/total/`, and `GET /status` are retained but deprecated.
 
-### Legacy compatibility endpoints (still work)
+## Documentation
 
-- `POST /predict`, `POST /score/total/`, `POST /score/all/`, `GET /status`, etc.
-- Marked `deprecated` in OpenAPI / docs. New code should use the v2 paths.
-
-Full details and migration table: [docs/watermirror-integration.md](docs/watermirror-integration.md)
+- [WaterMirror Integration](docs/watermirror-integration.md)
+- [API Reference](docs/api-reference.md)
+- [Full-Stack Local Run](docs/fullstack-local-run.md)
+- [Data Preparation](docs/data_preparation.md)
+- [Experiment Protocol](docs/experiment_protocol.md)
+- [Model Card](docs/model_card.md)
+- [Limitations](docs/limitations.md)
 
 ## Reproducibility
 
@@ -123,8 +132,6 @@ Run:
 pip install -e ".[dev]"
 python scripts/reproduce_results.py --config configs/experiment_config.yaml --output-dir results_verification
 ```
-
-Outputs are written to the configured output directory.
 
 If you use the local `WQI` conda environment and want to run the full experiment (all models including xgboost/lightgbm):
 
@@ -150,11 +157,6 @@ To protect archived manuscript outputs, the script now refuses to overwrite an e
 
 Repeated validation uses stratified random splits over WQI5 categories with seeds `0, 1, 2, 3, 4`.
 
-Supporting documentation:
-
-- [docs/data_preparation.md](/mnt/8tb_hdd/ryo/WQSurrogateModels/docs/data_preparation.md)
-- [docs/experiment_protocol.md](/mnt/8tb_hdd/ryo/WQSurrogateModels/docs/experiment_protocol.md)
-
 ## Project Structure
 
 - `data/`: processed datasets and subsets
@@ -163,13 +165,6 @@ Supporting documentation:
 - `scripts/`: reproducibility runners
 - `configs/`: experiment settings
 - `tests/`: pytest suite
-
-## Limitations
-
-- no timestamp column is available in the committed dataset
-- no claim of temporal forecasting should be made
-- direct raw-data provenance from the upstream `87,005` records still needs a versioned audit trail in the repo
-- optional dependencies such as `xgboost` and `lightgbm` must exist in the runtime environment to retrain those models
 
 ## License
 
