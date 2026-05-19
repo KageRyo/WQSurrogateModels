@@ -6,6 +6,8 @@
 
 This repository does not perform temporal forecasting.
 
+`Score` denotes a dimensionless WQI5 index on a `0-100` scale.
+
 ## Inputs
 
 - `DO`

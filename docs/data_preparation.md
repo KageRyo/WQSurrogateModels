@@ -106,9 +106,17 @@ The following details are still not recoverable from the committed repository al
 3. Exact stage-by-stage row counts for field alignment, invalid-value removal, duplicate removal, and the head-and-tail 1% trimming step.
 4. Whether any upstream imputation or trimming occurred before the public `dataV1.csv` snapshot was exported.
 
-## Subset Sampling
+## Archived Subset Files
 
-For the paper revision, the subset-generation rule should be stated explicitly:
+The archived benchmark used predefined fixed-size subset files such as `dataV1_1000.csv`, `dataV1_10000.csv`, and `dataV1_50000.csv`.
+
+These files were used for sample-size sensitivity analysis.
+
+The archived subset construction should not be described as temporal, spatial, or stratified sampling unless the original subset-generation script is recovered.
+
+## Recommended Reproducible Subset Generation
+
+For future regeneration, the subset-generation rule should be stated explicitly:
 
 1. Start from the processed `60,714`-row dataset.
 2. Derive WQI5 categories from `Score`.

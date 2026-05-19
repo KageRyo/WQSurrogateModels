@@ -119,8 +119,13 @@ Legacy compatibility endpoints such as `POST /predict`, `POST /score/total/`, an
 - [WaterMirror Integration](docs/watermirror-integration.md)
 - [API Reference](docs/api-reference.md)
 - [Full-Stack Local Run](docs/fullstack-local-run.md)
+- [WQI5 Formula](docs/wqi5-formula.md)
+- [Metrics](docs/metrics.md)
 - [Data Preparation](docs/data_preparation.md)
-- [Experiment Protocol](docs/experiment_protocol.md)
+- [Original Benchmark Protocol](docs/original-benchmark-protocol.md)
+- [Revised Experiment Protocol](docs/experiment_protocol.md)
+- [Statistical Analysis](docs/statistical-analysis.md)
+- [Model Hyperparameters](docs/model-hyperparameters.md)
 - [Model Card](docs/model_card.md)
 - [Limitations](docs/limitations.md)
 
@@ -144,6 +149,8 @@ python scripts/reproduce_results.py --config configs/experiment_config.yaml --ou
 To protect archived manuscript outputs, the script now refuses to overwrite an existing results directory unless `--overwrite` is passed explicitly.
 
 ### Reproducibility Hyperparameters
+
+The table below describes the revised reproducibility workflow. Archived exploratory scripts may use `GridSearchCV` and library defaults; see [docs/original-benchmark-protocol.md](docs/original-benchmark-protocol.md).
 
 | Model | Library | Preprocessing | Key Hyperparameters |
 | --- | --- | --- | --- |

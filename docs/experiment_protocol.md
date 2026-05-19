@@ -1,4 +1,8 @@
-# Experiment Protocol
+# Revised Experiment Protocol
+
+This document describes the revised reproducibility workflow.
+
+It is intended to support future reproducible runs and robustness checks. The archived manuscript experiments used predefined fixed-size subsets and `80/20` train-test splits; see [original-benchmark-protocol.md](original-benchmark-protocol.md).
 
 ## Task Definition
 
@@ -57,6 +61,8 @@ Operational metrics:
 - training/inference runtime
 - residual mean
 - residual standard deviation
+
+Use [metrics.md](metrics.md) for the definition of `mean relative accuracy` and for guidance on separating regression metrics from category metrics.
 
 ## Outputs
 
