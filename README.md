@@ -125,6 +125,7 @@ Legacy compatibility endpoints such as `POST /predict`, `POST /score/total/`, an
 - [Original Benchmark Protocol](docs/original-benchmark-protocol.md)
 - [Revised Experiment Protocol](docs/experiment_protocol.md)
 - [Statistical Analysis](docs/statistical-analysis.md)
+- [Statistics Workspace Notes](statistics/README.md)
 - [Model Hyperparameters](docs/model-hyperparameters.md)
 - [Model Card](docs/model_card.md)
 - [Limitations](docs/limitations.md)
