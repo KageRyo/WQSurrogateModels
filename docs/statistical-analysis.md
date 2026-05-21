@@ -94,6 +94,9 @@ The repository currently contains a statistics workspace under [`statistics/`](.
 - `scripts/reproduce_holdout_10714.py`
   - reconstructs the `10714` hold-out rows from `data/dataV1.csv` and `data/dataV1_50000.csv`
   - validates the hold-out source rows against the Excel `10714筆測試` sheet
+- `scripts/generate_residual_plots.py`
+  - reads `statistics/outputs/test_predictions_long.csv`
+  - generates per-model residual figures and overview panels under `statistics/outputs/figures/`
 
 Generated outputs under `statistics/outputs/` are derived artifacts and should normally be regenerated locally rather than versioned. If a narrative markdown summary is needed, it should be prepared separately from the public analysis script.
 
@@ -132,3 +135,20 @@ The hold-out reconstruction workflow also produces:
   - comparison between Excel-recorded predictions and reproduced predictions from saved model artifacts
 - `holdout_reproduction/holdout_reproduction_summary.csv`
   - compact reproduction summary by model
+
+Residual plotting workflow:
+
+```bash
+python scripts/generate_residual_plots.py
+```
+
+This generates:
+
+- `figures/residual_overview.png`
+- `figures/residual_qq_overview.png`
+- `figures/residual_lightgbm.png`
+- `figures/residual_xgboost.png`
+- `figures/residual_rf.png`
+- `figures/residual_svm.png`
+- `figures/residual_mpr.png`
+- `figures/residual_lr.png`

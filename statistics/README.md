@@ -12,6 +12,10 @@ This directory mixes three different kinds of assets:
   - reconstructs the `10714` hold-out split as `dataV1.csv - dataV1_50000.csv`
   - verifies that the hold-out `Score` matches the Excel `10714筆測試` sheet
   - reproduces hold-out predictions for the saved `50000` artifacts that exist in `models/`
+- `../scripts/generate_residual_plots.py`
+  - reads generated hold-out prediction tables
+  - writes residual figures into `statistics/outputs/figures/`
+  - supports visual inspection of residual distribution, residual spread, and Q-Q behavior
 - `README.md`
   - this inventory and tracking policy
 
@@ -44,6 +48,50 @@ Reconstruct and validate the `10714` hold-out set:
 ```bash
 python scripts/reproduce_holdout_10714.py
 ```
+
+Generate residual figures:
+
+```bash
+python scripts/generate_residual_plots.py
+```
+
+This writes per-model residual diagnostics and overview panels into `statistics/outputs/figures/`.
+
+## What The Statistics Outputs Cover
+
+The generated tables and figures are intended to support questions about:
+
+- confidence intervals
+  - repeated-run `95% t-intervals`
+  - hold-out bootstrap `95% confidence intervals`
+- significance testing
+  - paired Wilcoxon signed-rank tests
+  - Holm-adjusted p-values
+  - paired bootstrap difference intervals
+- residual statistics
+  - residual mean
+  - residual standard deviation
+  - residual skewness
+  - residual kurtosis
+  - KS-based normality statistics
+- robustness analysis
+  - sample-size sensitivity
+  - subset-vs-full distribution shift
+  - category-level error summaries
+
+Relevant generated files:
+
+- `outputs/metric_ci_by_runs.csv`
+- `outputs/paired_tests_by_runs.csv`
+- `outputs/test_bootstrap_ci.csv`
+- `outputs/test_paired_error_tests.csv`
+- `outputs/residual_diagnostics.csv`
+- `outputs/sample_size_stability.csv`
+- `outputs/dataset_distribution_robustness.csv`
+- `outputs/figures/residual_*.png`
+- `outputs/figures/residual_diagnostics_*.png`
+- `outputs/figures/residual_overview.png`
+- `outputs/figures/residual_qq_overview.png`
 
 ## Notes
 
