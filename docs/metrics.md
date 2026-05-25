@@ -21,14 +21,14 @@ where `y_i` is the reference WQI5 score and `ŷ_i` is the model-estimated WQI5 s
 
 ## Mean Predictive Accuracy
 
-`Mean Predictive Accuracy (MPA)` is a percentage-based regression metric computed from sample-wise relative prediction error:
+`Mean Predictive Accuracy (MPA)` is a percentage-based regression agreement metric derived from sample-wise absolute percentage error:
 
 ```text
 Predictive Accuracy_i (%) = (1 - |y_i - ŷ_i| / y_i) * 100
 MPA (%) = mean_i(Predictive Accuracy_i)
 ```
 
-`MPA (%)` is the average sample-wise predictive accuracy. The metric is defined for positive reference scores.
+`MPA (%)` is the average sample-wise agreement between the reference WQI5 score and the model-estimated WQI5 score. The metric is defined for positive reference scores and is not classification accuracy.
 
 When `y_i > 0`, this metric is equivalent to:
 

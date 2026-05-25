@@ -33,7 +33,7 @@ python scripts/generate_residual_plots.py
 Reconstruct the `10714`-record inference evaluation set:
 
 ```bash
-python scripts/reproduce_holdout_10714.py
+python scripts/reproduce_inference_10714.py
 ```
 
 The statistical scripts post-process recorded experiment outputs and committed datasets. They do not retrain model artifacts.

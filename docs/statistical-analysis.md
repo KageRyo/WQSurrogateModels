@@ -2,6 +2,12 @@
 
 This document summarizes the statistical checks used for the WQI5 surrogate-regression results.
 
+## Interpretation Boundaries
+
+This analysis evaluates WQI5 surrogate-regression performance. The target score is computed from the same five indicators used as model inputs, so the results should be interpreted as WQI5 approximation and deployment-oriented model benchmarking, not as future water-quality forecasting.
+
+Bootstrap intervals quantify uncertainty on the available inference evaluation rows. They do not remove possible temporal or spatial autocorrelation in the original environmental measurements.
+
 ## Feature-Score Correlation
 
 Pearson and Spearman correlation coefficients can be computed between each raw water-quality indicator and the calculated WQI5 `Score`:
@@ -16,7 +22,7 @@ Because `Score` is constructed from the same five indicators, this analysis is d
 
 ## Model Reliability Analysis
 
-Model reliability is evaluated on held-out prediction outputs using:
+Model reliability is evaluated on inference prediction outputs using:
 
 - `R²`
 - `MAE`
@@ -106,7 +112,7 @@ The statistics workspace is under [`statistics/`](../statistics/README.md):
   - post-processes archived experiment records and committed CSV datasets
   - writes generated tables into `statistics/outputs/`
   - does not retrain model artifacts
-- `scripts/reproduce_holdout_10714.py`
+- `scripts/reproduce_inference_10714.py`
   - reconstructs the `10714` inference evaluation rows from `data/dataV1.csv` and `data/dataV1_50000.csv`
   - validates the evaluation source rows against the Excel `10714筆測試` sheet
 - `scripts/generate_residual_plots.py`
@@ -116,7 +122,7 @@ The statistics workspace is under [`statistics/`](../statistics/README.md):
   - reads generated CSV tables
   - writes `statistics/outputs/statistical_analysis_report.md`
 
-The repository tracks the generated summary tables, markdown report, and PNG residual figures. Large or local-only artifacts, including the workbook export, row-level prediction table, local Excel source workbook, and inference-evaluation reproduction row dumps, are regenerated locally.
+The published result package includes the summary tables, markdown report, and PNG residual figures. Large or local-only artifacts, including the workbook export, row-level prediction table, local Excel source workbook, and inference-evaluation reproduction row dumps, are regenerated locally when needed.
 
 ## Result Package
 
@@ -150,7 +156,7 @@ The full report embeds all generated residual figures. The overview panels are s
 MPA (%) = mean_i [(1 - |y_i - ŷ_i| / y_i) * 100]
 ```
 
-For positive WQI5 reference scores, this is equivalent to `100% - MAPE(%)`. It is retained only as an interpretable companion to `R²`, `MAE`, and `RMSE`.
+MPA is a percentage-based regression agreement metric derived from absolute percentage error. For positive WQI5 reference scores, this is equivalent to `100% - MAPE(%)`; it is not classification accuracy. It is retained only as an interpretable companion to `R²`, `MAE`, and `RMSE`.
 
 WQI-band summaries use the backend category configuration: `Excellent`, `Good`, `Fair`, `Poor`, `Bad`, and `Terrible`.
 

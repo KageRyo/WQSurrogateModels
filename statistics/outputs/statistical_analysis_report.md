@@ -1,8 +1,10 @@
-# Statistical Analysis Summary
+# Statistical Analysis Report
 
 ## Scope
 
-This summary covers statistical post-processing for the WQI5 surrogate-regression results. Inputs are the archived experiment workbook and the committed datasets under `data/`. The scripts recompute derived metrics from recorded actual and predicted values; model artifacts are not retrained here.
+This report presents the statistical analysis results for the WQSurrogateModels evaluation workflow. The analysis focuses on model comparison, uncertainty estimation, residual diagnostics, and robustness checks for WQI5 surrogate-regression.
+
+The reported tables and figures are based on the archived benchmark outputs, inference records, and reproducible statistical scripts maintained in `statistics/`. The scripts recompute derived metrics from recorded actual and predicted values; model artifacts are not retrained here.
 
 The task is continuous WQI5 score estimation. Inference evaluation results are reported with R2, MAE, RMSE, residual diagnostics, and Mean Predictive Accuracy (MPA):
 
@@ -10,7 +12,13 @@ The task is continuous WQI5 score estimation. Inference evaluation results are r
 MPA (%) = mean_i [(1 - |y_i - yhat_i| / y_i) * 100]
 ```
 
-For positive reference scores, MPA is equivalent to `100% - MAPE(%)`.
+MPA is a percentage-based regression agreement metric derived from absolute percentage error. For positive reference scores, it is equivalent to `100% - MAPE(%)`; it is not classification accuracy.
+
+## Interpretation Boundaries
+
+The target WQI5 score is computed from the same five water-quality indicators used as model inputs. The results should therefore be interpreted as WQI5 approximation and deployment-oriented model benchmarking, not as future water-quality forecasting.
+
+The bootstrap intervals quantify uncertainty on the available inference evaluation rows. They do not remove possible temporal or spatial autocorrelation in the original environmental measurements.
 
 ## Confidence Intervals and Tests
 
@@ -40,6 +48,8 @@ The run count is the number of repeated benchmark records available for that sam
 | 20000 | LightGBM | 0.6599 | [0.5621, 0.7577] | 4 |
 | 50000 | LightGBM | 0.6174 | NA | 1 |
 
+For the 50,000-sample setting, only one repeated benchmark record is available; therefore, the run-level interval is unavailable and the value is reported as a point estimate.
+
 ## Inference Evaluation Metrics
 
 | Model | R2 | MAE | RMSE | MPA (%) | R2 95% CI | MAE 95% CI | RMSE 95% CI | MPA 95% CI |
@@ -63,6 +73,8 @@ Each row compares paired absolute errors from the same evaluation records. The d
 | LightGBM vs SVM | -2.6946 | [-2.7425, -2.6433] | <1e-300 | <1e-300 | LightGBM |
 | LightGBM vs MPR | -6.0830 | [-6.1601, -6.0040] | <1e-300 | <1e-300 | LightGBM |
 | LightGBM vs LR | -6.0840 | [-6.1667, -5.9954] | <1e-300 | <1e-300 | LightGBM |
+
+For LightGBM and XGBoost, the paired absolute-error difference is small and the Holm-adjusted p-value is not significant. These two models should be treated as statistically comparable on the inference evaluation set; model selection between them should also consider runtime, residual dispersion, and deployment constraints.
 
 The full pairwise table is available in `statistics/outputs/test_paired_error_tests.csv`.
 
@@ -117,7 +129,7 @@ The KS p-values indicate departures from normal residual distributions. The rema
 
 ## Error by WQI Band
 
-WQI bands follow the backend category configuration used by the WaterMirror API: Excellent, Good, Fair, Poor, Bad, and Terrible. The rows below summarize regression error within each actual WQI band; `Evaluation records (n)` is the number of evaluation rows in that band. The 10,714-record inference evaluation set contains no Excellent rows.
+WQI bands follow the backend category configuration used by the WaterMirror API: Excellent, Good, Fair, Poor, Bad, and Terrible. The thresholds are documented in [`docs/metrics.md`](../../docs/metrics.md). The rows below summarize regression error within each actual WQI band; `Evaluation records (n)` is the number of evaluation rows in that band. The 10,714-record inference evaluation set contains no Excellent rows.
 
 | Actual WQI band | Lowest-MAE model | Evaluation records (n) | MAE | RMSE | Bias | MPA (%) |
 | --- | --- | --- | --- | --- | --- | --- |
