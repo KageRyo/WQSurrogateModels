@@ -29,7 +29,9 @@ For positive reference scores, MPA is equivalent to `100% - MAPE(%)`.
 
 ## Best Validation RMSE by Sample Size
 
-| Sample size | Best model | Mean RMSE | 95% CI | Runs |
+The run count is the number of repeated benchmark records available for the selected sample size and model in the archived experiment log.
+
+| Sample size | Best model | Mean RMSE | 95% CI | Repeated benchmark runs (n) |
 | --- | --- | --- | --- | --- |
 | 100 | RF | 4.2815 | [4.1963, 4.3667] | 999 |
 | 1000 | LightGBM | 1.7218 | [1.6546, 1.7891] | 99 |
@@ -68,12 +70,12 @@ The full pairwise table is available in `statistics/outputs/test_paired_error_te
 
 | Model | Residual mean | Residual std | Skewness | Kurtosis | KS p |
 | --- | --- | --- | --- | --- | --- |
-| LightGBM | 0.0654 | 0.6118 | 0.5273 | 13.8234 | 2.627e-128 |
-| XGBoost | 0.0450 | 0.6372 | -0.1007 | 13.5333 | 5.712e-134 |
-| RF | 0.1746 | 0.7256 | 0.8151 | 10.3331 | 7.000e-275 |
-| SVM | 1.3174 | 3.8487 | 1.0558 | 6.3921 | 9.077e-28 |
-| MPR | 3.0470 | 7.1141 | -0.3797 | 0.2470 | 4.751e-34 |
-| LR | 0.0148 | 8.0285 | -0.3658 | 0.6604 | 6.095e-14 |
+| LightGBM | -0.0654 | 0.6118 | -0.5273 | 13.8234 | 2.627e-128 |
+| XGBoost | -0.0450 | 0.6372 | 0.1007 | 13.5333 | 5.712e-134 |
+| RF | -0.1746 | 0.7256 | -0.8151 | 10.3331 | 7.000e-275 |
+| SVM | -1.3174 | 3.8487 | -1.0558 | 6.3921 | 9.077e-28 |
+| MPR | -3.0470 | 7.1141 | 0.3797 | 0.2470 | 4.751e-34 |
+| LR | -0.0148 | 8.0285 | 0.3658 | 0.6604 | 6.095e-14 |
 
 The KS p-values indicate departures from normal residual distributions. The residual statistics are used as diagnostics for bias, dispersion, asymmetry, and tail behavior.
 
@@ -119,11 +121,11 @@ WQI bands follow the backend category configuration used by the WaterMirror API:
 
 | Actual WQI band | Lowest-MAE model | n | MAE | RMSE | Bias | MPA (%) |
 | --- | --- | --- | --- | --- | --- | --- |
-| Good | RF | 1535 | 0.0675 | 0.2694 | -0.0231 | 99.9053 |
-| Fair | RF | 5463 | 0.2876 | 0.5377 | 0.0602 | 99.4957 |
-| Poor | XGBoost | 2515 | 0.5840 | 0.8281 | 0.1048 | 98.5410 |
-| Bad | XGBoost | 1180 | 0.4612 | 0.6485 | 0.0916 | 98.0267 |
-| Terrible | XGBoost | 21 | 0.5395 | 0.7545 | 0.3157 | 96.1731 |
+| Good | RF | 1535 | 0.0675 | 0.2694 | 0.0231 | 99.9053 |
+| Fair | RF | 5463 | 0.2876 | 0.5377 | -0.0602 | 99.4957 |
+| Poor | XGBoost | 2515 | 0.5840 | 0.8281 | -0.1048 | 98.5410 |
+| Bad | XGBoost | 1180 | 0.4612 | 0.6485 | -0.0916 | 98.0267 |
+| Terrible | XGBoost | 21 | 0.5395 | 0.7545 | -0.3157 | 96.1731 |
 
 ## Generated Files
 
