@@ -1,6 +1,6 @@
 # Statistics Workspace
 
-This directory contains the statistical post-processing workflow and generated result package for the WQI5 surrogate-regression experiments.
+This directory contains the statistical post-processing workflow and result package for the WQI5 surrogate-regression experiments.
 
 ## Results
 
@@ -10,21 +10,21 @@ This directory contains the statistical post-processing workflow and generated r
 
 The report includes summary metrics, confidence intervals, pairwise error tests, residual diagnostics, WQI-band error summaries, and rendered residual figures.
 
-## Regeneration
+## Reproduce Results
 
-Generate the statistical tables from the archived experiment records:
+Create the statistical tables from the archived experiment records:
 
 ```bash
 python statistics/statistical_analysis_from_xlsx.py
 ```
 
-Generate the markdown report:
+Create the markdown report:
 
 ```bash
 python statistics/generate_statistical_report.py
 ```
 
-Generate residual figures:
+Create residual figures:
 
 ```bash
 python scripts/generate_residual_plots.py

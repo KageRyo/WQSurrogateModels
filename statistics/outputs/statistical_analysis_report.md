@@ -1,24 +1,35 @@
-# Statistical Analysis Report
+# Statistical Evaluation Report
 
 ## Scope
 
-This report presents the statistical analysis results for the WQSurrogateModels evaluation workflow. The analysis focuses on model comparison, uncertainty estimation, residual diagnostics, and robustness checks for WQI5 surrogate-regression.
+This report presents the statistical analysis results for the WQSurrogateModels evaluation workflow.
+The analysis focuses on model comparison, uncertainty estimation, residual diagnostics,
+and robustness checks for WQI5 surrogate-regression.
 
-The reported tables and figures are based on the archived benchmark outputs, inference records, and reproducible statistical scripts maintained in `statistics/`. The scripts recompute derived metrics from recorded actual and predicted values; model artifacts are not retrained here.
+The reported tables and figures are based on the archived benchmark outputs, inference records,
+and reproducible statistical scripts maintained in `statistics/`.
+The scripts recompute derived metrics from recorded actual and predicted values;
+model artifacts are not retrained here.
 
-The task is continuous WQI5 score estimation. Inference evaluation results are reported with R2, MAE, RMSE, residual diagnostics, and Mean Predictive Accuracy (MPA):
+The task is continuous WQI5 score estimation.
+Inference evaluation results are reported with R2, MAE, RMSE, residual diagnostics,
+and Mean Predictive Accuracy (MPA):
 
 ```text
 MPA (%) = mean_i [(1 - |y_i - yhat_i| / y_i) * 100]
 ```
 
-MPA is a percentage-based regression agreement metric derived from absolute percentage error. For positive reference scores, it is equivalent to `100% - MAPE(%)`; it is not classification accuracy.
+MPA is a percentage-based regression agreement metric derived from absolute percentage error.
+For positive reference scores, it is equivalent to `100% - MAPE(%)`; it is not classification accuracy.
 
 ## Interpretation Boundaries
 
-The target WQI5 score is computed from the same five water-quality indicators used as model inputs. The results should therefore be interpreted as WQI5 approximation and deployment-oriented model benchmarking, not as future water-quality forecasting.
+The target WQI5 score is computed from the same five water-quality indicators used as model inputs.
+The results should therefore be interpreted as WQI5 approximation and deployment-oriented model benchmarking,
+not as future water-quality forecasting.
 
-The bootstrap intervals quantify uncertainty on the available inference evaluation rows. They do not remove possible temporal or spatial autocorrelation in the original environmental measurements.
+The bootstrap intervals quantify uncertainty on the available inference evaluation rows.
+They do not remove possible temporal or spatial autocorrelation in the original environmental measurements.
 
 ## Confidence Intervals and Tests
 
@@ -29,11 +40,19 @@ The bootstrap intervals quantify uncertainty on the available inference evaluati
 
 ### Interval Definitions
 
-`metric_ci_by_runs.csv` contains run-level intervals computed as `mean +/- t_(0.975, n-1) * sample_std / sqrt(n)` from repeated benchmark logs. When only one run is available, only the point estimate is shown.
+`metric_ci_by_runs.csv` contains run-level intervals computed as
+`mean +/- t_(0.975, n-1) * sample_std / sqrt(n)` from repeated benchmark logs.
+When only one run is available, only the point estimate is shown.
 
-`test_bootstrap_ci.csv` contains row-level bootstrap intervals. For each model, the 10,714 evaluation rows are resampled with replacement; each bootstrap sample is scored again, and the 2.5th and 97.5th percentiles are reported.
+`test_bootstrap_ci.csv` contains row-level bootstrap intervals.
+For each model, the 10,714 evaluation rows are resampled with replacement;
+each bootstrap sample is scored again, and the 2.5th and 97.5th percentiles are reported.
 
-`test_paired_error_tests.csv` contains paired absolute-error differences on the inference set. For each row, `diff_i = |y_i - yhat_A_i| - |y_i - yhat_B_i|`. The interval is the 2.5th to 97.5th percentile range of bootstrapped mean differences. Negative values favor model A; positive values favor model B. Intervals crossing zero indicate a small average difference relative to bootstrap uncertainty.
+`test_paired_error_tests.csv` contains paired absolute-error differences on the inference set.
+For each row, `diff_i = |y_i - yhat_A_i| - |y_i - yhat_B_i|`.
+The interval is the 2.5th to 97.5th percentile range of bootstrapped mean differences.
+Negative values favor model A; positive values favor model B.
+Intervals crossing zero indicate a small average difference relative to bootstrap uncertainty.
 
 ## Best Validation RMSE by Sample Size
 
@@ -48,7 +67,8 @@ The run count is the number of repeated benchmark records available for that sam
 | 20000 | LightGBM | 0.6599 | [0.5621, 0.7577] | 4 |
 | 50000 | LightGBM | 0.6174 | NA | 1 |
 
-For the 50,000-sample setting, only one repeated benchmark record is available; therefore, the run-level interval is unavailable and the value is reported as a point estimate.
+For the 50,000-sample setting, only one repeated benchmark record is available;
+therefore, the run-level interval is unavailable and the value is reported as a point estimate.
 
 ## Inference Evaluation Metrics
 
@@ -63,7 +83,8 @@ For the 50,000-sample setting, only one repeated benchmark record is available; 
 
 ## Pairwise Error Tests on the 10,714-Sample Inference Evaluation Set
 
-Each row compares paired absolute errors from the same evaluation records. The difference is `model A absolute error - model B absolute error`.
+Each row compares paired absolute errors from the same evaluation records.
+The difference is `model A absolute error - model B absolute error`.
 
 | Comparison | Mean absolute-error difference (A - B) | Bootstrap 95% CI for mean difference | Wilcoxon p | Holm p | Lower mean error |
 | --- | --- | --- | --- | --- | --- |
@@ -74,7 +95,10 @@ Each row compares paired absolute errors from the same evaluation records. The d
 | LightGBM vs MPR | -6.0830 | [-6.1601, -6.0040] | <1e-300 | <1e-300 | LightGBM |
 | LightGBM vs LR | -6.0840 | [-6.1667, -5.9954] | <1e-300 | <1e-300 | LightGBM |
 
-For LightGBM and XGBoost, the paired absolute-error difference is small and the Holm-adjusted p-value is not significant. These two models should be treated as statistically comparable on the inference evaluation set; model selection between them should also consider runtime, residual dispersion, and deployment constraints.
+For LightGBM and XGBoost, the paired absolute-error difference is small
+and the Holm-adjusted p-value is not significant.
+These two models should be treated as statistically comparable on the inference evaluation set;
+model selection between them should also consider runtime, residual dispersion, and deployment constraints.
 
 The full pairwise table is available in `statistics/outputs/test_paired_error_tests.csv`.
 
@@ -89,7 +113,8 @@ The full pairwise table is available in `statistics/outputs/test_paired_error_te
 | MPR | -3.0470 | 7.1141 | 0.3797 | 0.2470 | 4.751e-34 |
 | LR | -0.0148 | 8.0285 | 0.3658 | 0.6604 | 6.095e-14 |
 
-The KS p-values indicate departures from normal residual distributions. The remaining residual statistics summarize bias, dispersion, asymmetry, and tail behavior.
+The KS p-values indicate departures from normal residual distributions.
+The remaining residual statistics summarize bias, dispersion, asymmetry, and tail behavior.
 
 ## Residual Figures
 
@@ -129,7 +154,12 @@ The KS p-values indicate departures from normal residual distributions. The rema
 
 ## Error by WQI Band
 
-WQI bands follow the backend category configuration used by the WaterMirror API: Excellent, Good, Fair, Poor, Bad, and Terrible. The thresholds are documented in [`docs/metrics.md`](../../docs/metrics.md). The rows below summarize regression error within each actual WQI band; `Evaluation records (n)` is the number of evaluation rows in that band. The 10,714-record inference evaluation set contains no Excellent rows.
+WQI bands follow the backend category configuration used by the WaterMirror API:
+Excellent, Good, Fair, Poor, Bad, and Terrible.
+The thresholds are documented in [`docs/metrics.md`](../../docs/metrics.md).
+The rows below summarize regression error within each actual WQI band;
+`Evaluation records (n)` is the number of evaluation rows in that band.
+The 10,714-record inference evaluation set contains no Excellent rows.
 
 | Actual WQI band | Lowest-MAE model | Evaluation records (n) | MAE | RMSE | Bias | MPA (%) |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -139,7 +169,7 @@ WQI bands follow the backend category configuration used by the WaterMirror API:
 | Bad | XGBoost | 1180 | 0.4612 | 0.6485 | -0.0916 | 98.0267 |
 | Terrible | XGBoost | 21 | 0.5395 | 0.7545 | -0.3157 | 96.1731 |
 
-## Generated Files
+## Result Artifacts
 
 - `metric_ci_by_runs.csv`
 - `paired_tests_by_runs.csv`
@@ -152,5 +182,15 @@ WQI bands follow the backend category configuration used by the WaterMirror API:
 - `sample_size_stability.csv`
 - `figures/residual_overview.png`
 - `figures/residual_qq_overview.png`
-- `figures/residual_<model>.png`
-- `figures/residual_diagnostics_<model>.png`
+- `figures/residual_lightgbm.png`
+- `figures/residual_xgboost.png`
+- `figures/residual_rf.png`
+- `figures/residual_svm.png`
+- `figures/residual_mpr.png`
+- `figures/residual_lr.png`
+- `figures/residual_diagnostics_lightgbm.png`
+- `figures/residual_diagnostics_xgboost.png`
+- `figures/residual_diagnostics_rf.png`
+- `figures/residual_diagnostics_svm.png`
+- `figures/residual_diagnostics_mpr.png`
+- `figures/residual_diagnostics_lr.png`
