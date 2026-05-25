@@ -1,6 +1,6 @@
 # Statistical Analysis
 
-This document separates descriptive feature-score analysis from predictive model reliability analysis.
+This document summarizes the statistical checks used for the WQI5 surrogate-regression results.
 
 ## Feature-Score Correlation
 
@@ -12,11 +12,11 @@ Pearson and Spearman correlation coefficients can be computed between each raw w
 - `EC` vs `Score`
 - `SS` vs `Score`
 
-This analysis is descriptive because `Score` is constructed from the same five indicators. It summarizes feature-index relationships within the processed dataset rather than temporal forecasting behavior.
+Because `Score` is constructed from the same five indicators, this analysis is descriptive. It summarizes feature-index relationships in the processed dataset.
 
 ## Model Reliability Analysis
 
-Model reliability is evaluated on held-out or otherwise unseen prediction outputs using metrics such as:
+Model reliability is evaluated on held-out prediction outputs using:
 
 - `R²`
 - `MAE`
@@ -36,14 +36,14 @@ where `y_i` is the reference WQI5 score and `ŷ_i` is the model-estimated WQI5 s
 
 ## Statistical Coverage
 
-The current statistics workflow covers three main analysis families:
+The statistics workflow covers three analysis families:
 
 ### Confidence Intervals
 
-Two confidence-interval estimates are reported because the available data have two levels of granularity:
+Two confidence-interval estimates are used because the data are available at two levels:
 
-- run-level `95%` intervals summarize repeated subset-benchmark metric logs
-- row-level bootstrap `95%` intervals summarize the `10714` hold-out prediction records
+- run-level `95%` intervals for repeated subset-benchmark logs
+- row-level bootstrap `95%` intervals for the `10714` prediction records
 
 Covered metrics include:
 
@@ -56,15 +56,15 @@ The hold-out bootstrap intervals cover the continuous regression metrics listed 
 
 ### Interval Definitions
 
-Run-level intervals in `metric_ci_by_runs.csv` summarize repeated benchmark runs. For each `sample_size`, `model`, and metric, the interval is computed from the run-level metric values:
+Run-level intervals in `metric_ci_by_runs.csv` summarize repeated benchmark runs. For each `sample_size`, `model`, and metric:
 
 ```text
 mean +/- t_(0.975, n-1) * sample_std / sqrt(n)
 ```
 
-These intervals describe variation across repeated runs in the archived benchmark logs. When only one run is available, the point estimate is reported and the interval bounds are left empty.
+These intervals describe variation across repeated runs. When only one run is available, only the point estimate is shown.
 
-Hold-out metric intervals in `test_bootstrap_ci.csv` summarize prediction performance on the `10714` hold-out rows. For each model, rows are resampled with replacement, the metric is recomputed on each bootstrap sample, and the 2.5th and 97.5th percentiles of the bootstrap metrics are reported.
+Hold-out metric intervals in `test_bootstrap_ci.csv` summarize prediction performance on the `10714` evaluation rows. Rows are resampled with replacement for each model, metrics are recomputed for each bootstrap sample, and the 2.5th and 97.5th percentiles are reported.
 
 Paired-difference intervals in `paired_tests_by_runs.csv` and `test_paired_error_tests.csv` summarize model-to-model differences. For hold-out error comparisons, the paired difference is:
 
@@ -72,7 +72,7 @@ Paired-difference intervals in `paired_tests_by_runs.csv` and `test_paired_error
 diff_i = |y_i - yhat_A_i| - |y_i - yhat_B_i|
 ```
 
-The paired-difference interval is obtained by bootstrapping the paired differences and taking the 2.5th and 97.5th percentiles of the bootstrap mean differences. Intervals that include zero indicate that the observed average difference is small relative to its bootstrap uncertainty.
+The paired-difference interval is obtained by bootstrapping the paired differences and taking the 2.5th and 97.5th percentiles of the bootstrap mean differences. Intervals crossing zero indicate a small average difference relative to bootstrap uncertainty.
 
 ### Significance Testing
 
@@ -100,7 +100,7 @@ This is applied to:
 
 ## Repository Workflow
 
-The repository currently contains a statistics workspace under [`statistics/`](../statistics/README.md):
+The statistics workspace is under [`statistics/`](../statistics/README.md):
 
 - `statistics/statistical_analysis_from_xlsx.py`
   - post-processes archived experiment records and committed CSV datasets
@@ -116,102 +116,31 @@ The repository currently contains a statistics workspace under [`statistics/`](.
   - reads generated CSV tables
   - writes `statistics/outputs/statistical_analysis_report.md`
 
-The repository tracks the generated statistical summary tables, markdown report, and PNG residual figures used for public inspection. Large or local-only generated artifacts, including the workbook export, row-level prediction table, local Excel source workbook, and hold-out reproduction row dumps, are regenerated locally.
+The repository tracks the generated summary tables, markdown report, and PNG residual figures. Large or local-only artifacts, including the workbook export, row-level prediction table, local Excel source workbook, and hold-out reproduction row dumps, are regenerated locally.
 
-## Generated Result Tables
+## Result Package
 
-Running `python statistics/statistical_analysis_from_xlsx.py` produces structured statistical tables under `statistics/outputs/` from archived experiment records.
+The generated result package is [`statistics/outputs/statistical_analysis_report.md`](../statistics/outputs/statistical_analysis_report.md). It contains the summary tables, pairwise tests, residual diagnostics, WQI-band error summaries, and rendered residual figures.
 
-Key outputs:
+Table-level outputs:
 
 - `metric_ci_by_runs.csv`
-  - repeated-run confidence intervals by `sample_size`, `model`, and metric
 - `paired_tests_by_runs.csv`
-  - paired significance tests for repeated benchmark runs
 - `test_prediction_metrics.csv`
-  - point estimates on the `10714` hold-out rows
 - `test_bootstrap_ci.csv`
-  - bootstrap confidence intervals for hold-out metrics
 - `test_paired_error_tests.csv`
-  - paired absolute-error tests on the `10714`-sample inference evaluation set
 - `error_by_wqi_band.csv`
-  - hold-out regression errors stratified by actual WQI band
 - `residual_diagnostics.csv`
-  - residual mean, std, skewness, kurtosis, and KS normality statistics
 - `dataset_distribution_robustness.csv`
-  - subset-vs-full distribution shift summaries
 - `sample_size_stability.csv`
-  - monotonic trend summaries across sample sizes
-- `statistical_analysis_outputs.xlsx`
-  - workbook export containing the same generated tables
-
-The hold-out reconstruction workflow also produces:
-
-- `holdout_reproduction/holdout_10714.csv`
-  - reproducible extraction of the `10714` tail rows
-- `holdout_reproduction/holdout_prediction_reproduction_comparison.csv`
-  - comparison between Excel-recorded predictions and reproduced predictions from saved model artifacts
-- `holdout_reproduction/holdout_reproduction_summary.csv`
-  - compact reproduction summary by model
-
-Residual plotting workflow:
-
-```bash
-python scripts/generate_residual_plots.py
-```
-
-This generates:
-
-- `figures/residual_overview.png`
-- `figures/residual_qq_overview.png`
-- `figures/residual_lightgbm.png`
-- `figures/residual_diagnostics_lightgbm.png`
-- `figures/residual_xgboost.png`
-- `figures/residual_diagnostics_xgboost.png`
-- `figures/residual_rf.png`
-- `figures/residual_diagnostics_rf.png`
-- `figures/residual_svm.png`
-- `figures/residual_diagnostics_svm.png`
-- `figures/residual_mpr.png`
-- `figures/residual_diagnostics_mpr.png`
-- `figures/residual_lr.png`
-- `figures/residual_diagnostics_lr.png`
 
 ## Residual Figures
 
-### Overview
+The full report embeds all generated residual figures. The overview panels are shown here for quick reference.
 
 ![Residual overview](../statistics/outputs/figures/residual_overview.png)
 
 ![Residual Q-Q overview](../statistics/outputs/figures/residual_qq_overview.png)
-
-### Model Diagnostics
-
-![LightGBM residual diagnostics](../statistics/outputs/figures/residual_diagnostics_lightgbm.png)
-
-![XGBoost residual diagnostics](../statistics/outputs/figures/residual_diagnostics_xgboost.png)
-
-![RF residual diagnostics](../statistics/outputs/figures/residual_diagnostics_rf.png)
-
-![SVM residual diagnostics](../statistics/outputs/figures/residual_diagnostics_svm.png)
-
-![MPR residual diagnostics](../statistics/outputs/figures/residual_diagnostics_mpr.png)
-
-![LR residual diagnostics](../statistics/outputs/figures/residual_diagnostics_lr.png)
-
-### Residual Histograms
-
-![LightGBM residual histogram](../statistics/outputs/figures/residual_lightgbm.png)
-
-![XGBoost residual histogram](../statistics/outputs/figures/residual_xgboost.png)
-
-![RF residual histogram](../statistics/outputs/figures/residual_rf.png)
-
-![SVM residual histogram](../statistics/outputs/figures/residual_svm.png)
-
-![MPR residual histogram](../statistics/outputs/figures/residual_mpr.png)
-
-![LR residual histogram](../statistics/outputs/figures/residual_lr.png)
 
 ## Reporting Conventions
 

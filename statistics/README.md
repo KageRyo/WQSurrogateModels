@@ -71,59 +71,25 @@ python scripts/generate_residual_plots.py
 
 This writes per-model residual diagnostics and overview panels into `statistics/outputs/figures/`.
 
-## What The Statistics Outputs Cover
+## Public Outputs
 
-The generated tables and figures are intended to support questions about:
+The main result package is [`outputs/statistical_analysis_report.md`](outputs/statistical_analysis_report.md). It includes the summary tables, confidence intervals, pairwise tests, residual diagnostics, WQI-band error summaries, and rendered figures.
 
-- confidence intervals
-  - run-level `95%` intervals for repeated subset-benchmark metric logs
-  - row-level bootstrap `95%` intervals for the `10714` hold-out prediction records
-- significance testing
-  - paired Wilcoxon signed-rank tests
-  - Holm-adjusted p-values
-  - paired bootstrap difference intervals
-- residual statistics
-  - residual mean
-  - residual standard deviation
-  - residual skewness
-  - residual kurtosis
-  - KS-based normality statistics
-- robustness analysis
-  - sample-size sensitivity
-  - subset-vs-full distribution shift
-  - WQI-band error summaries
+The method definitions are documented in [`../docs/statistical-analysis.md`](../docs/statistical-analysis.md). Generated CSV files under `outputs/` provide the table-level data used by the report.
 
-The main analysis treats WQI5 score estimation as a regression task. WQI-band summaries use the backend category configuration used by WaterMirror: `Excellent`, `Good`, `Fair`, `Poor`, `Bad`, and `Terrible`.
+Tracked generated outputs:
 
-## Interval Interpretation
-
-- `metric_ci_by_runs.csv`: run-level intervals computed as `mean +/- t_(0.975, n-1) * sample_std / sqrt(n)` from repeated benchmark metric logs.
-- `test_bootstrap_ci.csv`: row-level bootstrap intervals computed by resampling the `10714` hold-out prediction rows and recomputing `R²`, `MAE`, `RMSE`, and `MPA`.
-- `paired_tests_by_runs.csv`: paired model-difference intervals computed from repeated-run metric differences.
-- `test_paired_error_tests.csv`: paired model-difference intervals computed from absolute-error differences on the `10714`-sample inference evaluation set, `|y_i - yhat_A_i| - |y_i - yhat_B_i|`.
-
-Intervals describe uncertainty in the reported estimate under the available archived runs or hold-out rows. Paired-difference intervals that include zero indicate that the average model-to-model difference is small relative to its bootstrap uncertainty.
-
-Relevant generated files:
-
+- `outputs/statistical_analysis_report.md`
 - `outputs/metric_ci_by_runs.csv`
 - `outputs/paired_tests_by_runs.csv`
+- `outputs/test_prediction_metrics.csv`
 - `outputs/test_bootstrap_ci.csv`
 - `outputs/test_paired_error_tests.csv`
 - `outputs/residual_diagnostics.csv`
 - `outputs/sample_size_stability.csv`
 - `outputs/dataset_distribution_robustness.csv`
 - `outputs/error_by_wqi_band.csv`
-- `outputs/statistical_analysis_report.md`
 - `outputs/figures/*.png`
-- `outputs/figures/residual_overview.png`
-- `outputs/figures/residual_qq_overview.png`
-
-The rendered report includes the tracked figures directly:
-
-![Residual overview](outputs/figures/residual_overview.png)
-
-![Residual Q-Q overview](outputs/figures/residual_qq_overview.png)
 
 ## Notes
 

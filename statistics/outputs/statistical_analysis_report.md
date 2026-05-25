@@ -2,9 +2,9 @@
 
 ## Scope
 
-This summary reports statistical checks for WQI5 surrogate regression. The source records are the archived experiment workbook and the committed CSV datasets under `data/`. The analysis is a post-processing workflow: it does not retrain model artifacts, and derived metrics are recomputed from the recorded actual and predicted values.
+This summary covers statistical post-processing for the WQI5 surrogate-regression results. Inputs are the archived experiment workbook and the committed datasets under `data/`. The scripts recompute derived metrics from recorded actual and predicted values; model artifacts are not retrained here.
 
-The primary task is continuous WQI5 score estimation. Reported hold-out metrics include R2, MAE, RMSE, residual diagnostics, and Mean Predictive Accuracy (MPA):
+The task is continuous WQI5 score estimation. Hold-out results are reported with R2, MAE, RMSE, residual diagnostics, and Mean Predictive Accuracy (MPA):
 
 ```text
 MPA (%) = mean_i [(1 - |y_i - yhat_i| / y_i) * 100]
@@ -14,22 +14,22 @@ For positive reference scores, MPA is equivalent to `100% - MAPE(%)`.
 
 ## Confidence Intervals and Tests
 
-- Run-level 95% intervals summarize repeated subset-benchmark metric logs.
-- Row-level bootstrap 95% intervals summarize the 10,714-record hold-out prediction set for R2, MAE, RMSE, and MPA.
-- Model comparisons use paired Wilcoxon signed-rank tests on absolute errors, followed by Holm correction.
+- Run-level 95% intervals summarize repeated subset-benchmark logs.
+- Row-level bootstrap 95% intervals summarize R2, MAE, RMSE, and MPA on the 10,714-record inference set.
+- Pairwise model tests use Wilcoxon signed-rank tests on paired absolute errors, followed by Holm correction.
 - Reported p-values smaller than floating-point reporting precision are shown as `<1e-300`.
 
 ### Interval Definitions
 
-`metric_ci_by_runs.csv` reports run-level intervals computed as `mean +/- t_(0.975, n-1) * sample_std / sqrt(n)` from repeated benchmark metric logs. When only one run is available, the point estimate is reported and the interval bounds are left empty.
+`metric_ci_by_runs.csv` contains run-level intervals computed as `mean +/- t_(0.975, n-1) * sample_std / sqrt(n)` from repeated benchmark logs. When only one run is available, only the point estimate is shown.
 
-`test_bootstrap_ci.csv` reports row-level bootstrap intervals. For each model, the 10,714 hold-out rows are resampled with replacement, the metric is recomputed on each bootstrap sample, and the 2.5th and 97.5th percentiles are reported.
+`test_bootstrap_ci.csv` contains row-level bootstrap intervals. For each model, the 10,714 evaluation rows are resampled with replacement; each bootstrap sample is scored again, and the 2.5th and 97.5th percentiles are reported.
 
-`test_paired_error_tests.csv` reports paired absolute-error differences on the inference evaluation set. For each row, `diff_i = |y_i - yhat_A_i| - |y_i - yhat_B_i|`; the interval is the 2.5th to 97.5th percentile range of bootstrapped mean differences. A negative mean difference means model A has lower average absolute error; a positive mean difference means model B has lower average absolute error. Intervals that include zero indicate that the average difference is small relative to its bootstrap uncertainty.
+`test_paired_error_tests.csv` contains paired absolute-error differences on the inference set. For each row, `diff_i = |y_i - yhat_A_i| - |y_i - yhat_B_i|`. The interval is the 2.5th to 97.5th percentile range of bootstrapped mean differences. Negative values favor model A; positive values favor model B. Intervals crossing zero indicate a small average difference relative to bootstrap uncertainty.
 
 ## Best Validation RMSE by Sample Size
 
-The run count is the number of repeated benchmark records available for the selected sample size and model in the archived experiment log.
+The run count is the number of repeated benchmark records available for that sample size and model.
 
 | Sample size | Best model | Mean RMSE | 95% CI | Repeated benchmark runs (n) |
 | --- | --- | --- | --- | --- |
@@ -53,7 +53,7 @@ The run count is the number of repeated benchmark records available for the sele
 
 ## Pairwise Error Tests on the 10,714-Sample Inference Evaluation Set
 
-Each comparison uses paired absolute errors from the same evaluation rows. The reported difference is `model A absolute error - model B absolute error`.
+Each row compares paired absolute errors from the same evaluation records. The difference is `model A absolute error - model B absolute error`.
 
 | Comparison | Mean absolute-error difference (A - B) | Bootstrap 95% CI for mean difference | Wilcoxon p | Holm p | Lower mean error |
 | --- | --- | --- | --- | --- | --- |
@@ -77,7 +77,7 @@ The full pairwise table is available in `statistics/outputs/test_paired_error_te
 | MPR | -3.0470 | 7.1141 | 0.3797 | 0.2470 | 4.751e-34 |
 | LR | -0.0148 | 8.0285 | 0.3658 | 0.6604 | 6.095e-14 |
 
-The KS p-values indicate departures from normal residual distributions. The residual statistics are used as diagnostics for bias, dispersion, asymmetry, and tail behavior.
+The KS p-values indicate departures from normal residual distributions. The remaining residual statistics summarize bias, dispersion, asymmetry, and tail behavior.
 
 ## Residual Figures
 
@@ -117,7 +117,7 @@ The KS p-values indicate departures from normal residual distributions. The resi
 
 ## Error by WQI Band
 
-WQI bands follow the backend category configuration used by the WaterMirror API: Excellent, Good, Fair, Poor, Bad, and Terrible. These rows describe regression error within each actual WQI band. The 10,714-record hold-out set contains no Excellent rows.
+WQI bands follow the backend category configuration used by the WaterMirror API: Excellent, Good, Fair, Poor, Bad, and Terrible. The rows below summarize regression error within each actual WQI band. The 10,714-record hold-out set contains no Excellent rows.
 
 | Actual WQI band | Lowest-MAE model | n | MAE | RMSE | Bias | MPA (%) |
 | --- | --- | --- | --- | --- | --- | --- |
