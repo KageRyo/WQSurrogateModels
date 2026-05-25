@@ -4,7 +4,7 @@
 
 This summary covers statistical post-processing for the WQI5 surrogate-regression results. Inputs are the archived experiment workbook and the committed datasets under `data/`. The scripts recompute derived metrics from recorded actual and predicted values; model artifacts are not retrained here.
 
-The task is continuous WQI5 score estimation. Hold-out results are reported with R2, MAE, RMSE, residual diagnostics, and Mean Predictive Accuracy (MPA):
+The task is continuous WQI5 score estimation. Inference evaluation results are reported with R2, MAE, RMSE, residual diagnostics, and Mean Predictive Accuracy (MPA):
 
 ```text
 MPA (%) = mean_i [(1 - |y_i - yhat_i| / y_i) * 100]
@@ -40,7 +40,7 @@ The run count is the number of repeated benchmark records available for that sam
 | 20000 | LightGBM | 0.6599 | [0.5621, 0.7577] | 4 |
 | 50000 | LightGBM | 0.6174 | NA | 1 |
 
-## Hold-out Prediction Metrics
+## Inference Evaluation Metrics
 
 | Model | R2 | MAE | RMSE | MPA (%) | R2 95% CI | MAE 95% CI | RMSE 95% CI | MPA 95% CI |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -117,9 +117,9 @@ The KS p-values indicate departures from normal residual distributions. The rema
 
 ## Error by WQI Band
 
-WQI bands follow the backend category configuration used by the WaterMirror API: Excellent, Good, Fair, Poor, Bad, and Terrible. The rows below summarize regression error within each actual WQI band. The 10,714-record hold-out set contains no Excellent rows.
+WQI bands follow the backend category configuration used by the WaterMirror API: Excellent, Good, Fair, Poor, Bad, and Terrible. The rows below summarize regression error within each actual WQI band; `Evaluation records (n)` is the number of evaluation rows in that band. The 10,714-record inference evaluation set contains no Excellent rows.
 
-| Actual WQI band | Lowest-MAE model | n | MAE | RMSE | Bias | MPA (%) |
+| Actual WQI band | Lowest-MAE model | Evaluation records (n) | MAE | RMSE | Bias | MPA (%) |
 | --- | --- | --- | --- | --- | --- | --- |
 | Good | RF | 1535 | 0.0675 | 0.2694 | 0.0231 | 99.9053 |
 | Fair | RF | 5463 | 0.2876 | 0.5377 | -0.0602 | 99.4957 |

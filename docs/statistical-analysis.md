@@ -52,7 +52,7 @@ Covered metrics include:
 - `RMSE`
 - `Mean Predictive Accuracy (MPA)`
 
-The hold-out bootstrap intervals cover the continuous regression metrics listed above.
+The row-level bootstrap intervals cover the continuous regression metrics listed above.
 
 ### Interval Definitions
 
@@ -64,9 +64,9 @@ mean +/- t_(0.975, n-1) * sample_std / sqrt(n)
 
 These intervals describe variation across repeated runs. When only one run is available, only the point estimate is shown.
 
-Hold-out metric intervals in `test_bootstrap_ci.csv` summarize prediction performance on the `10714` evaluation rows. Rows are resampled with replacement for each model, metrics are recomputed for each bootstrap sample, and the 2.5th and 97.5th percentiles are reported.
+Inference-evaluation metric intervals in `test_bootstrap_ci.csv` summarize prediction performance on the `10714` evaluation rows. Rows are resampled with replacement for each model, metrics are recomputed for each bootstrap sample, and the 2.5th and 97.5th percentiles are reported.
 
-Paired-difference intervals in `paired_tests_by_runs.csv` and `test_paired_error_tests.csv` summarize model-to-model differences. For hold-out error comparisons, the paired difference is:
+Paired-difference intervals in `paired_tests_by_runs.csv` and `test_paired_error_tests.csv` summarize model-to-model differences. For inference-evaluation error comparisons, the paired difference is:
 
 ```text
 diff_i = |y_i - yhat_A_i| - |y_i - yhat_B_i|
@@ -84,13 +84,13 @@ The paired-difference interval is obtained by bootstrapping the paired differenc
 This is applied to:
 
 - repeated subset-benchmark validation metrics
-- hold-out absolute-error comparisons on the `10714` rows
+- inference-evaluation absolute-error comparisons on the `10714` rows
 
 ### Robustness Analysis
 
 - sample-size sensitivity across `100 / 1000 / 5000 / 10000 / 20000 / 50000`
 - distribution-shift checks between each subset and the full `60714`-row dataset
-- WQI-band error analysis on the `10714` hold-out rows
+- WQI-band error analysis on the `10714` inference evaluation rows
 - residual diagnostics including:
   - residual mean
   - residual standard deviation
@@ -107,8 +107,8 @@ The statistics workspace is under [`statistics/`](../statistics/README.md):
   - writes generated tables into `statistics/outputs/`
   - does not retrain model artifacts
 - `scripts/reproduce_holdout_10714.py`
-  - reconstructs the `10714` hold-out rows from `data/dataV1.csv` and `data/dataV1_50000.csv`
-  - validates the hold-out source rows against the Excel `10714筆測試` sheet
+  - reconstructs the `10714` inference evaluation rows from `data/dataV1.csv` and `data/dataV1_50000.csv`
+  - validates the evaluation source rows against the Excel `10714筆測試` sheet
 - `scripts/generate_residual_plots.py`
   - reads `statistics/outputs/test_predictions_long.csv`
   - generates per-model residual figures and overview panels under `statistics/outputs/figures/`
@@ -116,7 +116,7 @@ The statistics workspace is under [`statistics/`](../statistics/README.md):
   - reads generated CSV tables
   - writes `statistics/outputs/statistical_analysis_report.md`
 
-The repository tracks the generated summary tables, markdown report, and PNG residual figures. Large or local-only artifacts, including the workbook export, row-level prediction table, local Excel source workbook, and hold-out reproduction row dumps, are regenerated locally.
+The repository tracks the generated summary tables, markdown report, and PNG residual figures. Large or local-only artifacts, including the workbook export, row-level prediction table, local Excel source workbook, and inference-evaluation reproduction row dumps, are regenerated locally.
 
 ## Result Package
 
