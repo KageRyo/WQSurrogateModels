@@ -1,6 +1,6 @@
 # Metrics
 
-This repository models `Score` as a regression target. Therefore, the term `accuracy` must not be interpreted as classification accuracy unless explicitly labeled as category accuracy.
+This repository models `Score` as a continuous WQI5 regression target.
 
 ## Regression Metrics
 
@@ -19,38 +19,34 @@ residual_i = y_i - ŷ_i
 
 where `y_i` is the reference WQI5 score and `ŷ_i` is the model-estimated WQI5 score.
 
-## Relative Accuracy
+## Mean Predictive Accuracy
 
-For archived manuscript experiments, relative accuracy should be defined as:
+`Mean Predictive Accuracy (MPA)` is a percentage-based regression metric computed from sample-wise relative prediction error:
 
 ```text
-Relative Accuracy_i (%) = (1 - |y_i - ŷ_i| / y_i) * 100
+Predictive Accuracy_i (%) = (1 - |y_i - ŷ_i| / y_i) * 100
+MPA (%) = mean_i(Predictive Accuracy_i)
 ```
 
-Therefore:
-
-- `Mean Relative Accuracy (%)` is the average sample-wise relative accuracy.
-- `Std. of Relative Accuracy (%)` is the standard deviation of sample-wise relative accuracy.
+`MPA (%)` is the average sample-wise predictive accuracy. The metric is defined for positive reference scores.
 
 When `y_i > 0`, this metric is equivalent to:
 
 ```text
-Mean Relative Accuracy (%) = 100% - MAPE(%)
+MPA (%) = 100% - MAPE(%)
 ```
 
-This metric should be reported together with `R²`, `MAE`, and `RMSE`, not as a replacement for them.
+The statistical outputs report MPA together with `R²`, `MAE`, and `RMSE`.
 
-## Category Metrics
+## WQI Bands
 
-If predicted continuous scores are converted into WQI5 categories, the following classification-style metrics may also be reported:
+WQI5 scores are mapped to six backend categories for API responses and WaterMirror display:
 
-- `Category Accuracy`
-- `Macro-F1`
+- `Excellent`: `85 < WQI5 <= 100`
+- `Good`: `70 < WQI5 <= 85`
+- `Fair`: `50 < WQI5 <= 70`
+- `Poor`: `30 < WQI5 <= 50`
+- `Bad`: `15 < WQI5 <= 30`
+- `Terrible`: `0 <= WQI5 <= 15`
 
-These metrics evaluate agreement after mapping continuous scores into category bands. They do not convert the main task into a native classification problem.
-
-## Reporting Guidance
-
-- Use `regression metrics` when discussing continuous WQI5 score estimation.
-- Use `category metrics` only when explicitly evaluating post-hoc category agreement.
-- Avoid using the unlabeled word `accuracy` by itself in revised manuscripts. Prefer `mean relative accuracy` or `category accuracy`.
+The statistical outputs include regression error summaries stratified by actual WQI band.

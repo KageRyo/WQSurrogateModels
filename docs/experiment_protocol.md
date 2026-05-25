@@ -50,11 +50,7 @@ Regression metrics:
 - `MAE`
 - `RMSE`
 - `NMAE`
-
-Category metrics:
-
-- `Accuracy`
-- `Macro-F1`
+- `Mean Predictive Accuracy (MPA)`
 
 Operational metrics:
 
@@ -62,7 +58,7 @@ Operational metrics:
 - residual mean
 - residual standard deviation
 
-Use [metrics.md](metrics.md) for the definition of `mean relative accuracy` and for guidance on separating regression metrics from category metrics.
+Use [metrics.md](metrics.md) for the definition of `Mean Predictive Accuracy (MPA)` and for guidance on separating regression metrics from WQI-band summaries.
 
 ## Outputs
 
