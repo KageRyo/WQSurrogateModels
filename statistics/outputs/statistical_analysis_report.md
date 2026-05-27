@@ -138,20 +138,6 @@ The remaining residual statistics summarize bias, dispersion, asymmetry, and tai
 
 ![LR residual diagnostics](figures/residual_diagnostics_lr.png)
 
-### Residual Histograms
-
-![LightGBM residual histogram](figures/residual_lightgbm.png)
-
-![XGBoost residual histogram](figures/residual_xgboost.png)
-
-![RF residual histogram](figures/residual_rf.png)
-
-![SVM residual histogram](figures/residual_svm.png)
-
-![MPR residual histogram](figures/residual_mpr.png)
-
-![LR residual histogram](figures/residual_lr.png)
-
 ## Error by WQI Band
 
 WQI bands follow the backend category configuration used by the WaterMirror API:
@@ -182,12 +168,6 @@ The 10,714-record inference evaluation set contains no Excellent rows.
 - `sample_size_stability.csv`
 - `figures/residual_overview.png`
 - `figures/residual_qq_overview.png`
-- `figures/residual_lightgbm.png`
-- `figures/residual_xgboost.png`
-- `figures/residual_rf.png`
-- `figures/residual_svm.png`
-- `figures/residual_mpr.png`
-- `figures/residual_lr.png`
 - `figures/residual_diagnostics_lightgbm.png`
 - `figures/residual_diagnostics_xgboost.png`
 - `figures/residual_diagnostics_rf.png`
