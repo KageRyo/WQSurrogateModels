@@ -60,6 +60,25 @@ supports `device_type="gpu"` through the OpenCL backend, while
 `device_type="cuda"` requires a LightGBM build compiled with CUDA support.
 The scikit-learn models in this workflow remain CPU-based.
 
+## Reduced-Indicator Experiment
+
+The reduced-indicator experiment is the primary revision experiment for
+addressing why a machine-learning surrogate is useful when WQI5 is deterministic.
+It evaluates surrogate regressors when one or more indicators are removed to
+simulate incomplete, delayed, or low-cost sensing.
+
+Run:
+
+```bash
+python scripts/reproduce_reduced_indicators.py \
+  --config configs/reduced_indicator_config.yaml \
+  --output-dir results_reduced_indicators
+```
+
+See [reduced-indicator-analysis.md](reduced-indicator-analysis.md). Direct WQI5
+is treated as the complete-input reference and is not reported for reduced-input
+scenarios.
+
 ## Metrics
 
 Regression metrics:

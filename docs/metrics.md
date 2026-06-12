@@ -36,7 +36,9 @@ When `y_i > 0`, this metric is equivalent to:
 MPA (%) = 100% - MAPE(%)
 ```
 
-The statistical outputs report MPA together with `R²`, `MAE`, and `RMSE`.
+MPA is not used as a primary metric in the revised reviewer-response
+experiments. Primary reporting should use `R²`, `MAE`, `RMSE`, `NMAE`, residual
+statistics, WQI-band accuracy / macro-F1, and runtime.
 
 ## WQI Bands
 
