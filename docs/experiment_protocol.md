@@ -42,6 +42,24 @@ The task is not forecasting. The committed dataset has no timestamp field.
 
 If `xgboost` or `lightgbm` is missing from the runtime environment, treat that as an environment setup failure rather than silently dropping the model from the configured experiment.
 
+By default, the reproducibility script runs on CPU to preserve portability. GPU
+execution can be enabled for supported gradient boosting models only:
+
+```bash
+python scripts/reproduce_results.py \
+  --config configs/experiment_config.yaml \
+  --output-dir results_gpu \
+  --compute-device gpu \
+  --gpu-id 0 \
+  --overwrite
+```
+
+`xgboost` uses CUDA through `device="cuda:<gpu_id>"` and `tree_method="hist"`.
+The installed LightGBM package should be verified before use; this environment
+supports `device_type="gpu"` through the OpenCL backend, while
+`device_type="cuda"` requires a LightGBM build compiled with CUDA support.
+The scikit-learn models in this workflow remain CPU-based.
+
 ## Metrics
 
 Regression metrics:

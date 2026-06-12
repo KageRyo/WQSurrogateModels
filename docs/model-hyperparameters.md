@@ -16,6 +16,13 @@ The current reproducibility workflow uses the following main settings:
 | `xgboost` | xgboost | mean imputation | `n_estimators=300`, `max_depth=6`, `learning_rate=0.05`, `subsample=0.9`, `colsample_bytree=0.9`, `random_state=0` |
 | `lightgbm` | lightgbm | mean imputation | `n_estimators=300`, `learning_rate=0.05`, `random_state=0` |
 
+GPU execution is optional and disabled by default. When
+`--compute-device gpu` is used, only `xgboost` and `lightgbm` receive GPU
+parameters. `xgboost` uses `tree_method="hist"` and `device="cuda:<gpu_id>"`.
+LightGBM uses `device_type="gpu"` by default because the current environment's
+installed package supports the OpenCL GPU backend but not the CUDA tree learner.
+The scikit-learn models remain CPU-based in this reproducibility workflow.
+
 ## Archived Exploratory Scripts
 
 The archived training scripts under `src/training/` reflect an earlier exploratory workflow.
