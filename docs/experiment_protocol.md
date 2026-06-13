@@ -98,6 +98,53 @@ python scripts/run_revision_missing_indicator_experiments.py \
 
 See [missing-indicator-revision-experiments.md](missing-indicator-revision-experiments.md).
 
+## Missing-Indicator Robustness Suite
+
+The robustness suite extends the missing-indicator revision workflow by adding
+single-indicator missing settings and a localized external hold-out stress test.
+It evaluates:
+
+- `missing_bod`: BOD unavailable.
+- `missing_nh3n`: NH3N unavailable.
+- `missing_bod_nh3n`: BOD and NH3N unavailable.
+
+For each missing setting, the workflow reports:
+
+- `inference_dropout`: complete-input model evaluated with selected indicators
+  set to missing at inference time.
+- `reduced_retraining`: model trained and evaluated only with available
+  indicators.
+- `indicator_reconstruction`: missing indicator(s) reconstructed from available
+  indicators before WQI5 surrogate inference.
+
+The suite also adds a controlled event-window stress test over the middle `1%`
+of the fixed `10,714`-row external hold-out set and a separate CPU-only
+inference timing workflow from saved artifacts.
+
+Run:
+
+```bash
+python scripts/run_missing_indicator_robustness_experiments.py \
+  --config configs/missing_indicator_robustness_config.yaml \
+  --output-dir results_missing_indicator_robustness_YYYYMMDD
+```
+
+Measure CPU-only inference timing:
+
+```bash
+python scripts/measure_missing_indicator_cpu_timing.py \
+  --output-dir results_missing_indicator_robustness_YYYYMMDD
+```
+
+Export the workbook:
+
+```bash
+python scripts/export_missing_indicator_robustness_excel.py \
+  --output-dir results_missing_indicator_robustness_YYYYMMDD
+```
+
+See [missing-indicator-robustness-experiments.md](missing-indicator-robustness-experiments.md).
+
 ## Metrics
 
 Regression metrics:

@@ -125,6 +125,7 @@ Legacy compatibility endpoints such as `POST /predict`, `POST /score/total/`, an
 - [Original Benchmark Protocol](docs/original-benchmark-protocol.md)
 - [Revised Experiment Protocol](docs/experiment_protocol.md)
 - [Missing-Indicator Revision Experiments](docs/missing-indicator-revision-experiments.md)
+- [Missing-Indicator Robustness Experiments](docs/missing-indicator-robustness-experiments.md)
 - [Statistical Analysis](docs/statistical-analysis.md)
 - [Statistics Workspace Notes](statistics/README.md)
 - [Model Hyperparameters](docs/model-hyperparameters.md)
@@ -163,6 +164,21 @@ python scripts/run_revision_missing_indicator_experiments.py \
 This workflow saves model artifacts, internal-test predictions, external
 `10,714`-row inference predictions, summary metrics, confidence intervals,
 paired tests, and stress-scenario summaries into the selected output directory.
+
+Run the missing-indicator robustness workflow with single-indicator missing
+settings, event-window stress testing, and CPU-only timing support:
+
+```bash
+python scripts/run_missing_indicator_robustness_experiments.py \
+  --config configs/missing_indicator_robustness_config.yaml \
+  --output-dir results_missing_indicator_robustness_YYYYMMDD
+
+python scripts/measure_missing_indicator_cpu_timing.py \
+  --output-dir results_missing_indicator_robustness_YYYYMMDD
+
+python scripts/export_missing_indicator_robustness_excel.py \
+  --output-dir results_missing_indicator_robustness_YYYYMMDD
+```
 
 ### Reproducibility Hyperparameters
 
