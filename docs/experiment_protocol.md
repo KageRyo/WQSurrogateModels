@@ -79,6 +79,25 @@ See [reduced-indicator-analysis.md](reduced-indicator-analysis.md). Direct WQI5
 is treated as the complete-input reference and is not reported for reduced-input
 scenarios.
 
+## Missing-Indicator Revision Suite
+
+The missing-indicator revision suite uses `data/dataV1_50000.csv` for
+stratified `80/20` training and internal testing, then evaluates the trained
+models on the `10,714` rows in `data/dataV1.csv` that are not present in the
+50,000-row subset.
+
+Run:
+
+```bash
+python scripts/run_revision_missing_indicator_experiments.py \
+  --config configs/revision_missing_indicator_config.yaml \
+  --output-dir results_revision_missing_indicators_20260613_gpu \
+  --compute-device gpu \
+  --gpu-id 0
+```
+
+See [missing-indicator-revision-experiments.md](missing-indicator-revision-experiments.md).
+
 ## Metrics
 
 Regression metrics:

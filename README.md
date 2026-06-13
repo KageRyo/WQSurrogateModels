@@ -124,6 +124,7 @@ Legacy compatibility endpoints such as `POST /predict`, `POST /score/total/`, an
 - [Data Preparation](docs/data_preparation.md)
 - [Original Benchmark Protocol](docs/original-benchmark-protocol.md)
 - [Revised Experiment Protocol](docs/experiment_protocol.md)
+- [Missing-Indicator Revision Experiments](docs/missing-indicator-revision-experiments.md)
 - [Statistical Analysis](docs/statistical-analysis.md)
 - [Statistics Workspace Notes](statistics/README.md)
 - [Model Hyperparameters](docs/model-hyperparameters.md)
@@ -148,6 +149,20 @@ python scripts/reproduce_results.py --config configs/experiment_config.yaml --ou
 ```
 
 To protect archived manuscript outputs, the script now refuses to overwrite an existing results directory unless `--overwrite` is passed explicitly.
+
+Run the missing-indicator revision experiments:
+
+```bash
+python scripts/run_revision_missing_indicator_experiments.py \
+  --config configs/revision_missing_indicator_config.yaml \
+  --output-dir results_revision_missing_indicators_20260613_gpu \
+  --compute-device gpu \
+  --gpu-id 0
+```
+
+This workflow saves model artifacts, internal-test predictions, external
+`10,714`-row inference predictions, summary metrics, confidence intervals,
+paired tests, and stress-scenario summaries into the selected output directory.
 
 ### Reproducibility Hyperparameters
 
