@@ -61,6 +61,14 @@ python scripts/run_revision_missing_indicator_experiments.py \
 The script refuses to overwrite an output directory that already contains files
 unless `--overwrite` is passed explicitly.
 
+If training and primary prediction outputs have completed but derived
+statistics need to be regenerated, run:
+
+```bash
+python scripts/finalize_revision_missing_indicator_outputs.py \
+  --output-dir results_revision_missing_indicators_20260613_gpu
+```
+
 ## Outputs
 
 The output directory contains:
@@ -79,9 +87,10 @@ The output directory contains:
 - `metrics/stage1_reconstruction_metrics.csv`: BOD and NH3N reconstruction
   metrics for the two-stage workflow.
 - `metrics/error_by_wqi_band.csv`: WQI-band error summaries.
-- `stats/bootstrap_ci.csv`: row-level bootstrap confidence intervals.
-- `stats/paired_error_tests.csv`: paired Wilcoxon absolute-error comparisons
-  with Holm correction.
+- `stats/bootstrap_ci.csv`: seed-level bootstrap confidence intervals over
+  repeated splits.
+- `stats/paired_error_tests.csv`: paired Wilcoxon comparisons over per-seed
+  MAE with Holm correction.
 - `stress_tests/stress_summary.csv`: scenario-based stress-test response
   summaries.
 
