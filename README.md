@@ -166,7 +166,8 @@ This workflow saves model artifacts, internal-test predictions, external
 paired tests, and stress-scenario summaries into the selected output directory.
 
 Run the missing-indicator robustness workflow with single-indicator missing
-settings, event-window stress testing, and CPU-only timing support:
+settings, event-window stress testing, Stress107 sequential event-window stress,
+and CPU-only timing support:
 
 ```bash
 python scripts/run_missing_indicator_robustness_experiments.py \
@@ -176,9 +177,18 @@ python scripts/run_missing_indicator_robustness_experiments.py \
 python scripts/measure_missing_indicator_cpu_timing.py \
   --output-dir results_missing_indicator_robustness_YYYYMMDD
 
+python scripts/run_stress107_event_windows.py \
+  --artifact-dir results_missing_indicator_robustness_YYYYMMDD \
+  --output-dir results_missing_indicator_robustness_YYYYMMDD_stress107
+
 python scripts/export_missing_indicator_robustness_excel.py \
-  --output-dir results_missing_indicator_robustness_YYYYMMDD
+  --output-dir results_missing_indicator_robustness_YYYYMMDD_stress107
 ```
+
+Stress107 divides the external `10,714`-row hold-out into `107` consecutive
+event windows and applies 30%, 100%, and 300% synthetic perturbations. It should
+not be described as `107-fold cross-validation`; these are event locations, not
+training-validation folds.
 
 ### Reproducibility Hyperparameters
 

@@ -46,13 +46,49 @@ structure.
 
 ## Event-Window Stress Test
 
-The stress test uses the external `10,714`-row hold-out and perturbs only a
-localized event window. By default, the middle `1%` window is selected, which is
-approximately `107` rows. Rows outside the event window are left unchanged.
+The legacy localized stress test uses the external `10,714`-row hold-out and
+perturbs only a localized event window. The earlier default selected the middle
+`1%` window, which is approximately `107` rows. This setting is retained only as
+a backward-compatible configuration block and is disabled by default in the
+current robustness config.
+
+The revised stress analysis is the **Stress107 sequential event-window stress
+test**. It divides the external `10,714`-row hold-out into `107` consecutive,
+non-overlapping event windows. Each window contains approximately `1%` of the
+external samples. Each window is evaluated under low-, medium-, and
+high-severity synthetic perturbations:
+
+| Severity | Pollution indicators | DO |
+| --- | ---: | ---: |
+| `low_30pct` | `x1.30` | `x0.70` |
+| `medium_100pct` | `x2.00` | `x0.50` |
+| `high_300pct` | `x4.00` | `x0.30` |
+
+The default scenarios are:
+
+- `organic_pollution`: `BOD` increases and `DO` decreases.
+- `ammonia_pollution`: `NH3N` increases.
+- `suspended_solids_event`: `SS` increases.
+- `conductivity_event`: `EC` increases.
+- `combined_pollution`: `BOD`, `NH3N`, `SS`, and `EC` increase while `DO`
+  decreases.
+
+This should be described as a `107 sequential event-window stress test`, not as
+`107-fold cross-validation`, because the windows are perturbation locations, not
+training-validation folds.
 
 This is a controlled synthetic event-window stress test. It should not be
 described as real typhoon, rainfall, or pollution-event validation unless a
 timestamped real event dataset is added.
+
+The valid claim is that Stress107 reduces the concern that the stress-test
+conclusion depends on a single selected window. It does not prove that all
+sampling bias is impossible.
+
+When a scenario perturbs an indicator that is absent from a reduced-input
+setting, reduced sensitivity is expected. For example, `missing_nh3n` settings
+should not be expected to fully detect `ammonia_pollution` from `NH3N` because
+`NH3N` is not available to that model.
 
 ## CPU-Only Timing
 
@@ -110,6 +146,13 @@ The output directory is organized as:
 - `stats/bootstrap_ci.csv`: seed-level bootstrap confidence intervals.
 - `stats/paired_error_tests.csv`: paired Wilcoxon comparisons over per-seed MAE.
 - `stress_tests/event_window_stress_summary.csv`: localized event-window stress responses.
+- `stress_tests/stress107_window_summary.csv`: window-level Stress107 responses.
+- `stress_tests/stress107_detection_summary.csv`: detection-rate summaries by
+  scenario, severity, model, and experiment mode.
+- `stress_tests/stress107_severity_monotonicity.csv`: checks whether the 30%,
+  100%, and 300% perturbations produce progressively larger score drops.
+- `stress_tests/stress107_key_conclusions.csv`: compact interpretation notes for
+  teacher/manuscript discussion.
 - `timing/cpu_only_inference_timing.csv`: raw CPU-only timing repeats.
 - `timing/cpu_only_inference_timing_summary.csv`: CPU-only timing summary.
 - `reports/missing_indicator_robustness_summary.xlsx`: formatted workbook.
