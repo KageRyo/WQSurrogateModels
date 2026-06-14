@@ -34,25 +34,32 @@ This repository does not perform temporal forecasting.
 - `xgboost`
 - `lightgbm`
 
-## Current Production Artifact
+## Current Production Artifacts
 
-The API production XGBoost artifact is:
+Production model binaries are local artifacts and are not committed to Git. The
+revision exports one complete-input API artifact for each surrogate model:
 
 ```text
+models/LightGBM/modelLGBMVer.2.0-revision-50000-seed0.pkl
+models/LR/modelLRVer.2.0-revision-50000-seed0.pkl
+models/MPR/modelMPRVer.2.0-revision-50000-seed3.pkl
+models/RF/modelRFVer.2.0-revision-50000-seed0.pkl
+models/SVM/modelSVMVer.2.0-revision-50000-seed3.pkl
 models/XGBoost/modelXGBVer.2.0-revision-50000-seed2.pkl
 ```
 
-It was selected as the lowest-MAE complete-input XGBoost seed artifact on the
-fixed external `10,714`-row hold-out in the revision 2026-06-14 result
+The committed manifest is `models/production_model_manifest.json`. Each entry is
+selected as the lowest-MAE complete-input seed artifact for that model type on
+the fixed external `10,714`-row hold-out in the revision 2026-06-14 result
 bundle.
 
-The production artifact is a complete-input WQI5 surrogate:
+The production artifacts are complete-input WQI5 surrogates:
 
 ```text
 DO, BOD, NH3N, EC, SS -> WQI5 score
 ```
 
-It is not a missing-indicator model. Missing-indicator experiment artifacts are
+They are not missing-indicator models. Missing-indicator experiment artifacts are
 kept as reproducibility outputs under ignored `results_*` folders and should not
 be copied into `models/` unless the API is explicitly extended to route those
 settings.

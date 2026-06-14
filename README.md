@@ -86,24 +86,37 @@ To also enable the full set of surrogate models (`xgboost`, `lightgbm`):
 pip install -e ".[dev,models]"
 ```
 
-## Production Model Artifact
+## Production Model Artifacts
 
-The current API production XGBoost artifact is:
+Production model binaries are local artifacts and are not committed to Git.
+The current revision exports one complete-input API artifact for each surrogate
+model:
 
 ```text
+models/LightGBM/modelLGBMVer.2.0-revision-50000-seed0.pkl
+models/LR/modelLRVer.2.0-revision-50000-seed0.pkl
+models/MPR/modelMPRVer.2.0-revision-50000-seed3.pkl
+models/RF/modelRFVer.2.0-revision-50000-seed0.pkl
+models/SVM/modelSVMVer.2.0-revision-50000-seed3.pkl
 models/XGBoost/modelXGBVer.2.0-revision-50000-seed2.pkl
 ```
 
-It was extracted from the revision complete-input `full_reference` XGBoost result
-with the lowest external `10,714`-row hold-out MAE. The artifact remains a
-complete-input WQI5 surrogate and requires:
+The committed manifest is:
+
+```text
+models/production_model_manifest.json
+```
+
+Each artifact is extracted from the revision complete-input `full_reference`
+result with the lowest external `10,714`-row hold-out MAE for that model type.
+These artifacts remain complete-input WQI5 surrogates and require:
 
 ```text
 DO, BOD, NH3N, EC, SS
 ```
 
-It should not be interpreted as a missing-indicator replacement model. Legacy
-XGBoost production artifacts are kept under `models/archive/legacy_v1/` for
+They should not be interpreted as missing-indicator replacement models. Legacy
+production artifacts are kept locally under `models/archive/legacy_v1/` for
 traceability, and experiment bundles remain under ignored `results_*` folders.
 
 ## Run
