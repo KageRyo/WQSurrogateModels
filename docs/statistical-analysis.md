@@ -26,9 +26,9 @@ Primary manuscript reporting uses:
 - WQI-band `Macro-F1`
 - residual mean and residual standard deviation where useful
 
-`Mean Predictive Accuracy (MPA)` is not used as a primary manuscript metric in
-the revision. It may remain only as archived context for earlier
-exploratory outputs.
+Earlier percentage-agreement metrics are not used as primary manuscript metrics
+in the revision. They remain only as archived context for earlier exploratory
+outputs outside the current result package.
 
 ## Confidence Intervals
 
@@ -99,6 +99,18 @@ statistics/outputs/revision_table9_stress107_summary.csv
 Stress107 reduces concern that the stress-test conclusion depends on a single
 selected middle window. It does not prove absence of all sampling bias and does
 not replace validation on real timestamped pollution-event data.
+
+## Feature-Score Correlation
+
+Feature-score correlations are descriptive because WQI5 `Score` is constructed
+from the same five indicators. They are included only to document the processed
+dataset relationships used by the surrogate-regression experiments.
+
+The revision correlation table is:
+
+```text
+statistics/outputs/revision_feature_score_correlations.csv
+```
 
 ## CPU-Only Timing
 

@@ -14,12 +14,13 @@ The revision result tables used for manuscript updates are:
 - [`outputs/revision_table7_missing_indicator_robustness.csv`](outputs/revision_table7_missing_indicator_robustness.csv)
 - [`outputs/revision_table8_cpu_only_timing.csv`](outputs/revision_table8_cpu_only_timing.csv)
 - [`outputs/revision_table9_stress107_summary.csv`](outputs/revision_table9_stress107_summary.csv)
+- [`outputs/revision_feature_score_correlations.csv`](outputs/revision_feature_score_correlations.csv)
 - [`outputs/revision_bootstrap_ci.csv`](outputs/revision_bootstrap_ci.csv)
 - [`outputs/revision_paired_error_tests.csv`](outputs/revision_paired_error_tests.csv)
 
 The report includes revision summary metrics, confidence intervals, pairwise
-error tests, Stress107 summaries, CPU-only timing, and rendered residual
-figures.
+error tests, descriptive feature-score correlations, Stress107 summaries,
+CPU-only timing, and rendered residual figures.
 
 ## Reproduce Results
 
@@ -42,18 +43,7 @@ python scripts/generate_residual_plots.py \
   --output-dir statistics/outputs/figures
 ```
 
-Archived workbook-based post-processing remains available for older benchmark
-records:
-
-```bash
-python statistics/statistical_analysis_from_xlsx.py
-python statistics/generate_statistical_report.py
-```
-
-Reconstruct the `10714`-record inference evaluation set:
-
-```bash
-python scripts/reproduce_inference_10714.py
-```
-
-The statistical scripts post-process recorded experiment outputs and committed datasets. They do not retrain model artifacts.
+The statistical scripts post-process recorded experiment outputs and committed
+datasets. They do not retrain model artifacts. The current statistics workflow
+does not depend on local Excel workbooks; it reads the revision result bundle
+and writes the `revision_*` tables.

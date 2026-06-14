@@ -153,7 +153,8 @@ Regression metrics:
 - `MAE`
 - `RMSE`
 - `NMAE`
-- `Mean Predictive Accuracy (MPA)`
+- WQI-band `Accuracy`
+- WQI-band `Macro-F1`
 
 Operational metrics:
 
@@ -161,7 +162,9 @@ Operational metrics:
 - residual mean
 - residual standard deviation
 
-Use [metrics.md](metrics.md) for the definition of `Mean Predictive Accuracy (MPA)` and for guidance on separating regression metrics from WQI-band summaries.
+Earlier percentage-agreement metrics are not used as primary metrics in the
+revision tables. See [metrics.md](metrics.md) for metric definitions and for
+guidance on separating regression metrics from WQI-band summaries.
 
 ## Outputs
 
