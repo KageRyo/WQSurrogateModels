@@ -86,6 +86,26 @@ To also enable the full set of surrogate models (`xgboost`, `lightgbm`):
 pip install -e ".[dev,models]"
 ```
 
+## Production Model Artifact
+
+The current API production XGBoost artifact is:
+
+```text
+models/XGBoost/modelXGBVer.2.0-revision-50000-seed2.pkl
+```
+
+It was extracted from the revision complete-input `full_reference` XGBoost result
+with the lowest external `10,714`-row hold-out MAE. The artifact remains a
+complete-input WQI5 surrogate and requires:
+
+```text
+DO, BOD, NH3N, EC, SS
+```
+
+It should not be interpreted as a missing-indicator replacement model. Legacy
+XGBoost production artifacts are kept under `models/archive/legacy_v1/` for
+traceability, and experiment bundles remain under ignored `results_*` folders.
+
 ## Run
 
 ```bash
@@ -189,6 +209,30 @@ Stress107 divides the external `10,714`-row hold-out into `107` consecutive
 event windows and applies 30%, 100%, and 300% synthetic perturbations. It should
 not be described as `107-fold cross-validation`; these are event locations, not
 training-validation folds.
+
+Prepare the 2026-06-14 revision result tables and production model from the
+frozen result bundle:
+
+```bash
+python scripts/prepare_revision_outputs.py \
+  --bundle-dir results_20260614_stress \
+  --output-dir statistics/outputs \
+  --update-production-model \
+  --archive-legacy-xgboost
+```
+
+Revision manuscript-facing tables are written to:
+
+- `statistics/outputs/revision_table6_complete_input_performance.csv`
+- `statistics/outputs/revision_table7_missing_indicator_robustness.csv`
+- `statistics/outputs/revision_table8_cpu_only_timing.csv`
+- `statistics/outputs/revision_table9_stress107_summary.csv`
+- `statistics/outputs/revision_bootstrap_ci.csv`
+- `statistics/outputs/revision_paired_error_tests.csv`
+
+GPU and multicore CPU acceleration may be used for model-effect reproduction.
+CPU-only timing is reported separately as a deployment-oriented inference-time
+reference.
 
 ### Reproducibility Hyperparameters
 

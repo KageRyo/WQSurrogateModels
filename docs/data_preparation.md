@@ -26,7 +26,7 @@ This means the repository can now document the source families used to assemble 
 Based on current project-team clarification, the major reduction from the upstream `87,005` source observations to the committed `60,714` modeling rows is attributable to trimming extreme values at both tails during preprocessing, together with dataset alignment / filtering.
 
 - The working explanation is that the upper and lower `1%` extremes (i.e., head and tail 1% trimming) were removed during preprocessing.
-- Because trimming can be applied across multiple indicators, the final retained row count should not be interpreted as a simple single-step `80%` keep-rate on one variable.
+- Because trimming can be applied across multiple indicators, the retained row count should not be interpreted as a simple single-step `80%` keep-rate on one variable.
 - In practice, the retained set reflects the combined effect of:
   - source alignment between prior experimental data and government open data
   - validity / preprocessing filters

@@ -21,7 +21,7 @@ Each raw indicator is transformed into a sub-index value:
 - `QEC`
 - `QSS`
 
-Each sub-index is clipped to the range `[0, 100]` using `clamp_score()`. The final WQI5 score is then computed as the arithmetic mean of the five clipped sub-indices:
+Each sub-index is clipped to the range `[0, 100]` using `clamp_score()`. The WQI5 score is then computed as the arithmetic mean of the five clipped sub-indices:
 
 ```text
 WQI5 = (clamp(QDO) + clamp(QBOD) + clamp(QNH3N) + clamp(QEC) + clamp(QSS)) / 5
@@ -41,7 +41,7 @@ QSS   = 100.1 - 2.433*SS + 2.282e-2*SS^2 - 7.90e-5*SS^3
 QEC   = 101.7 / (1 + 0.0062 * exp(8.32e-3 * EC))
 ```
 
-The final output is rounded to three decimal places after averaging.
+The computed output is rounded to three decimal places after averaging.
 
 ## Interpretation Notes
 

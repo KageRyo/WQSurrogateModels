@@ -34,6 +34,29 @@ This repository does not perform temporal forecasting.
 - `xgboost`
 - `lightgbm`
 
+## Current Production Artifact
+
+The API production XGBoost artifact is:
+
+```text
+models/XGBoost/modelXGBVer.2.0-revision-50000-seed2.pkl
+```
+
+It was selected as the lowest-MAE complete-input XGBoost seed artifact on the
+fixed external `10,714`-row hold-out in the revision 2026-06-14 result
+bundle.
+
+The production artifact is a complete-input WQI5 surrogate:
+
+```text
+DO, BOD, NH3N, EC, SS -> WQI5 score
+```
+
+It is not a missing-indicator model. Missing-indicator experiment artifacts are
+kept as reproducibility outputs under ignored `results_*` folders and should not
+be copied into `models/` unless the API is explicitly extended to route those
+settings.
+
 ## Intended Use
 
 - backend assessment for `WaterMirror`
@@ -45,6 +68,9 @@ This repository does not perform temporal forecasting.
 - temporal forecasting
 - causal inference
 - unsupported water quality indices beyond the documented WQI5 framing
+- replacing deterministic WQI5 when all five indicators are available
+- treating reduced-indicator models as reliable substitutes for complete-input WQI5
+- describing Stress107 as real pollution-event validation
 - decision-making without reviewing domain-specific limitations and data provenance constraints
 
 ## Limitations
@@ -52,3 +78,5 @@ This repository does not perform temporal forecasting.
 - The committed dataset does not contain timestamps.
 - The processed dataset is versioned, but exact upstream extraction and intermediate cleaning logs are not yet fully recoverable.
 - Optional model families such as `xgboost` and `lightgbm` require their corresponding runtime dependencies.
+- External hold-out results show that `BOD` is a critical indicator; reduced-input settings without `BOD` should be interpreted conservatively.
+- CPU-only timing is a deployment-oriented reference, not direct proof of performance on a low-end edge device.

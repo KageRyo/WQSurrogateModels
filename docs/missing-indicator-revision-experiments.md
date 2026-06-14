@@ -62,12 +62,8 @@ The script refuses to overwrite an output directory that already contains files
 unless `--overwrite` is passed explicitly.
 
 If training and primary prediction outputs have completed but derived
-statistics need to be regenerated, run:
-
-```bash
-python scripts/finalize_revision_missing_indicator_outputs.py \
-  --output-dir results_revision_missing_indicators_20260613_gpu
-```
+statistics need to be regenerated, use the current revision-output workflow
+documented in the repository README.
 
 ## Outputs
 

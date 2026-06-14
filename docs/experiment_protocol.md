@@ -172,7 +172,7 @@ Running `scripts/reproduce_results.py` writes:
 - `results/residual_statistics.csv`
 - `results/category_metrics.csv`
 
-These files are intended to support reproducible regeneration of the manuscript tables after final hyperparameters are locked.
+These files are intended to support reproducible regeneration of the manuscript tables after the revision hyperparameters are locked.
 
 For verification runs, prefer a separate output directory so archived experiment outputs are not overwritten:
 
