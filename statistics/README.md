@@ -8,35 +8,35 @@ This directory contains the statistical post-processing workflow and result pack
 - Method notes: [`../docs/statistical-analysis.md`](../docs/statistical-analysis.md)
 - Figures: [`outputs/figures/`](outputs/figures/)
 
-The revision result tables used for manuscript updates are:
+The result tables used for manuscript updates are:
 
-- [`outputs/revision_table6_complete_input_performance.csv`](outputs/revision_table6_complete_input_performance.csv)
-- [`outputs/revision_table7_missing_indicator_robustness.csv`](outputs/revision_table7_missing_indicator_robustness.csv)
-- [`outputs/revision_table8_cpu_only_timing.csv`](outputs/revision_table8_cpu_only_timing.csv)
-- [`outputs/revision_table9_stress107_summary.csv`](outputs/revision_table9_stress107_summary.csv)
-- [`outputs/revision_feature_score_correlations.csv`](outputs/revision_feature_score_correlations.csv)
-- [`outputs/revision_bootstrap_ci.csv`](outputs/revision_bootstrap_ci.csv)
-- [`outputs/revision_paired_error_tests.csv`](outputs/revision_paired_error_tests.csv)
+- [`outputs/table6_complete_input_performance.csv`](outputs/table6_complete_input_performance.csv)
+- [`outputs/table7_missing_indicator_robustness.csv`](outputs/table7_missing_indicator_robustness.csv)
+- [`outputs/table8_cpu_only_timing.csv`](outputs/table8_cpu_only_timing.csv)
+- [`outputs/table9_stress107_summary.csv`](outputs/table9_stress107_summary.csv)
+- [`outputs/feature_score_correlations.csv`](outputs/feature_score_correlations.csv)
+- [`outputs/bootstrap_ci.csv`](outputs/bootstrap_ci.csv)
+- [`outputs/paired_error_tests.csv`](outputs/paired_error_tests.csv)
 
-The report includes revision summary metrics, confidence intervals, pairwise
+The report includes summary metrics, confidence intervals, pairwise
 error tests, descriptive feature-score correlations, Stress107 summaries,
 CPU-only timing, and rendered residual figures.
 
 ## Reproduce Results
 
-Prepare the revision tables from the frozen local result bundle:
+Prepare the manuscript tables from the organized local result bundle:
 
 ```bash
-python scripts/prepare_revision_outputs.py \
-  --bundle-dir results_20260614_stress \
+python scripts/prepare_statistics_outputs.py \
+  --bundle-dir results/manuscript_package \
   --output-dir statistics/outputs
 ```
 
-Create residual figures from revision prediction rows:
+Create residual figures from prediction rows:
 
 ```bash
 python scripts/generate_residual_plots.py \
-  --input-csv results_20260614_stress/raw/results_missing_indicator_robustness_20260613_gpu_v2/predictions/predictions_long.csv \
+  --input-csv results/missing_indicator_robustness/predictions/predictions_long.csv \
   --source external_10714 \
   --experiment full_reference \
   --missing-set complete \
@@ -45,5 +45,5 @@ python scripts/generate_residual_plots.py \
 
 The statistical scripts post-process recorded experiment outputs and committed
 datasets. They do not retrain model artifacts. The current statistics workflow
-does not depend on local Excel workbooks; it reads the revision result bundle
-and writes the `revision_*` tables.
+does not depend on local Excel workbooks; it reads the organized result bundle
+and writes the manuscript tables.

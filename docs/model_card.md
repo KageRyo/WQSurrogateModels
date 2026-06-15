@@ -37,21 +37,20 @@ This repository does not perform temporal forecasting.
 ## Current Production Artifacts
 
 Production model binaries are local artifacts and are not committed to Git. The
-revision exports one complete-input API artifact for each surrogate model:
+model package exports one complete-input API artifact for each surrogate model:
 
 ```text
-models/LightGBM/modelLGBMVer.2.0-revision-50000-seed0.pkl
-models/LR/modelLRVer.2.0-revision-50000-seed0.pkl
-models/MPR/modelMPRVer.2.0-revision-50000-seed3.pkl
-models/RF/modelRFVer.2.0-revision-50000-seed0.pkl
-models/SVM/modelSVMVer.2.0-revision-50000-seed3.pkl
-models/XGBoost/modelXGBVer.2.0-revision-50000-seed2.pkl
+models/LightGBM/modelLGBMVer.2.0-50000-seed0.pkl
+models/LR/modelLRVer.2.0-50000-seed0.pkl
+models/MPR/modelMPRVer.2.0-50000-seed3.pkl
+models/RF/modelRFVer.2.0-50000-seed0.pkl
+models/SVM/modelSVMVer.2.0-50000-seed3.pkl
+models/XGBoost/modelXGBVer.2.0-50000-seed2.pkl
 ```
 
 The committed manifest is `models/production_model_manifest.json`. Each entry is
 selected as the lowest-MAE complete-input seed artifact for that model type on
-the fixed external `10,714`-row hold-out in the revision 2026-06-14 result
-bundle.
+the fixed external `10,714`-row hold-out in the organized result bundle.
 
 The production artifacts are complete-input WQI5 surrogates:
 

@@ -1,4 +1,9 @@
-# Missing-Indicator Revision Experiments
+# Missing-Indicator Core Experiments
+
+This document records the earlier double-missing workflow. The
+manuscript-facing tables are generated from the missing-indicator
+robustness workflow documented in
+[`missing-indicator-robustness-experiments.md`](missing-indicator-robustness-experiments.md).
 
 This workflow evaluates WQI5 surrogate behavior under missing-indicator and
 deployment-constrained settings. It is designed for reviewer-response analysis,
@@ -51,9 +56,9 @@ DO / reconstructed BOD / reconstructed NH3N / EC / SS -> WQI5 surrogate
 ## Run
 
 ```bash
-python scripts/run_revision_missing_indicator_experiments.py \
-  --config configs/revision_missing_indicator_config.yaml \
-  --output-dir results_revision_missing_indicators_20260613_gpu \
+python scripts/run_missing_indicator_experiments.py \
+  --config configs/missing_indicator_config.yaml \
+  --output-dir results/missing_indicator_core_run \
   --compute-device gpu \
   --gpu-id 0
 ```
@@ -62,7 +67,7 @@ The script refuses to overwrite an output directory that already contains files
 unless `--overwrite` is passed explicitly.
 
 If training and primary prediction outputs have completed but derived
-statistics need to be regenerated, use the current revision-output workflow
+statistics need to be regenerated, use the statistics-output workflow
 documented in the repository README.
 
 ## Outputs

@@ -112,21 +112,21 @@ be mixed with GPU training or GPU timing claims.
 ```bash
 python scripts/run_missing_indicator_robustness_experiments.py \
   --config configs/missing_indicator_robustness_config.yaml \
-  --output-dir results_missing_indicator_robustness_YYYYMMDD
+  --output-dir results/missing_indicator_robustness_run
 ```
 
 Measure CPU-only inference timing from saved artifacts:
 
 ```bash
 python scripts/measure_missing_indicator_cpu_timing.py \
-  --output-dir results_missing_indicator_robustness_YYYYMMDD
+  --output-dir results/missing_indicator_robustness_run
 ```
 
 Export a readable workbook:
 
 ```bash
 python scripts/export_missing_indicator_robustness_excel.py \
-  --output-dir results_missing_indicator_robustness_YYYYMMDD
+  --output-dir results/missing_indicator_robustness_run
 ```
 
 ## Outputs

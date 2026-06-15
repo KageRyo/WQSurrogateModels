@@ -32,7 +32,7 @@ Based on current project-team clarification, the major reduction from the upstre
   - validity / preprocessing filters
   - tail trimming of extreme observations
 
-This explanation is sufficient for revision-era methodological transparency, but the repository still lacks a versioned preprocessing script that emits exact row counts after each individual operation.
+This explanation is sufficient for methodological transparency, but the repository still lacks a versioned preprocessing script that emits exact row counts after each individual operation.
 
 ## Current Repository State
 
@@ -51,7 +51,7 @@ This explanation is sufficient for revision-era methodological transparency, but
 
 ## Required Upstream Provenance
 
-The following items must be preserved in the paper revision and any future raw-data release:
+The following items should be preserved in the manuscript and any future raw-data release:
 
 1. How the original `87,005` records were collected.
 2. Which records came from Qilintan and which came from MOENV.
@@ -80,11 +80,11 @@ Use `merged`, `aligned`, `filtered`, or `processed` unless actual synthetic data
   - It may also remove true pollution events.
   - It should therefore be treated as a sensitivity-analysis choice, not an unquestioned denoising step.
 
-Revision note:
+Correction note:
 
 - An earlier version of this document incorrectly stated `10%` tail trimming.
 - The correct preprocessing step was **head and tail 1% trimming** (removal of the top 1% and bottom 1% extremes).
-- Because the trimming was applied across multiple water quality indicators and combined with alignment/filtering steps, the overall reduction from `87,005` to `60,714` rows is consistent with this 1% per-tail rule.
+- Because the original preprocessing script is not yet versioned, the exact contribution of each filtering step cannot be verified. The safest current wording is that the `60,714`-row dataset reflects the combined effect of source alignment, validity filtering, and head-and-tail `1%` extreme-value trimming.
 - Until the original preprocessing script is restored and audited, it is safest to describe the step in manuscripts as `extreme-value tail trimming (head and tail 1%) during preprocessing`.
 
 ## Split Protocol

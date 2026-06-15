@@ -1,8 +1,8 @@
-# Revision Statistical Summary
+# Statistical Summary
 
 ## Scope
 
-This report freezes the 2026-06-14 missing-indicator robustness, Stress107, and CPU-only timing outputs.
+This report summarizes the missing-indicator robustness, Stress107, and CPU-only timing outputs.
 It replaces the earlier percentage-agreement tables with R2, MAE, RMSE, Macro-F1, bootstrap confidence intervals, and paired model tests.
 
 The task remains WQI5 surrogate regression, not future water-quality forecasting. Direct WQI5 computation remains the reference method when all five indicators are available.
@@ -17,13 +17,13 @@ The task remains WQI5 surrogate regression, not future water-quality forecasting
 
 ## Output Tables
 
-- `revision_table6_complete_input_performance.csv`
-- `revision_table7_missing_indicator_robustness.csv`
-- `revision_table8_cpu_only_timing.csv`
-- `revision_table9_stress107_summary.csv`
-- `revision_feature_score_correlations.csv`
-- `revision_bootstrap_ci.csv`
-- `revision_paired_error_tests.csv`
+- `table6_complete_input_performance.csv`
+- `table7_missing_indicator_robustness.csv`
+- `table8_cpu_only_timing.csv`
+- `table9_stress107_summary.csv`
+- `feature_score_correlations.csv`
+- `bootstrap_ci.csv`
+- `paired_error_tests.csv`
 
 ## Reporting Boundary
 

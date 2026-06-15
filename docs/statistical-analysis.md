@@ -1,7 +1,7 @@
 # Statistical Analysis
 
-This document describes the revision 2026-06-14 statistics used for the
-missing-indicator robustness, Stress107, and CPU-only timing results.
+This document describes the statistics used for the missing-indicator
+robustness, Stress107, and CPU-only timing results.
 
 ## Interpretation Boundaries
 
@@ -27,12 +27,12 @@ Primary manuscript reporting uses:
 - residual mean and residual standard deviation where useful
 
 Earlier percentage-agreement metrics are not used as primary manuscript metrics
-in the revision. They remain only as archived context for earlier exploratory
+in the current result package. They remain only as archived context for earlier exploratory
 outputs outside the current result package.
 
 ## Confidence Intervals
 
-The revision missing-indicator robustness workflow runs five stratified seeds over
+The missing-indicator robustness workflow runs five stratified seeds over
 `data/dataV1_50000.csv`:
 
 - `40,000` training rows per seed
@@ -48,22 +48,22 @@ Seed-level bootstrap `95%` confidence intervals are reported for:
 - `Accuracy`
 - `Macro-F1`
 
-The revision CI table is:
+The confidence-interval table is:
 
 ```text
-statistics/outputs/revision_bootstrap_ci.csv
+statistics/outputs/bootstrap_ci.csv
 ```
 
 Table 6 uses:
 
 ```text
-statistics/outputs/revision_table6_complete_input_performance.csv
+statistics/outputs/table6_complete_input_performance.csv
 ```
 
 Table 7 uses:
 
 ```text
-statistics/outputs/revision_table7_missing_indicator_robustness.csv
+statistics/outputs/table7_missing_indicator_robustness.csv
 ```
 
 ## Significance Testing
@@ -71,10 +71,10 @@ statistics/outputs/revision_table7_missing_indicator_robustness.csv
 Pairwise model comparisons use paired Wilcoxon signed-rank tests over per-seed
 `MAE`, followed by Holm correction.
 
-The revision p-value table is:
+The p-value table is:
 
 ```text
-statistics/outputs/revision_paired_error_tests.csv
+statistics/outputs/paired_error_tests.csv
 ```
 
 Because there are five seeds, p-values should be interpreted as supporting
@@ -93,7 +93,7 @@ event locations, not model-training folds.
 The Stress107 summary is:
 
 ```text
-statistics/outputs/revision_table9_stress107_summary.csv
+statistics/outputs/table9_stress107_summary.csv
 ```
 
 Stress107 reduces concern that the stress-test conclusion depends on a single
@@ -106,10 +106,10 @@ Feature-score correlations are descriptive because WQI5 `Score` is constructed
 from the same five indicators. They are included only to document the processed
 dataset relationships used by the surrogate-regression experiments.
 
-The revision correlation table is:
+The correlation table is:
 
 ```text
-statistics/outputs/revision_feature_score_correlations.csv
+statistics/outputs/feature_score_correlations.csv
 ```
 
 ## CPU-Only Timing
@@ -121,17 +121,17 @@ CPU-only inference from saved model artifacts.
 The CPU-only timing table is:
 
 ```text
-statistics/outputs/revision_table8_cpu_only_timing.csv
+statistics/outputs/table8_cpu_only_timing.csv
 ```
 
 This table is a conservative inference-time reference. It should not be
 described as direct validation on a low-end edge device unless such hardware is
 actually tested.
 
-## Revision Report
+## Report
 
-The frozen revision summary is:
+The statistical summary is:
 
 ```text
-statistics/outputs/revision_statistical_summary.md
+statistics/outputs/statistical_summary.md
 ```

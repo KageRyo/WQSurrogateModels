@@ -78,7 +78,10 @@ For development and tests:
 pip install -e ".[dev]"
 ```
 
-The committed scikit-learn surrogate artifacts in `models/` were serialized with `scikit-learn 1.5.2`. Use that same version when loading them, or retrain and re-export the artifacts in your target version.
+Local or externally provided scikit-learn surrogate artifacts should be loaded
+with the compatible scikit-learn version used during export. Production
+artifacts are not committed to Git; see `models/production_model_manifest.json`
+for the expected local paths.
 
 To also enable the full set of surrogate models (`xgboost`, `lightgbm`):
 
@@ -89,16 +92,16 @@ pip install -e ".[dev,models]"
 ## Production Model Artifacts
 
 Production model binaries are local artifacts and are not committed to Git.
-The current revision exports one complete-input API artifact for each surrogate
+The current model package exports one complete-input API artifact for each surrogate
 model:
 
 ```text
-models/LightGBM/modelLGBMVer.2.0-revision-50000-seed0.pkl
-models/LR/modelLRVer.2.0-revision-50000-seed0.pkl
-models/MPR/modelMPRVer.2.0-revision-50000-seed3.pkl
-models/RF/modelRFVer.2.0-revision-50000-seed0.pkl
-models/SVM/modelSVMVer.2.0-revision-50000-seed3.pkl
-models/XGBoost/modelXGBVer.2.0-revision-50000-seed2.pkl
+models/LightGBM/modelLGBMVer.2.0-50000-seed0.pkl
+models/LR/modelLRVer.2.0-50000-seed0.pkl
+models/MPR/modelMPRVer.2.0-50000-seed3.pkl
+models/RF/modelRFVer.2.0-50000-seed0.pkl
+models/SVM/modelSVMVer.2.0-50000-seed3.pkl
+models/XGBoost/modelXGBVer.2.0-50000-seed2.pkl
 ```
 
 The committed manifest is:
@@ -107,7 +110,7 @@ The committed manifest is:
 models/production_model_manifest.json
 ```
 
-Each artifact is extracted from the revision complete-input `full_reference`
+Each artifact is extracted from the complete-input `full_reference`
 result with the lowest external `10,714`-row hold-out MAE for that model type.
 These artifacts remain complete-input WQI5 surrogates and require:
 
@@ -156,8 +159,8 @@ Legacy compatibility endpoints such as `POST /predict`, `POST /score/total/`, an
 - [Metrics](docs/metrics.md)
 - [Data Preparation](docs/data_preparation.md)
 - [Original Benchmark Protocol](docs/original-benchmark-protocol.md)
-- [Revised Experiment Protocol](docs/experiment_protocol.md)
-- [Missing-Indicator Revision Experiments](docs/missing-indicator-revision-experiments.md)
+- [Experiment Protocol](docs/experiment_protocol.md)
+- [Earlier Missing-Indicator Core Experiments](docs/missing-indicator-core-experiments.md)
 - [Missing-Indicator Robustness Experiments](docs/missing-indicator-robustness-experiments.md)
 - [Statistical Analysis](docs/statistical-analysis.md)
 - [Statistics Workspace Notes](statistics/README.md)
@@ -171,7 +174,7 @@ Run:
 
 ```bash
 pip install -e ".[dev]"
-python scripts/reproduce_results.py --config configs/experiment_config.yaml --output-dir results_verification
+python scripts/reproduce_results.py --config configs/experiment_config.yaml --output-dir results/verification_run
 ```
 
 If you use the local `WQI` conda environment and want to run the full experiment (all models including xgboost/lightgbm):
@@ -179,17 +182,17 @@ If you use the local `WQI` conda environment and want to run the full experiment
 ```bash
 conda activate WQI
 pip install -e ".[models]"
-python scripts/reproduce_results.py --config configs/experiment_config.yaml --output-dir results_verification
+python scripts/reproduce_results.py --config configs/experiment_config.yaml --output-dir results/verification_run
 ```
 
 To protect archived manuscript outputs, the script now refuses to overwrite an existing results directory unless `--overwrite` is passed explicitly.
 
-Run the missing-indicator revision experiments:
+Run the missing-indicator core experiments:
 
 ```bash
-python scripts/run_revision_missing_indicator_experiments.py \
-  --config configs/revision_missing_indicator_config.yaml \
-  --output-dir results_revision_missing_indicators_20260613_gpu \
+python scripts/run_missing_indicator_experiments.py \
+  --config configs/missing_indicator_config.yaml \
+  --output-dir results/missing_indicator_core_run \
   --compute-device gpu \
   --gpu-id 0
 ```
@@ -205,17 +208,17 @@ and CPU-only timing support:
 ```bash
 python scripts/run_missing_indicator_robustness_experiments.py \
   --config configs/missing_indicator_robustness_config.yaml \
-  --output-dir results_missing_indicator_robustness_YYYYMMDD
+  --output-dir results/missing_indicator_robustness_run
 
 python scripts/measure_missing_indicator_cpu_timing.py \
-  --output-dir results_missing_indicator_robustness_YYYYMMDD
+  --output-dir results/missing_indicator_robustness_run
 
 python scripts/run_stress107_event_windows.py \
-  --artifact-dir results_missing_indicator_robustness_YYYYMMDD \
-  --output-dir results_missing_indicator_robustness_YYYYMMDD_stress107
+  --artifact-dir results/missing_indicator_robustness_run \
+  --output-dir results/stress107_run
 
 python scripts/export_missing_indicator_robustness_excel.py \
-  --output-dir results_missing_indicator_robustness_YYYYMMDD_stress107
+  --output-dir results/stress107_run
 ```
 
 Stress107 divides the external `10,714`-row hold-out into `107` consecutive
@@ -223,33 +226,57 @@ event windows and applies 30%, 100%, and 300% synthetic perturbations. It should
 not be described as `107-fold cross-validation`; these are event locations, not
 training-validation folds.
 
-Prepare the 2026-06-14 revision result tables and production model from the
-frozen result bundle:
+Prepare manuscript result tables and production model artifacts from the
+organized result bundle:
 
 ```bash
-python scripts/prepare_revision_outputs.py \
-  --bundle-dir results_20260614_stress \
+python scripts/prepare_statistics_outputs.py \
+  --bundle-dir results/manuscript_package \
   --output-dir statistics/outputs \
   --update-production-model \
-  --archive-legacy-xgboost
+  --archive-legacy-50000-artifacts
 ```
 
-Revision manuscript-facing tables are written to:
+Manuscript-facing tables are written to:
 
-- `statistics/outputs/revision_table6_complete_input_performance.csv`
-- `statistics/outputs/revision_table7_missing_indicator_robustness.csv`
-- `statistics/outputs/revision_table8_cpu_only_timing.csv`
-- `statistics/outputs/revision_table9_stress107_summary.csv`
-- `statistics/outputs/revision_bootstrap_ci.csv`
-- `statistics/outputs/revision_paired_error_tests.csv`
+- `statistics/outputs/table6_complete_input_performance.csv`
+- `statistics/outputs/table7_missing_indicator_robustness.csv`
+- `statistics/outputs/table8_cpu_only_timing.csv`
+- `statistics/outputs/table9_stress107_summary.csv`
+- `statistics/outputs/bootstrap_ci.csv`
+- `statistics/outputs/paired_error_tests.csv`
 
 GPU and multicore CPU acceleration may be used for model-effect reproduction.
 CPU-only timing is reported separately as a deployment-oriented inference-time
 reference.
 
+### Local Result Archive
+
+Large experiment outputs are organized under `results/` and are not committed
+to Git. The current local layout is:
+
+- `results/complete_input_cpu/`: complete-input repeated validation on CPU.
+- `results/complete_input_gpu/`: complete-input repeated validation with GPU
+  acceleration for supported models.
+- `results/reduced_indicator_cpu/`: reduced-indicator experiment on CPU.
+- `results/reduced_indicator_gpu/`: reduced-indicator experiment with GPU
+  acceleration for supported models.
+- `results/missing_indicator_core/`: core missing-indicator experiment with
+  saved models, predictions, metrics, confidence intervals, paired tests, and
+  stress summaries.
+- `results/missing_indicator_robustness/`: single-indicator and combined
+  missing-indicator robustness results, including CPU-only timing outputs.
+- `results/stress107/`: 107 sequential event-window stress-test outputs.
+- `results/manuscript_package/`: organized CSV files and Excel workbooks for
+  manuscript tables and discussion.
+
+Model binaries under `models/*/*.pkl` are also local artifacts and are not
+committed. `models/production_model_manifest.json` records the expected local
+paths and source experiment artifacts for the six supported model families.
+
 ### Reproducibility Hyperparameters
 
-The table below describes the revised reproducibility workflow. Archived exploratory scripts may use `GridSearchCV` and library defaults; see [docs/original-benchmark-protocol.md](docs/original-benchmark-protocol.md).
+The table below describes the current reproducibility workflow. Archived exploratory scripts may use `GridSearchCV` and library defaults; see [docs/original-benchmark-protocol.md](docs/original-benchmark-protocol.md).
 
 | Model | Library | Preprocessing | Key Hyperparameters |
 | --- | --- | --- | --- |
@@ -266,7 +293,7 @@ Repeated validation uses stratified random splits over WQI5 categories with seed
 ## Project Structure
 
 - `data/`: processed datasets and subsets
-- `models/`: persisted surrogate model artifacts
+- `models/`: production model manifest and local artifact paths; model binaries are not committed
 - `src/`: API and reusable backend logic
 - `scripts/`: reproducibility runners
 - `configs/`: experiment settings
