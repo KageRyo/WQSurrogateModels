@@ -34,7 +34,7 @@ deterministic WQI5 formula requires the full indicator set.
 ```bash
 python scripts/reproduce_reduced_indicators.py \
   --config configs/reduced_indicator_config.yaml \
-  --output-dir results_reduced_indicators
+  --output-dir results/reduced_indicator_run
 ```
 
 GPU execution can be enabled for supported gradient boosting models:
@@ -42,7 +42,7 @@ GPU execution can be enabled for supported gradient boosting models:
 ```bash
 python scripts/reproduce_reduced_indicators.py \
   --config configs/reduced_indicator_config.yaml \
-  --output-dir results_reduced_indicators_gpu \
+  --output-dir results/reduced_indicator_gpu_run \
   --compute-device gpu \
   --gpu-id 0
 ```

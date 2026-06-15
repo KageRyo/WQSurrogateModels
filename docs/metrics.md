@@ -19,26 +19,13 @@ residual_i = y_i - ŷ_i
 
 where `y_i` is the reference WQI5 score and `ŷ_i` is the model-estimated WQI5 score.
 
-## Mean Predictive Accuracy
+## Archived Percentage-Agreement Metric
 
-`Mean Predictive Accuracy (MPA)` is a percentage-based regression agreement metric derived from sample-wise absolute percentage error:
-
-```text
-Predictive Accuracy_i (%) = (1 - |y_i - ŷ_i| / y_i) * 100
-MPA (%) = mean_i(Predictive Accuracy_i)
-```
-
-`MPA (%)` is the average sample-wise agreement between the reference WQI5 score and the model-estimated WQI5 score. The metric is defined for positive reference scores and is not classification accuracy.
-
-When `y_i > 0`, this metric is equivalent to:
-
-```text
-MPA (%) = 100% - MAPE(%)
-```
-
-MPA is not used as a primary metric in the revised reviewer-response
-experiments. Primary reporting should use `R²`, `MAE`, `RMSE`, `NMAE`, residual
-statistics, WQI-band accuracy / macro-F1, and runtime.
+Earlier exploratory tables included a percentage-agreement metric derived from
+absolute percentage error. It is not used as a primary metric in the manuscript
+tables because the task is continuous WQI5 regression. Primary reporting should
+use `R²`, `MAE`, `RMSE`, `NMAE`, residual statistics, WQI-band accuracy /
+macro-F1, confidence intervals, and paired tests.
 
 ## WQI Bands
 

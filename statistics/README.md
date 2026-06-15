@@ -8,32 +8,42 @@ This directory contains the statistical post-processing workflow and result pack
 - Method notes: [`../docs/statistical-analysis.md`](../docs/statistical-analysis.md)
 - Figures: [`outputs/figures/`](outputs/figures/)
 
-The report includes summary metrics, confidence intervals, pairwise error tests, residual diagnostics, WQI-band error summaries, and rendered residual figures.
+The result tables used for manuscript updates are:
+
+- [`outputs/table6_complete_input_performance.csv`](outputs/table6_complete_input_performance.csv)
+- [`outputs/table7_missing_indicator_robustness.csv`](outputs/table7_missing_indicator_robustness.csv)
+- [`outputs/table8_cpu_only_timing.csv`](outputs/table8_cpu_only_timing.csv)
+- [`outputs/table9_stress107_summary.csv`](outputs/table9_stress107_summary.csv)
+- [`outputs/feature_score_correlations.csv`](outputs/feature_score_correlations.csv)
+- [`outputs/bootstrap_ci.csv`](outputs/bootstrap_ci.csv)
+- [`outputs/paired_error_tests.csv`](outputs/paired_error_tests.csv)
+
+The report includes summary metrics, confidence intervals, pairwise
+error tests, descriptive feature-score correlations, Stress107 summaries,
+CPU-only timing, and rendered residual figures.
 
 ## Reproduce Results
 
-Create the statistical tables from the archived experiment records:
+Prepare the manuscript tables from the organized local result bundle:
 
 ```bash
-python statistics/statistical_analysis_from_xlsx.py
+python scripts/prepare_statistics_outputs.py \
+  --bundle-dir results/manuscript_package \
+  --output-dir statistics/outputs
 ```
 
-Create the markdown report:
+Create residual figures from prediction rows:
 
 ```bash
-python statistics/generate_statistical_report.py
+python scripts/generate_residual_plots.py \
+  --input-csv results/missing_indicator_robustness/predictions/predictions_long.csv \
+  --source external_10714 \
+  --experiment full_reference \
+  --missing-set complete \
+  --output-dir statistics/outputs/figures
 ```
 
-Create residual figures:
-
-```bash
-python scripts/generate_residual_plots.py
-```
-
-Reconstruct the `10714`-record inference evaluation set:
-
-```bash
-python scripts/reproduce_inference_10714.py
-```
-
-The statistical scripts post-process recorded experiment outputs and committed datasets. They do not retrain model artifacts.
+The statistical scripts post-process recorded experiment outputs and committed
+datasets. They do not retrain model artifacts. The current statistics workflow
+does not depend on local Excel workbooks; it reads the organized result bundle
+and writes the manuscript tables.
