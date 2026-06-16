@@ -246,10 +246,21 @@ Manuscript-facing outputs are written to:
 - `statistics/outputs/stress107_summary.csv`
 - `statistics/outputs/bootstrap_ci.csv`
 - `statistics/outputs/paired_error_tests.csv`
+- `statistics/outputs/sample_size_sensitivity.csv`
+- `statistics/outputs/sample_size_metrics_by_fold.csv`
 
 GPU and multicore CPU acceleration may be used for model-effect reproduction.
 CPU-only timing is reported separately as a deployment-oriented inference-time
 reference.
+
+Prepare the manuscript-facing sample-size tables from the consolidated local
+sample-size run:
+
+```bash
+python scripts/prepare_sample_size_outputs.py \
+  --metrics-dir results/sample_size_experiments/metrics \
+  --output-dir statistics/outputs
+```
 
 ### Local Result Archive
 

@@ -107,6 +107,15 @@ Each run writes:
 - `metrics/metrics_summary.csv`
 - `splits/split_indices.csv`
 
+Manuscript-facing sample-size outputs are available at:
+
+- `statistics/outputs/sample_size_sensitivity.csv`
+- `statistics/outputs/sample_size_metrics_by_fold.csv`
+
+These committed CSV files contain the teacher-requested `1,000`, `10,000`, and
+`50,000` row settings. The local consolidated run also includes `5,000` rows,
+but that intermediate size is not included in the main manuscript-facing table.
+
 Model artifacts are saved as:
 
 ```text

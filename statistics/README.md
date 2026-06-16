@@ -17,6 +17,8 @@ The result files used for manuscript updates are:
 - [`outputs/feature_score_correlations.csv`](outputs/feature_score_correlations.csv)
 - [`outputs/bootstrap_ci.csv`](outputs/bootstrap_ci.csv)
 - [`outputs/paired_error_tests.csv`](outputs/paired_error_tests.csv)
+- [`outputs/sample_size_sensitivity.csv`](outputs/sample_size_sensitivity.csv)
+- [`outputs/sample_size_metrics_by_fold.csv`](outputs/sample_size_metrics_by_fold.csv)
 
 The report includes summary metrics, confidence intervals, hold-out row-level
 paired error tests, descriptive feature-score correlations, Stress107 summaries,
@@ -47,3 +49,12 @@ The statistical scripts post-process recorded experiment outputs and committed
 datasets. They do not retrain model artifacts. The current statistics workflow
 does not depend on local Excel workbooks; it reads the organized result bundle
 and writes the manuscript tables.
+
+Prepare the manuscript-facing sample-size outputs from the consolidated local
+sample-size metrics:
+
+```bash
+python scripts/prepare_sample_size_outputs.py \
+  --metrics-dir results/sample_size_experiments/metrics \
+  --output-dir statistics/outputs
+```

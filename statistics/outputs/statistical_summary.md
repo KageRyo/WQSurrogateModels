@@ -24,6 +24,15 @@ The task remains WQI5 surrogate regression, not future water-quality forecasting
 - `feature_score_correlations.csv`
 - `bootstrap_ci.csv`
 - `paired_error_tests.csv`
+- `sample_size_sensitivity.csv`
+- `sample_size_metrics_by_fold.csv`
+
+## Sample-Size Sensitivity
+
+The sample-size experiment evaluates six surrogate models using 1,000, 10,000,
+and 50,000 rows under stratified 80/20 splits. The summary output is
+`sample_size_sensitivity.csv`, and fold-level results are provided in
+`sample_size_metrics_by_fold.csv`.
 
 ## Reporting Boundary
 
