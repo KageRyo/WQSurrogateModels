@@ -15,12 +15,12 @@ The task remains WQI5 surrogate regression, not future water-quality forecasting
 - Stress107 uses 107 sequential event windows, not 107-fold cross-validation.
 - CPU-only timing is the deployment-oriented inference-time reference; GPU/multicore acceleration is acceptable for experiment reproduction.
 
-## Output Tables
+## Output Files
 
-- `table6_complete_input_performance.csv`
-- `table7_missing_indicator_robustness.csv`
-- `table8_cpu_only_timing.csv`
-- `table9_stress107_summary.csv`
+- `complete_input_performance.csv`
+- `missing_indicator_robustness.csv`
+- `cpu_only_timing.csv`
+- `stress107_summary.csv`
 - `feature_score_correlations.csv`
 - `bootstrap_ci.csv`
 - `paired_error_tests.csv`

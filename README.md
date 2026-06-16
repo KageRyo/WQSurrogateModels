@@ -160,6 +160,7 @@ Legacy compatibility endpoints such as `POST /predict`, `POST /score/total/`, an
 - [Data Preparation](docs/data_preparation.md)
 - [Original Benchmark Protocol](docs/original-benchmark-protocol.md)
 - [Experiment Protocol](docs/experiment_protocol.md)
+- [Sample-Size Experiments](docs/sample-size-experiments.md)
 - [Earlier Missing-Indicator Core Experiments](docs/missing-indicator-core-experiments.md)
 - [Missing-Indicator Robustness Experiments](docs/missing-indicator-robustness-experiments.md)
 - [Statistical Analysis](docs/statistical-analysis.md)
@@ -237,12 +238,12 @@ python scripts/prepare_statistics_outputs.py \
   --archive-legacy-50000-artifacts
 ```
 
-Manuscript-facing tables are written to:
+Manuscript-facing outputs are written to:
 
-- `statistics/outputs/table6_complete_input_performance.csv`
-- `statistics/outputs/table7_missing_indicator_robustness.csv`
-- `statistics/outputs/table8_cpu_only_timing.csv`
-- `statistics/outputs/table9_stress107_summary.csv`
+- `statistics/outputs/complete_input_performance.csv`
+- `statistics/outputs/missing_indicator_robustness.csv`
+- `statistics/outputs/cpu_only_timing.csv`
+- `statistics/outputs/stress107_summary.csv`
 - `statistics/outputs/bootstrap_ci.csv`
 - `statistics/outputs/paired_error_tests.csv`
 
@@ -269,6 +270,8 @@ to Git. The current local layout is:
 - `results/stress107/`: 107 sequential event-window stress-test outputs.
 - `results/manuscript_package/`: organized CSV files and Excel workbooks for
   manuscript tables and discussion.
+- `results/sample_size_experiments/`: consolidated `1,000`, `5,000`, `10,000`,
+  and `50,000` row sample-size experiment outputs.
 
 Model binaries under `models/*/*.pkl` are also local artifacts and are not
 committed. `models/production_model_manifest.json` records the expected local
@@ -296,6 +299,8 @@ Repeated validation uses stratified random splits over WQI5 categories with seed
 - `models/`: production model manifest and local artifact paths; model binaries are not committed
 - `src/`: API and reusable backend logic
 - `scripts/`: reproducibility runners
+- `archive/legacy_training/`: archived exploratory training scripts from the
+  older `src/training` layout
 - `configs/`: experiment settings
 - `tests/`: pytest suite
 

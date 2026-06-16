@@ -48,37 +48,51 @@ Seed-level bootstrap `95%` confidence intervals are reported for:
 - `Accuracy`
 - `Macro-F1`
 
-The confidence-interval table is:
+The confidence-interval output is:
 
 ```text
 statistics/outputs/bootstrap_ci.csv
 ```
 
-Table 6 uses:
+The complete-input performance output is:
 
 ```text
-statistics/outputs/table6_complete_input_performance.csv
+statistics/outputs/complete_input_performance.csv
 ```
 
-Table 7 uses:
+The missing-indicator robustness output is:
 
 ```text
-statistics/outputs/table7_missing_indicator_robustness.csv
+statistics/outputs/missing_indicator_robustness.csv
 ```
 
 ## Significance Testing
 
-Pairwise model comparisons use paired Wilcoxon signed-rank tests over per-seed
-`MAE`, followed by Holm correction.
+Pairwise model comparisons use paired Wilcoxon signed-rank tests over external
+hold-out row absolute errors, followed by Holm correction.
 
-The p-value table is:
+For each compared model pair within the same source, missing-indicator setting,
+experiment mode, experiment, seed, and row, the paired difference is:
+
+```text
+diff_i = |y_i - yhat_A_i| - |y_i - yhat_B_i|
+```
+
+Negative values favor model A. Positive values favor model B. The reported
+`95%` interval is a t interval for the mean paired difference over the external
+hold-out row differences. For public reporting, floating-point p-values are
+written with full double-precision formatting; underflowed values are reported
+as `<1e-300` rather than rounded to zero.
+
+The paired-test output is:
 
 ```text
 statistics/outputs/paired_error_tests.csv
 ```
 
-Because there are five seeds, p-values should be interpreted as supporting
-evidence rather than as a standalone proof of model superiority.
+The current paired-test output uses `external_10714` predictions only. Each
+comparison combines the five seed-specific hold-out prediction sets, so each
+complete pair has `53,570` paired row differences.
 
 ## Stress107 Analysis
 
@@ -93,7 +107,7 @@ event locations, not model-training folds.
 The Stress107 summary is:
 
 ```text
-statistics/outputs/table9_stress107_summary.csv
+statistics/outputs/stress107_summary.csv
 ```
 
 Stress107 reduces concern that the stress-test conclusion depends on a single
@@ -106,7 +120,7 @@ Feature-score correlations are descriptive because WQI5 `Score` is constructed
 from the same five indicators. They are included only to document the processed
 dataset relationships used by the surrogate-regression experiments.
 
-The correlation table is:
+The correlation output is:
 
 ```text
 statistics/outputs/feature_score_correlations.csv
@@ -118,13 +132,13 @@ GPU and multicore CPU acceleration may be used to reproduce model-effect
 experiments efficiently. Deployment-oriented timing is reported separately using
 CPU-only inference from saved model artifacts.
 
-The CPU-only timing table is:
+The CPU-only timing output is:
 
 ```text
-statistics/outputs/table8_cpu_only_timing.csv
+statistics/outputs/cpu_only_timing.csv
 ```
 
-This table is a conservative inference-time reference. It should not be
+This output is a conservative inference-time reference. It should not be
 described as direct validation on a low-end edge device unless such hardware is
 actually tested.
 

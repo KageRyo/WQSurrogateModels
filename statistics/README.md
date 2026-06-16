@@ -8,23 +8,23 @@ This directory contains the statistical post-processing workflow and result pack
 - Method notes: [`../docs/statistical-analysis.md`](../docs/statistical-analysis.md)
 - Figures: [`outputs/figures/`](outputs/figures/)
 
-The result tables used for manuscript updates are:
+The result files used for manuscript updates are:
 
-- [`outputs/table6_complete_input_performance.csv`](outputs/table6_complete_input_performance.csv)
-- [`outputs/table7_missing_indicator_robustness.csv`](outputs/table7_missing_indicator_robustness.csv)
-- [`outputs/table8_cpu_only_timing.csv`](outputs/table8_cpu_only_timing.csv)
-- [`outputs/table9_stress107_summary.csv`](outputs/table9_stress107_summary.csv)
+- [`outputs/complete_input_performance.csv`](outputs/complete_input_performance.csv)
+- [`outputs/missing_indicator_robustness.csv`](outputs/missing_indicator_robustness.csv)
+- [`outputs/cpu_only_timing.csv`](outputs/cpu_only_timing.csv)
+- [`outputs/stress107_summary.csv`](outputs/stress107_summary.csv)
 - [`outputs/feature_score_correlations.csv`](outputs/feature_score_correlations.csv)
 - [`outputs/bootstrap_ci.csv`](outputs/bootstrap_ci.csv)
 - [`outputs/paired_error_tests.csv`](outputs/paired_error_tests.csv)
 
-The report includes summary metrics, confidence intervals, pairwise
-error tests, descriptive feature-score correlations, Stress107 summaries,
+The report includes summary metrics, confidence intervals, hold-out row-level
+paired error tests, descriptive feature-score correlations, Stress107 summaries,
 CPU-only timing, and rendered residual figures.
 
 ## Reproduce Results
 
-Prepare the manuscript tables from the organized local result bundle:
+Prepare the manuscript-facing outputs from the organized local result bundle:
 
 ```bash
 python scripts/prepare_statistics_outputs.py \
