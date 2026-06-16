@@ -233,6 +233,7 @@ organized result bundle:
 ```bash
 python scripts/prepare_statistics_outputs.py \
   --bundle-dir results/manuscript_package \
+  --complete-input-gpu-dir results/complete_input_gpu \
   --output-dir statistics/outputs \
   --update-production-model \
   --archive-legacy-50000-artifacts

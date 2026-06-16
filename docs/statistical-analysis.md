@@ -54,13 +54,16 @@ The confidence-interval output is:
 statistics/outputs/bootstrap_ci.csv
 ```
 
-The complete-input performance output is:
+The complete-input performance output is generated from
+`results/complete_input_gpu/metrics_summary.csv` and reports repeated-split
+means and standard deviations for trained surrogate models:
 
 ```text
 statistics/outputs/complete_input_performance.csv
 ```
 
-The missing-indicator robustness output is:
+The missing-indicator robustness output uses the missing-indicator bootstrap
+confidence intervals:
 
 ```text
 statistics/outputs/missing_indicator_robustness.csv
@@ -68,32 +71,35 @@ statistics/outputs/missing_indicator_robustness.csv
 
 ## Significance Testing
 
-Pairwise model comparisons report Holm-adjusted exact two-sided Wilcoxon
-signed-rank p-values over seed-level external hold-out MAE values. Holm
-correction is applied within each source, missing-indicator setting, experiment
-mode, and experiment family.
-
-For each compared model pair within the same source, missing-indicator setting,
-experiment mode, experiment, and seed, the paired difference is:
+The manuscript-facing pairwise model-comparison table uses the complete-input
+GPU repeated-split results:
 
 ```text
-diff_seed = MAE_A_seed - MAE_B_seed
+results/complete_input_gpu/repeated_split_results.csv
 ```
 
-Negative values favor model A. Positive values favor model B. Public reporting
-writes `p_value` as the Holm-adjusted p-value with full double-precision
-formatting rather than rounded display values.
+The comparison excludes `direct_wqi5` because it is a formula baseline, not a
+trained surrogate model. For each trained model pair and seed, the paired
+difference is:
+
+```text
+diff_seed = MAE_ModelA_seed - MAE_ModelB_seed
+```
+
+Negative values favor `ModelA`; positive values favor `ModelB`. The reported
+`A-B` value is the mean paired MAE difference across the five seeds. `A-B 95%
+CI` is the paired t confidence interval for that mean difference.
+
+The `p-value` column is the Holm-adjusted paired t-test p-value across the 15
+trained-model pair comparisons. This avoids the earlier seed-level exact
+Wilcoxon output where five paired values caused many raw p-values to collapse
+to the same minimum value.
 
 The paired-test output is:
 
 ```text
 statistics/outputs/paired_error_tests.csv
 ```
-
-The current paired-test output uses `external_10714` metrics only. Each
-comparison uses the five seed-specific hold-out MAE values, so each complete
-pair has `5` paired differences. With `n=5` and a two-sided exact Wilcoxon
-test, the smallest possible raw p-value is `0.0625`.
 
 ## Stress107 Analysis
 

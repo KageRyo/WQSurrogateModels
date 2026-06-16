@@ -20,8 +20,8 @@ The result files used for manuscript updates are:
 - [`outputs/sample_size_sensitivity.csv`](outputs/sample_size_sensitivity.csv)
 - [`outputs/sample_size_metrics_by_fold.csv`](outputs/sample_size_metrics_by_fold.csv)
 
-The report includes summary metrics, confidence intervals, seed-level paired
-MAE tests, descriptive feature-score correlations, Stress107 summaries,
+The report includes summary metrics, confidence intervals, complete-input GPU
+paired MAE tests, descriptive feature-score correlations, Stress107 summaries,
 CPU-only timing, and rendered residual figures.
 
 ## Reproduce Results
@@ -31,6 +31,7 @@ Prepare the manuscript-facing outputs from the organized local result bundle:
 ```bash
 python scripts/prepare_statistics_outputs.py \
   --bundle-dir results/manuscript_package \
+  --complete-input-gpu-dir results/complete_input_gpu \
   --output-dir statistics/outputs
 ```
 
