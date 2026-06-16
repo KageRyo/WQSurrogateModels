@@ -86,6 +86,36 @@ See [reduced-indicator-analysis.md](reduced-indicator-analysis.md). Direct WQI5
 is treated as the complete-input reference and is not reported for reduced-input
 scenarios.
 
+## Sample-Size Experiment
+
+The sample-size experiment compares the six learned surrogate models across
+fixed data volumes. The completed sample sizes are `1,000`, `5,000`, `10,000`,
+and `50,000` rows, using `data/dataV1_1000.csv`, `data/dataV1_5000.csv`,
+`data/dataV1_10000.csv`, and `data/dataV1_50000.csv`.
+
+This workflow uses `5` stratified folds. Each fold trains on `80%` of the
+selected dataset and tests on the remaining `20%`, reporting train and test
+`R²`, `MAE`, and `RMSE` along with the other standard regression and WQI-band
+metrics.
+
+Run:
+
+```bash
+python scripts/run_sample_size_experiments.py \
+  --datasets \
+    data/dataV1_1000.csv \
+    data/dataV1_5000.csv \
+    data/dataV1_10000.csv \
+    data/dataV1_50000.csv \
+  --compute-device gpu \
+  --gpu-id 0
+```
+
+See [sample-size-experiments.md](sample-size-experiments.md). The workflow
+writes to `results/sample_size_experiments` and
+`models/sample_size_experiments` by default, and refuses to write into non-empty
+directories.
+
 ## Missing-Indicator Core Suite
 
 The missing-indicator core suite uses `data/dataV1_50000.csv` for
