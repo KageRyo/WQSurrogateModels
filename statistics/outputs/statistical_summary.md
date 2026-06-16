@@ -2,19 +2,19 @@
 
 ## Scope
 
-This report summarizes the missing-indicator robustness, Stress107, and CPU-only timing outputs.
+This report summarizes complete-input GPU performance, missing-indicator robustness, Stress107, and CPU-only timing outputs.
 It replaces the earlier percentage-agreement tables with R2, MAE, RMSE, Macro-F1, bootstrap confidence intervals, and paired model tests.
 
 The task remains WQI5 surrogate regression, not future water-quality forecasting. Direct WQI5 computation remains the reference method when all five indicators are available.
 
 ## Main Findings
 
-- Complete-input external hold-out best model: `xgboost` with R2=0.9993, MAE=0.2504, RMSE=0.4072.
+- Complete-input GPU repeated-split best model: `xgboost` with R2=0.9996, MAE=0.2638, RMSE=0.4241.
 - Missing NH3N reduced retraining remains useful as an auxiliary setting: `lightgbm` with R2=0.9494, MAE=2.3694.
 - DO/EC/SS-only reduced retraining is not reliable on the external hold-out: `rf` with R2=-0.1401, MAE=14.7246.
 - Stress107 uses 107 sequential event windows, not 107-fold cross-validation.
 - CPU-only timing is the deployment-oriented inference-time reference; GPU/multicore acceleration is acceptable for experiment reproduction.
-- Pairwise model comparisons use seed-level external hold-out MAE with Holm-adjusted exact two-sided Wilcoxon signed-rank p-values within each experiment family.
+- Pairwise model comparisons use complete-input GPU repeated-split MAE with Holm-adjusted paired t-test p-values across the 15 model pairs.
 
 ## Output Files
 
@@ -34,28 +34,28 @@ The sample-size experiment evaluates six surrogate models using 1,000, 10,000, a
 
 ## Pairwise Error Tests
 
-Complete-input full-reference comparisons use seed-level external hold-out MAE from the five repeated model runs. Negative A-B values favor model A; positive values favor model B. Holm correction is applied within this 15-comparison model family.
+Complete-input GPU comparisons use repeated-split MAE values paired by seed. `A-B` is `ModelA MAE - ModelB MAE`, so negative values favor ModelA. The p-value column is Holm-adjusted across the 15 model-pair comparisons.
 
-| Comparison | Mean MAE difference (A - B) | Holm-adjusted p-value | Result | Significant |
-| --- | --- | --- | --- | --- |
-| lightgbm vs lr | -6.1616993752526552 | 0.9375 | not significant; lower mean absolute error: lightgbm | no |
-| lightgbm vs mpr | -4.4464900302408079 | 0.9375 | not significant; lower mean absolute error: lightgbm | no |
-| lightgbm vs rf | -0.11404429540742474 | 0.9375 | not significant; lower mean absolute error: lightgbm | no |
-| lightgbm vs svm | -1.8316971531781541 | 0.9375 | not significant; lower mean absolute error: lightgbm | no |
-| lightgbm vs xgboost | 0.041571368131353689 | 0.9375 | not significant; lower mean absolute error: xgboost | no |
-| lr vs mpr | 1.7152093450118475 | 0.9375 | not significant; lower mean absolute error: mpr | no |
-| lr vs rf | 6.0476550798452298 | 0.9375 | not significant; lower mean absolute error: rf | no |
-| lr vs svm | 4.3300022220745005 | 0.9375 | not significant; lower mean absolute error: svm | no |
-| lr vs xgboost | 6.2032707433840084 | 0.9375 | not significant; lower mean absolute error: xgboost | no |
-| mpr vs rf | 4.3324457348333834 | 0.9375 | not significant; lower mean absolute error: rf | no |
-| mpr vs svm | 2.6147928770626536 | 0.9375 | not significant; lower mean absolute error: svm | no |
-| mpr vs xgboost | 4.4880613983721611 | 0.9375 | not significant; lower mean absolute error: xgboost | no |
-| rf vs svm | -1.7176528577707295 | 0.9375 | not significant; lower mean absolute error: rf | no |
-| rf vs xgboost | 0.15561566353877843 | 0.9375 | not significant; lower mean absolute error: xgboost | no |
-| svm vs xgboost | 1.8732685213095077 | 0.9375 | not significant; lower mean absolute error: xgboost | no |
+| ModelA | ModelB | A-B | A-B 95% CI | p-value | Significant |
+| --- | --- | ---: | --- | ---: | --- |
+| lightgbm | lr | -7.2673097338681032 | [-7.2903447555694596, -7.2442747121667468] | 1.5287701453608486e-10 | yes |
+| lightgbm | mpr | -4.8720865610707973 | [-4.8930542623153244, -4.8511188598262702] | 3.8099906651385943e-10 | yes |
+| lightgbm | rf | -0.049528002755215586 | [-0.063680933021625516, -0.035375072488805649] | 0.00093000253183144626 | yes |
+| lightgbm | svm | -1.6278333380378112 | [-1.6532062884584264, -1.6024603876171959] | 2.3834594115048274e-08 | yes |
+| lightgbm | xgboost | 0.024438810628445939 | [0.017977096504734304, 0.030900524752157574] | 0.00093000253183144626 | yes |
+| lr | mpr | 2.3952231727973059 | [2.3651589946174059, 2.4252873509772059] | 1.5034894110375994e-08 | yes |
+| lr | rf | 7.217781731112888 | [7.1900131095167659, 7.2455503527090102] | 2.8756431357558452e-10 | yes |
+| lr | svm | 5.6394763958302923 | [5.6130180551146207, 5.6659347365459638] | 4.8919488162700457e-10 | yes |
+| lr | xgboost | 7.2917485444965493 | [7.2654937846460816, 7.318003304347017] | 2.3758746201771423e-10 | yes |
+| mpr | rf | 4.8225585583155812 | [4.7980446556258594, 4.8470724610053031] | 6.066909020633406e-10 | yes |
+| mpr | svm | 3.2442532230329868 | [3.2197203410170565, 3.2687861050489171] | 2.6411842410266164e-09 | yes |
+| mpr | xgboost | 4.8965253716992434 | [4.8762651345572534, 4.9167856088412334] | 3.5513686963922853e-10 | yes |
+| rf | svm | -1.5783053352825955 | [-1.5946078207007606, -1.5620028498644305] | 8.0445922830814029e-09 | yes |
+| rf | xgboost | 0.073966813383661525 | [0.063806057868705426, 0.084127568898617625] | 0.00010612508559031675 | yes |
+| svm | xgboost | 1.6522721486662573 | [1.6300503522804322, 1.6744939450520824] | 1.6515330989270656e-08 | yes |
 
 ## Reporting Boundary
 
-The p-values test paired seed-level MAE differences across five repeated model runs. With `n=5` and a two-sided exact Wilcoxon test, the smallest possible raw p-value is `0.0625`, so the current repeated-run design does not support claiming pairwise statistical significance at alpha 0.05.
+The p-values test paired MAE differences from `results/complete_input_gpu/repeated_split_results.csv`, matched by `seed`. The complete-input GPU archive contains split-level metrics rather than per-row predictions, so the paired tests use five seed-level paired values per model comparison.
 
 Stress107 reduces dependence on a single selected middle window, but it does not prove absence of all sampling bias and is not a real pollution-event validation.
