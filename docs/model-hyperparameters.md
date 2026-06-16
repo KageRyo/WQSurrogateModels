@@ -25,7 +25,9 @@ The scikit-learn models remain CPU-based in this reproducibility workflow.
 
 ## Archived Exploratory Scripts
 
-The archived training scripts under `src/training/` reflect an earlier exploratory workflow.
+The archived training scripts under `archive/legacy_training/` reflect an
+earlier exploratory workflow. Current reproducibility and training workflows are
+kept under `scripts/`.
 
 Common characteristics include:
 

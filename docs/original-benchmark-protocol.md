@@ -1,6 +1,7 @@
 # Original Benchmark Protocol
 
-This document describes the archived benchmark style reflected by the original training scripts under `src/training/`.
+This document describes the archived benchmark style reflected by the original
+training scripts under `archive/legacy_training/`.
 
 ## Archived Subset Usage
 
