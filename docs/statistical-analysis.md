@@ -68,21 +68,21 @@ statistics/outputs/missing_indicator_robustness.csv
 
 ## Significance Testing
 
-Pairwise model comparisons use paired Wilcoxon signed-rank tests over external
-hold-out row absolute errors, followed by Holm correction.
+Pairwise model comparisons report Holm-adjusted exact two-sided Wilcoxon
+signed-rank p-values over seed-level external hold-out MAE values. Holm
+correction is applied within each source, missing-indicator setting, experiment
+mode, and experiment family.
 
 For each compared model pair within the same source, missing-indicator setting,
-experiment mode, experiment, seed, and row, the paired difference is:
+experiment mode, experiment, and seed, the paired difference is:
 
 ```text
-diff_i = |y_i - yhat_A_i| - |y_i - yhat_B_i|
+diff_seed = MAE_A_seed - MAE_B_seed
 ```
 
-Negative values favor model A. Positive values favor model B. The reported
-`95%` interval is a t interval for the mean paired difference over the external
-hold-out row differences. For public reporting, floating-point p-values are
-written with full double-precision formatting; underflowed values are reported
-as `<1e-300` rather than rounded to zero.
+Negative values favor model A. Positive values favor model B. Public reporting
+writes `p_value` as the Holm-adjusted p-value with full double-precision
+formatting rather than rounded display values.
 
 The paired-test output is:
 
@@ -90,9 +90,10 @@ The paired-test output is:
 statistics/outputs/paired_error_tests.csv
 ```
 
-The current paired-test output uses `external_10714` predictions only. Each
-comparison combines the five seed-specific hold-out prediction sets, so each
-complete pair has `53,570` paired row differences.
+The current paired-test output uses `external_10714` metrics only. Each
+comparison uses the five seed-specific hold-out MAE values, so each complete
+pair has `5` paired differences. With `n=5` and a two-sided exact Wilcoxon
+test, the smallest possible raw p-value is `0.0625`.
 
 ## Stress107 Analysis
 

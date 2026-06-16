@@ -20,8 +20,8 @@ The result files used for manuscript updates are:
 - [`outputs/sample_size_sensitivity.csv`](outputs/sample_size_sensitivity.csv)
 - [`outputs/sample_size_metrics_by_fold.csv`](outputs/sample_size_metrics_by_fold.csv)
 
-The report includes summary metrics, confidence intervals, hold-out row-level
-paired error tests, descriptive feature-score correlations, Stress107 summaries,
+The report includes summary metrics, confidence intervals, seed-level paired
+MAE tests, descriptive feature-score correlations, Stress107 summaries,
 CPU-only timing, and rendered residual figures.
 
 ## Reproduce Results
