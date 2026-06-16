@@ -95,6 +95,11 @@ trained-model pair comparisons. This avoids the earlier seed-level exact
 Wilcoxon output where five paired values caused many raw p-values to collapse
 to the same minimum value.
 
+This table is not the same data granularity as the earlier 10,714-row paired
+absolute-error Wilcoxon table. The current `complete_input_gpu` archive does
+not include row-level predictions, so the manuscript-facing complete-input GPU
+table uses the available seed-level MAE values.
+
 The paired-test output is:
 
 ```text
