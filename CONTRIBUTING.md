@@ -1,6 +1,6 @@
 # Contributing Guide
 
-Thank you for considering contributing to MPR_Model(Backend & ML model for WaterMirror project).
+Thank you for considering contributing to WQSurrogateModels, the FastAPI backend and reproducibility repository for WQI5-based water quality assessment.
 
 ## Contents
 - [Workflow](#workflow)

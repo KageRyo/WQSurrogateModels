@@ -21,7 +21,7 @@ It provides:
 This project is part of a two-repository system:
 
 - `WaterMirror`: cross-platform mobile frontend for data entry, CSV upload, and result visualization
-- `WQSurrogateModels`: FastAPI backend and model/reproducibility repository for WQI5-based current-state water quality assessment
+- `WQSurrogateModels`: FastAPI backend and reproducibility repository for WQI5-based current-state water quality assessment
 
 WaterMirror depends on the API contract exposed by this repository. `WQSurrogateModels` can also be used independently through `curl`, Postman, or custom scripts.
 
@@ -111,11 +111,15 @@ models/SVM/modelSVMVer.2.0-50000-seed3.pkl
 models/XGBoost/modelXGBVer.2.0-50000-seed2.pkl
 ```
 
-The committed manifest is:
+The committed model artifact manifest is:
 
 ```text
 models/production_model_manifest.json
 ```
+
+The manifest filename is retained for compatibility with existing scripts. In
+this documentation, it refers to local inference artifacts, not evidence of a
+formally validated deployment.
 
 Each artifact is extracted from the complete-input `full_reference`
 result with the lowest external `10,714`-row hold-out MAE for that model type.
@@ -257,6 +261,9 @@ python scripts/prepare_statistics_outputs.py \
   --update-production-model \
   --archive-legacy-50000-artifacts
 ```
+
+The `--update-production-model` flag name is retained for script compatibility.
+It updates local inference artifacts and the model artifact manifest.
 
 Result-table outputs are written to:
 
