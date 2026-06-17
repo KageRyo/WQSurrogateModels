@@ -8,17 +8,18 @@ models may simply reconstruct a deterministic WQI5 index.
 Direct WQI5 computation remains the reference method when all five indicators
 are available. The reduced-indicator experiment does not claim that machine
 learning is more mathematically correct than the WQI5 formula. Instead, it tests
-whether surrogate regressors remain useful when deployment constraints make some
-indicators unavailable, delayed, noisy, or costly to collect.
+whether surrogate regressors remain useful when measurement constraints make
+some indicators unavailable, delayed, noisy, or costly to collect.
 
-This reframes the machine-learning component as a deployable WQI5 surrogate
-assessment layer for small-scale IoT scenarios.
+This frames the machine-learning component as a WQI5 surrogate assessment layer
+for small-scale IoT scenarios where the complete indicator set may not always be
+available.
 
 ## Scenarios
 
 The configured scenarios are:
 
-| Scenario | Features | Deployment interpretation |
+| Scenario | Features | Interpretation |
 | --- | --- | --- |
 | `full` | `DO`, `BOD`, `NH3N`, `EC`, `SS` | Complete-input reference setting |
 | `no_bod` | `DO`, `NH3N`, `EC`, `SS` | BOD unavailable or delayed |

@@ -11,5 +11,5 @@ training workflows live under `scripts/`, including:
 - `scripts/run_missing_indicator_experiments.py`
 - `scripts/run_missing_indicator_robustness_experiments.py`
 
-Do not use these archived scripts as the source of current manuscript results or
-production model artifacts.
+Do not use these archived scripts as the source of current result tables or
+local inference artifacts.

@@ -22,10 +22,10 @@ where `y_i` is the reference WQI5 score and `ŷ_i` is the model-estimated WQI5 s
 ## Archived Percentage-Agreement Metric
 
 Earlier exploratory tables included a percentage-agreement metric derived from
-absolute percentage error. It is not used as a primary metric in the manuscript
-tables because the task is continuous WQI5 regression. Primary reporting should
-use `R²`, `MAE`, `RMSE`, `NMAE`, residual statistics, WQI-band accuracy /
-macro-F1, confidence intervals, and paired tests.
+absolute percentage error. It is not used as a primary reporting metric because
+the task is continuous WQI5 regression. Primary reporting should use `R²`,
+`MAE`, `RMSE`, `NMAE`, residual statistics, WQI-band accuracy / macro-F1,
+confidence intervals, and paired tests.
 
 ## WQI Bands
 

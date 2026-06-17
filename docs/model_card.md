@@ -34,10 +34,10 @@ This repository does not perform temporal forecasting.
 - `xgboost`
 - `lightgbm`
 
-## Current Production Artifacts
+## Current Local Inference Artifacts
 
-Production model binaries are local artifacts and are not committed to Git. The
-model package exports one complete-input API artifact for each surrogate model:
+Model binaries are local artifacts and are not committed to Git. The model
+package exports one complete-input API artifact for each surrogate model:
 
 ```text
 models/LightGBM/modelLGBMVer.2.0-50000-seed0.pkl
@@ -52,7 +52,7 @@ The committed manifest is `models/production_model_manifest.json`. Each entry is
 selected as the lowest-MAE complete-input seed artifact for that model type on
 the fixed external `10,714`-row hold-out in the organized result bundle.
 
-The production artifacts are complete-input WQI5 surrogates:
+The local inference artifacts are complete-input WQI5 surrogates:
 
 ```text
 DO, BOD, NH3N, EC, SS -> WQI5 score
@@ -67,7 +67,7 @@ settings.
 
 - backend assessment for `WaterMirror`
 - API-based batch or single-record WQI5 assessment
-- reproducibility and reviewer-facing comparison of direct and surrogate approaches
+- reproducibility and comparison of direct and surrogate approaches
 
 ## Not Intended Use
 
@@ -76,7 +76,7 @@ settings.
 - unsupported water quality indices beyond the documented WQI5 framing
 - replacing deterministic WQI5 when all five indicators are available
 - treating reduced-indicator models as reliable substitutes for complete-input WQI5
-- describing Stress107 as real pollution-event validation
+- describing the 107-window stress test as real pollution-event validation
 - decision-making without reviewing domain-specific limitations and data provenance constraints
 
 ## Limitations
@@ -85,4 +85,4 @@ settings.
 - The processed dataset is versioned, but exact upstream extraction and intermediate cleaning logs are not yet fully recoverable.
 - Optional model families such as `xgboost` and `lightgbm` require their corresponding runtime dependencies.
 - External hold-out results show that `BOD` is a critical indicator; reduced-input settings without `BOD` should be interpreted conservatively.
-- CPU-only timing is a deployment-oriented reference, not direct proof of performance on a low-end edge device.
+- CPU-only timing is a rough inference-time reference, not direct proof of performance on a low-end edge device.

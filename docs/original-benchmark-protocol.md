@@ -5,7 +5,7 @@ training scripts under `archive/legacy_training/`.
 
 ## Archived Subset Usage
 
-The archived manuscript experiments used predefined fixed-size subsets such as:
+The archived experiments used predefined fixed-size subsets such as:
 
 - `dataV1_1000.csv`
 - `dataV1_10000.csv`

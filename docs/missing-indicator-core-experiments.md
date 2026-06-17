@@ -1,13 +1,13 @@
 # Missing-Indicator Core Experiments
 
 This document records the earlier double-missing workflow. The
-manuscript-facing tables are generated from the missing-indicator
-robustness workflow documented in
+current result tables are generated from the missing-indicator workflow
+documented in
 [`missing-indicator-robustness-experiments.md`](missing-indicator-robustness-experiments.md).
 
 This workflow evaluates WQI5 surrogate behavior under missing-indicator and
-deployment-constrained settings. It is designed for reviewer-response analysis,
-not temporal water-quality forecasting.
+incomplete-input settings. It is designed for method comparison, not temporal
+water-quality forecasting.
 
 ## Data Split
 
@@ -38,8 +38,8 @@ WQI5 category:
 | `stress_scenarios` | Scenario-based perturbation tests for pollution-like parameter shifts. |
 
 `full_inference_dropout` and `full_reference` use the same trained full-input
-model. The dropout condition simulates unexpected deployment-time loss of BOD
-and NH3N measurements.
+model. The dropout condition simulates unavailable BOD and NH3N measurements at
+inference time.
 
 The two-stage reconstruction workflow trains the indicator-reconstruction models
 only on the training split. The second-stage WQI surrogate is trained on the

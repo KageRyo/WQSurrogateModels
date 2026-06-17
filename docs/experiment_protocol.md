@@ -2,7 +2,7 @@
 
 This document describes the reproducibility workflow.
 
-It is intended to support future reproducible runs and robustness checks. The archived manuscript experiments used predefined fixed-size subsets and `80/20` train-test splits; see [original-benchmark-protocol.md](original-benchmark-protocol.md).
+It is intended to support future reproducible runs and missing-indicator checks. The archived experiments used predefined fixed-size subsets and `80/20` train-test splits; see [original-benchmark-protocol.md](original-benchmark-protocol.md).
 
 ## Task Definition
 
@@ -70,9 +70,9 @@ addressing why a machine-learning surrogate may be useful when WQI5 is
 deterministic. It evaluates surrogate regressors when one or more indicators are
 removed to simulate incomplete or delayed sensing.
 
-The current manuscript-facing result package is the missing-indicator
-robustness suite, including single-indicator missing settings, two-stage
-indicator reconstruction, Stress107, and CPU-only inference timing.
+The current result package is the missing-indicator suite, including
+single-indicator missing settings, two-stage indicator reconstruction, the
+107-window stress test, and CPU-only inference timing.
 
 Run:
 
@@ -135,10 +135,11 @@ python scripts/run_missing_indicator_experiments.py \
 
 See [missing-indicator-core-experiments.md](missing-indicator-core-experiments.md).
 
-## Missing-Indicator Robustness Suite
+## Missing-Indicator Suite
 
-The robustness suite extends the missing-indicator core workflow by adding
-single-indicator missing settings, Stress107, and CPU-only inference timing.
+The missing-indicator suite extends the earlier core workflow by adding
+single-indicator missing settings, the 107-window stress test, and CPU-only
+inference timing.
 It evaluates:
 
 - `missing_bod`: BOD unavailable.
@@ -155,11 +156,12 @@ For each missing setting, the workflow reports:
   indicators before WQI5 surrogate inference.
 
 The earlier localized middle-window stress block is retained only as a disabled
-backward-compatible configuration. The current workflow uses Stress107, which
-divides the external `10,714`-row hold-out into `107` consecutive
-non-overlapping event windows and applies 30%, 100%, and 300% synthetic
-perturbations. The suite also includes a separate CPU-only inference timing
-workflow from saved artifacts.
+backward-compatible configuration. The current workflow uses a 107-window
+stress test, which divides the external `10,714`-row hold-out into `107`
+consecutive non-overlapping event windows and applies 30%, 100%, and 300%
+synthetic perturbations. The `stress107` filename prefix is repository-specific,
+not a new validation method. The suite also includes a separate CPU-only
+inference timing workflow from saved artifacts.
 
 Run:
 
@@ -202,8 +204,8 @@ Operational metrics:
 - residual mean
 - residual standard deviation
 
-Earlier percentage-agreement metrics are not used as primary metrics in the
-manuscript tables. See [metrics.md](metrics.md) for metric definitions and for
+Earlier percentage-agreement metrics are not used as primary reporting metrics.
+See [metrics.md](metrics.md) for metric definitions and for
 guidance on separating regression metrics from WQI-band summaries.
 
 ## Outputs
@@ -215,7 +217,7 @@ Running `scripts/reproduce_results.py` writes:
 - `results/residual_statistics.csv`
 - `results/category_metrics.csv`
 
-These files are intended to support reproducible regeneration of the manuscript tables after the experiment hyperparameters are locked.
+These files are intended to support reproducible regeneration of result tables after the experiment hyperparameters are locked.
 
 For verification runs, prefer a separate output directory so archived experiment outputs are not overwritten:
 

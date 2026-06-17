@@ -32,7 +32,7 @@ Based on current project-team clarification, the major reduction from the upstre
   - validity / preprocessing filters
   - tail trimming of extreme observations
 
-This explanation is sufficient for methodological transparency, but the repository still lacks a versioned preprocessing script that emits exact row counts after each individual operation.
+This explanation documents the current understanding, but the repository still lacks a versioned preprocessing script that emits exact row counts after each individual operation.
 
 ## Current Repository State
 
@@ -74,7 +74,7 @@ Use `merged`, `aligned`, `filtered`, or `processed` unless actual synthetic data
 - Existing training scripts use `mean` imputation. That is acceptable only as a simple baseline because the committed processed dataset is already complete.
 - If mean imputation was applied upstream before creating `dataV1.csv`, the rationale should be documented as:
   - It preserves dataset size for surrogate-regression training.
-  - It avoids introducing model-specific bias from more aggressive imputation schemes.
+  - It avoids introducing model-specific bias from more complex imputation schemes.
 - Head-and-tail `1%` outlier trimming should be described carefully:
   - It may stabilize regression training.
   - It may also remove true pollution events.

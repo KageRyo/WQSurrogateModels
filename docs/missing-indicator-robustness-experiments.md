@@ -1,9 +1,9 @@
 # Missing-Indicator Robustness Experiments
 
 This workflow evaluates WQI5 surrogate behavior under single-indicator and
-multi-indicator missing conditions. It is a deployment-robustness experiment,
-not temporal forecasting and not a replacement for complete-input deterministic
-WQI5 computation.
+multi-indicator missing conditions. It is an incomplete-input sensitivity
+experiment, not temporal forecasting and not a substitute for complete-input
+deterministic WQI5 computation.
 
 ## Data Split
 
@@ -50,9 +50,9 @@ The legacy localized stress test uses the external `10,714`-row hold-out and
 perturbs only a localized event window. The earlier default selected the middle
 `1%` window, which is approximately `107` rows. This setting is retained only as
 a backward-compatible configuration block and is disabled by default in the
-current robustness config.
+current config.
 
-The revised stress analysis is the **Stress107 sequential event-window stress
+The revised stress analysis is the **107-window sequential event-window stress
 test**. It divides the external `10,714`-row hold-out into `107` consecutive,
 non-overlapping event windows. Each window contains approximately `1%` of the
 external samples. Each window is evaluated under low-, medium-, and
@@ -73,17 +73,18 @@ The default scenarios are:
 - `combined_pollution`: `BOD`, `NH3N`, `SS`, and `EC` increase while `DO`
   decreases.
 
-This should be described as a `107 sequential event-window stress test`, not as
-`107-fold cross-validation`, because the windows are perturbation locations, not
-training-validation folds.
+This should be described as a `107-window sequential event-window stress test`,
+not as `107-fold cross-validation`, because the windows are perturbation
+locations, not training-validation folds. The `stress107` filename prefix is a
+repository-specific label, not a new validation methodology.
 
 This is a controlled synthetic event-window stress test. It should not be
 described as real typhoon, rainfall, or pollution-event validation unless a
 timestamped real event dataset is added.
 
-The valid claim is that Stress107 reduces the concern that the stress-test
-conclusion depends on a single selected window. It does not prove that all
-sampling bias is impossible.
+The valid claim is that this 107-window test reduces the concern that the
+stress-test conclusion depends on a single selected window. It does not prove
+that all sampling bias is impossible.
 
 When a scenario perturbs an indicator that is absent from a reduced-input
 setting, reduced sensitivity is expected. For example, `missing_nh3n` settings
@@ -104,8 +105,8 @@ OPENBLAS_NUM_THREADS=1
 NUMEXPR_NUM_THREADS=1
 ```
 
-CPU-only timing is a conservative deployment-oriented reference. It should not
-be mixed with GPU training or GPU timing claims.
+CPU-only timing is a rough inference-time reference for constrained CPU
+environments. It should not be mixed with GPU training or GPU timing claims.
 
 ## Run
 
@@ -146,13 +147,14 @@ The output directory is organized as:
 - `stats/bootstrap_ci.csv`: seed-level bootstrap confidence intervals.
 - `stats/paired_error_tests.csv`: paired Wilcoxon comparisons over per-seed MAE.
 - `stress_tests/event_window_stress_summary.csv`: localized event-window stress responses.
-- `stress_tests/stress107_window_summary.csv`: window-level Stress107 responses.
+- `stress_tests/stress107_window_summary.csv`: window-level responses for the
+  107-window stress test.
 - `stress_tests/stress107_detection_summary.csv`: detection-rate summaries by
   scenario, severity, model, and experiment mode.
 - `stress_tests/stress107_severity_monotonicity.csv`: checks whether the 30%,
   100%, and 300% perturbations produce progressively larger score drops.
 - `stress_tests/stress107_key_conclusions.csv`: compact interpretation notes for
-  teacher/manuscript discussion.
+  result discussion.
 - `timing/cpu_only_inference_timing.csv`: raw CPU-only timing repeats.
 - `timing/cpu_only_inference_timing_summary.csv`: CPU-only timing summary.
 - `reports/missing_indicator_robustness_summary.xlsx`: formatted workbook.
@@ -161,6 +163,6 @@ The output directory is organized as:
 
 Complete-input deterministic WQI5 remains the reference method when all five
 indicators are available. Reduced, dropout, or reconstructed-indicator settings
-evaluate auxiliary behavior under deployment constraints. Negative external
-hold-out R2 should be interpreted as a generalization limitation, not hidden or
-reframed as successful replacement of complete-input WQI5.
+evaluate auxiliary behavior under incomplete-input constraints. Negative
+external hold-out R2 should be interpreted as a generalization limitation, not
+hidden or reframed as successful substitution for complete-input WQI5.

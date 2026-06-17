@@ -36,4 +36,4 @@ Common characteristics include:
 - polynomial degree candidates from `1` to `6` for MPR-style pipelines
 - some model-specific parameters left at library defaults
 
-The archived exploratory scripts should not be assumed to be identical to the revised reproducibility workflow used for future regeneration and robustness checks.
+The archived exploratory scripts should not be assumed to be identical to the revised reproducibility workflow used for future regeneration and missing-indicator checks.

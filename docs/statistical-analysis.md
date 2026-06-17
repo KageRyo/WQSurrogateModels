@@ -1,7 +1,7 @@
 # Statistical Analysis
 
-This document describes the statistics used for the missing-indicator
-robustness, Stress107, and CPU-only timing results.
+This document describes the statistics used for the missing-indicator,
+107-window stress-test, and CPU-only timing results.
 
 ## Interpretation Boundaries
 
@@ -12,11 +12,11 @@ results are WQI5 approximation results, not future water-quality forecasting.
 Direct WQI5 computation remains the reference method when `DO`, `BOD`, `NH3N`,
 `EC`, and `SS` are all available. Reduced-input, inference-dropout, and
 indicator-reconstruction experiments evaluate auxiliary behavior under
-deployment constraints.
+incomplete-input constraints.
 
 ## Primary Metrics
 
-Primary manuscript reporting uses:
+Primary reporting uses:
 
 - `R²`
 - `MAE`
@@ -26,9 +26,9 @@ Primary manuscript reporting uses:
 - WQI-band `Macro-F1`
 - residual mean and residual standard deviation where useful
 
-Earlier percentage-agreement metrics are not used as primary manuscript metrics
-in the current result package. They remain only as archived context for earlier exploratory
-outputs outside the current result package.
+Earlier percentage-agreement metrics are not used as primary reporting metrics
+in the current result package. They remain only as archived context for earlier
+exploratory outputs outside the current result package.
 
 ## Confidence Intervals
 
@@ -71,8 +71,8 @@ statistics/outputs/missing_indicator_robustness.csv
 
 ## Significance Testing
 
-The manuscript-facing pairwise model-comparison table uses the complete-input
-GPU repeated-split results:
+The pairwise model-comparison table uses the complete-input GPU repeated-split
+results:
 
 ```text
 results/complete_input_gpu/repeated_split_results.csv
@@ -97,8 +97,8 @@ to the same minimum value.
 
 This table is not the same data granularity as the earlier 10,714-row paired
 absolute-error Wilcoxon table. The current `complete_input_gpu` archive does
-not include row-level predictions, so the manuscript-facing complete-input GPU
-table uses the available seed-level MAE values.
+not include row-level predictions, so the complete-input GPU table uses the
+available seed-level MAE values.
 
 The paired-test output is:
 
@@ -106,25 +106,26 @@ The paired-test output is:
 statistics/outputs/paired_error_tests.csv
 ```
 
-## Stress107 Analysis
+## 107-Window Stress Analysis
 
-Stress107 is a controlled synthetic event-window stress test. The external
-`10,714`-row hold-out is divided into `107` consecutive non-overlapping windows.
-Each window is perturbed under 30%, 100%, and 300% severity levels for five
-pollution-like scenarios.
+The 107-window stress analysis is a controlled synthetic event-window stress
+test. The external `10,714`-row hold-out is divided into `107` consecutive
+non-overlapping windows. Each window is perturbed under 30%, 100%, and 300%
+severity levels for five pollution-like scenarios.
 
-Stress107 should not be called `107-fold cross-validation`. The windows are
-event locations, not model-training folds.
+It should not be called `107-fold cross-validation`. The windows are event
+locations, not model-training folds. The `stress107` output filename prefix is a
+repository-specific label, not a new validation methodology.
 
-The Stress107 summary is:
+The 107-window stress-test summary is:
 
 ```text
 statistics/outputs/stress107_summary.csv
 ```
 
-Stress107 reduces concern that the stress-test conclusion depends on a single
-selected middle window. It does not prove absence of all sampling bias and does
-not replace validation on real timestamped pollution-event data.
+This analysis reduces concern that the stress-test conclusion depends on a
+single selected middle window. It does not prove absence of all sampling bias
+and does not replace validation on real timestamped pollution-event data.
 
 ## Feature-Score Correlation
 
@@ -140,9 +141,9 @@ statistics/outputs/feature_score_correlations.csv
 
 ## CPU-Only Timing
 
-GPU and multicore CPU acceleration may be used to reproduce model-effect
-experiments efficiently. Deployment-oriented timing is reported separately using
-CPU-only inference from saved model artifacts.
+GPU and multicore CPU acceleration may be used to reproduce model-comparison
+experiments efficiently. CPU-only timing is reported separately using inference
+from saved model artifacts.
 
 The CPU-only timing output is:
 
