@@ -7,7 +7,7 @@ This document describes the API contract between **WaterMirror** (frontend) and 
 
 ## Overview
 
-WaterMirror communicates with this backend using the modern v2 contract (preferred) with fallback to legacy endpoints.
+WaterMirror communicates with this backend using the v2 contract (preferred) with fallback to legacy endpoints.
 
 WaterMirror is the frontend application.
 WQSurrogateModels is the backend and model repository.
@@ -162,6 +162,6 @@ EXPO_PUBLIC_REQUEST_TIMEOUT_MS=10000
 
 ---
 
-**Primary contract moved to /api/v2/* while preserving full backward compatibility.**
+**Primary contract moved to /api/v2/* while preserving backward compatibility.**
 
 Last updated: 2026 (v2 refactor)

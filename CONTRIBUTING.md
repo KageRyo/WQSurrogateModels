@@ -17,7 +17,7 @@ Thank you for considering contributing to MPR_Model(Backend & ML model for Water
 
 This project follows GitHub Flow with `main` as the primary branch.
 
-1. `main` stays deployable.
+1. `main` stays releasable.
 2. Create a topic branch from `main` for each change.
 3. Push your branch regularly.
 4. Open a Pull Request for review.

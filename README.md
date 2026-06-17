@@ -4,9 +4,9 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-green.svg)](https://www.python.org)
 [![CI](https://github.com/KageRyo/WQSurrogateModels/actions/workflows/ci.yml/badge.svg)](https://github.com/KageRyo/WQSurrogateModels/actions/workflows/ci.yml)
 
-WQSurrogateModels is a FastAPI backend and reproducibility repository for WQI5-based current-state water quality assessment.
+WQSurrogateModels is a FastAPI backend for WQI5-based water quality assessment. It provides a direct WQI5 formula baseline, surrogate regression models, API endpoints, and scripts for reproducing the experiments.
 
-> Scope: this repository performs WQI5-based current-state water quality assessment.
+> Scope: this repository assesses current water quality state from five physicochemical indicators.
 > It does not perform temporal forecasting because the committed dataset does not contain timestamps.
 
 It provides:
@@ -32,6 +32,14 @@ WaterMirror depends on the API contract exposed by this repository. `WQSurrogate
 - supports surrogate regression models: `lr`, `mpr`, `svm`, `rf`, `xgboost`, `lightgbm`
 - provides reproducibility scripts and experiment configuration
 - keeps compatibility with legacy endpoints while treating `/api/v2/*` as the primary contract
+
+## Terminology
+
+- `direct_wqi5`: computes the WQI5 score directly from the documented formula.
+- `surrogate model`: a regression model trained to approximate WQI5 scores from the same five indicators.
+- `complete-input model`: a model that requires all five indicators: `DO`, `BOD`, `NH3N`, `EC`, and `SS`.
+- `missing-indicator experiment`: an experiment that evaluates model behavior when one or more indicators are unavailable. The committed complete-input artifacts are not incomplete-input models.
+- `107-window stress test`: a repository-specific synthetic perturbation analysis over consecutive external hold-out windows. It is not a new validation method and should not be called cross-validation.
 
 ## Architecture
 
@@ -79,8 +87,8 @@ pip install -e ".[dev]"
 ```
 
 Local or externally provided scikit-learn surrogate artifacts should be loaded
-with the compatible scikit-learn version used during export. Production
-artifacts are not committed to Git; see `models/production_model_manifest.json`
+with the compatible scikit-learn version used during export. Model binaries are
+not committed to Git; see `models/production_model_manifest.json`
 for the expected local paths.
 
 To also enable the full set of surrogate models (`xgboost`, `lightgbm`):
@@ -89,11 +97,10 @@ To also enable the full set of surrogate models (`xgboost`, `lightgbm`):
 pip install -e ".[dev,models]"
 ```
 
-## Production Model Artifacts
+## Local Inference Artifacts
 
-Production model binaries are local artifacts and are not committed to Git.
-The current model package exports one complete-input API artifact for each surrogate
-model:
+Model binaries are local artifacts and are not committed to Git. The current
+model package exports one complete-input API artifact for each surrogate model:
 
 ```text
 models/LightGBM/modelLGBMVer.2.0-50000-seed0.pkl
@@ -118,9 +125,9 @@ These artifacts remain complete-input WQI5 surrogates and require:
 DO, BOD, NH3N, EC, SS
 ```
 
-They should not be interpreted as missing-indicator replacement models. Legacy
-production artifacts are kept locally under `models/archive/legacy_v1/` for
-traceability, and experiment bundles remain under ignored `results_*` folders.
+They should not be interpreted as models for incomplete-input cases. Legacy
+API artifacts are kept locally under `models/archive/legacy_v1/` for
+traceability. Experiment bundles remain under ignored `results_*` folders.
 
 ## Run
 
@@ -152,22 +159,33 @@ Legacy compatibility endpoints such as `POST /predict`, `POST /score/total/`, an
 
 ## Documentation
 
-- [WaterMirror Integration](docs/watermirror-integration.md)
+User and API:
+
 - [API Reference](docs/api-reference.md)
 - [Full-Stack Local Run](docs/fullstack-local-run.md)
+- [WaterMirror Integration](docs/watermirror-integration.md)
+
+Methodology:
+
 - [WQI5 Formula](docs/wqi5-formula.md)
-- [Metrics](docs/metrics.md)
 - [Data Preparation](docs/data_preparation.md)
-- [Original Benchmark Protocol](docs/original-benchmark-protocol.md)
-- [Experiment Protocol](docs/experiment_protocol.md)
-- [Sample-Size Experiments](docs/sample-size-experiments.md)
-- [Earlier Missing-Indicator Core Experiments](docs/missing-indicator-core-experiments.md)
-- [Missing-Indicator Robustness Experiments](docs/missing-indicator-robustness-experiments.md)
-- [Statistical Analysis](docs/statistical-analysis.md)
-- [Statistics Workspace Notes](statistics/README.md)
+- [Metrics](docs/metrics.md)
 - [Model Hyperparameters](docs/model-hyperparameters.md)
 - [Model Card](docs/model_card.md)
 - [Limitations](docs/limitations.md)
+
+Experiments and statistics:
+
+- [Revised Experiment Protocol](docs/experiment_protocol.md)
+- [Sample-Size Experiments](docs/sample-size-experiments.md)
+- [Missing-Indicator Experiments](docs/missing-indicator-robustness-experiments.md)
+- [Statistical Analysis](docs/statistical-analysis.md)
+- [Statistics Output Guide](statistics/README.md)
+
+Archive:
+
+- [Legacy Benchmark Protocol](docs/original-benchmark-protocol.md)
+- [Earlier Missing-Indicator Core Experiments](docs/missing-indicator-core-experiments.md)
 
 ## Reproducibility
 
@@ -186,7 +204,7 @@ pip install -e ".[models]"
 python scripts/reproduce_results.py --config configs/experiment_config.yaml --output-dir results/verification_run
 ```
 
-To protect archived manuscript outputs, the script now refuses to overwrite an existing results directory unless `--overwrite` is passed explicitly.
+To protect archived result outputs, the script now refuses to overwrite an existing results directory unless `--overwrite` is passed explicitly.
 
 Run the missing-indicator core experiments:
 
@@ -202,9 +220,9 @@ This workflow saves model artifacts, internal-test predictions, external
 `10,714`-row inference predictions, summary metrics, confidence intervals,
 paired tests, and stress-scenario summaries into the selected output directory.
 
-Run the missing-indicator robustness workflow with single-indicator missing
-settings, event-window stress testing, Stress107 sequential event-window stress,
-and CPU-only timing support:
+Run the missing-indicator workflow with single-indicator missing settings,
+event-window stress testing, the 107-window stress test, and CPU-only timing
+support:
 
 ```bash
 python scripts/run_missing_indicator_robustness_experiments.py \
@@ -222,12 +240,13 @@ python scripts/export_missing_indicator_robustness_excel.py \
   --output-dir results/stress107_run
 ```
 
-Stress107 divides the external `10,714`-row hold-out into `107` consecutive
-event windows and applies 30%, 100%, and 300% synthetic perturbations. It should
+The 107-window stress test divides the external `10,714`-row hold-out into
+`107` consecutive event windows and applies 30%, 100%, and 300% synthetic
+perturbations. The `stress107` filename prefix is repository-specific. It should
 not be described as `107-fold cross-validation`; these are event locations, not
 training-validation folds.
 
-Prepare manuscript result tables and production model artifacts from the
+Prepare result tables and local inference artifacts from the
 organized result bundle:
 
 ```bash
@@ -239,7 +258,7 @@ python scripts/prepare_statistics_outputs.py \
   --archive-legacy-50000-artifacts
 ```
 
-Manuscript-facing outputs are written to:
+Result-table outputs are written to:
 
 - `statistics/outputs/complete_input_performance.csv`
 - `statistics/outputs/missing_indicator_robustness.csv`
@@ -250,11 +269,11 @@ Manuscript-facing outputs are written to:
 - `statistics/outputs/sample_size_sensitivity.csv`
 - `statistics/outputs/sample_size_metrics_by_fold.csv`
 
-GPU and multicore CPU acceleration may be used for model-effect reproduction.
-CPU-only timing is reported separately as a deployment-oriented inference-time
-reference.
+GPU and multicore CPU acceleration may be used to reproduce the
+model-comparison experiments. CPU-only timing is reported separately as a rough
+inference-time reference for constrained CPU environments.
 
-Prepare the manuscript-facing sample-size tables from the consolidated local
+Prepare the sample-size result tables from the consolidated local
 sample-size run:
 
 ```bash
@@ -281,7 +300,7 @@ to Git. The current local layout is:
   missing-indicator robustness results, including CPU-only timing outputs.
 - `results/stress107/`: 107 sequential event-window stress-test outputs.
 - `results/manuscript_package/`: organized CSV files and Excel workbooks for
-  manuscript tables and discussion.
+  result tables and discussion.
 - `results/sample_size_experiments/`: consolidated `1,000`, `5,000`, `10,000`,
   and `50,000` row sample-size experiment outputs.
 
@@ -308,7 +327,7 @@ Repeated validation uses stratified random splits over WQI5 categories with seed
 ## Project Structure
 
 - `data/`: processed datasets and subsets
-- `models/`: production model manifest and local artifact paths; model binaries are not committed
+- `models/`: local inference manifest and artifact paths; model binaries are not committed
 - `src/`: API and reusable backend logic
 - `scripts/`: reproducibility runners
 - `archive/legacy_training/`: archived exploratory training scripts from the
