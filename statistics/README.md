@@ -8,7 +8,7 @@ This directory contains the statistical post-processing workflow and result pack
 - Method notes: [`../docs/statistical-analysis.md`](../docs/statistical-analysis.md)
 - Figures: [`outputs/figures/`](outputs/figures/)
 
-The result files used for manuscript updates are:
+The current result files are:
 
 - [`outputs/complete_input_performance.csv`](outputs/complete_input_performance.csv)
 - [`outputs/missing_indicator_robustness.csv`](outputs/missing_indicator_robustness.csv)
@@ -21,12 +21,12 @@ The result files used for manuscript updates are:
 - [`outputs/sample_size_metrics_by_fold.csv`](outputs/sample_size_metrics_by_fold.csv)
 
 The report includes summary metrics, confidence intervals, complete-input GPU
-paired MAE tests, descriptive feature-score correlations, Stress107 summaries,
-CPU-only timing, and rendered residual figures.
+paired MAE tests, descriptive feature-score correlations, 107-window stress-test
+summaries, CPU-only timing, and rendered residual figures.
 
 ## Reproduce Results
 
-Prepare the manuscript-facing outputs from the organized local result bundle:
+Prepare the result-table outputs from the organized local result bundle:
 
 ```bash
 python scripts/prepare_statistics_outputs.py \
@@ -49,9 +49,9 @@ python scripts/generate_residual_plots.py \
 The statistical scripts post-process recorded experiment outputs and committed
 datasets. They do not retrain model artifacts. The current statistics workflow
 does not depend on local Excel workbooks; it reads the organized result bundle
-and writes the manuscript tables.
+and writes the result tables.
 
-Prepare the manuscript-facing sample-size outputs from the consolidated local
+Prepare the sample-size result-table outputs from the consolidated local
 sample-size metrics:
 
 ```bash

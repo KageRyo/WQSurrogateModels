@@ -2,7 +2,7 @@
 
 ## Scope
 
-This report summarizes complete-input GPU performance, missing-indicator robustness, Stress107, and CPU-only timing outputs.
+This report summarizes complete-input GPU performance, missing-indicator results, 107-window stress-test results, and CPU-only timing outputs.
 It replaces the earlier percentage-agreement tables with R2, MAE, RMSE, Macro-F1, bootstrap confidence intervals, and paired model tests.
 
 The task remains WQI5 surrogate regression, not future water-quality forecasting. Direct WQI5 computation remains the reference method when all five indicators are available.
@@ -12,8 +12,8 @@ The task remains WQI5 surrogate regression, not future water-quality forecasting
 - Complete-input GPU repeated-split best model: `xgboost` with R2=0.9996, MAE=0.2638, RMSE=0.4241.
 - Missing NH3N reduced retraining remains useful as an auxiliary setting: `lightgbm` with R2=0.9494, MAE=2.3694.
 - DO/EC/SS-only reduced retraining is not reliable on the external hold-out: `rf` with R2=-0.1401, MAE=14.7246.
-- Stress107 uses 107 sequential event windows, not 107-fold cross-validation.
-- CPU-only timing is the deployment-oriented inference-time reference; GPU/multicore acceleration is acceptable for experiment reproduction.
+- The 107-window stress test uses sequential event windows, not 107-fold cross-validation.
+- CPU-only timing is a rough inference-time reference; GPU/multicore acceleration is used only for experiment reproduction.
 - Pairwise model comparisons use complete-input GPU repeated-split MAE with Holm-adjusted paired t-test p-values across the 15 model pairs.
 
 ## Output Files
@@ -59,4 +59,4 @@ Complete-input GPU comparisons use repeated-split MAE values paired by seed. `A-
 The p-values test paired MAE differences from `results/complete_input_gpu/repeated_split_results.csv`, matched by `seed`. The complete-input GPU archive contains split-level metrics rather than per-row predictions, so the paired tests use five seed-level paired values per model comparison.
 All 15 model pairs are significant under this paired t-test because every pair has same-direction MAE differences across the five seeds. This is not the same data granularity as the earlier 10,714-row paired absolute-error Wilcoxon table.
 
-Stress107 reduces dependence on a single selected middle window, but it does not prove absence of all sampling bias and is not a real pollution-event validation.
+The 107-window stress test reduces dependence on a single selected middle window, but it does not prove absence of all sampling bias and is not a real pollution-event validation.
