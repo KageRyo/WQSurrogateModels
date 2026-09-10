@@ -28,7 +28,7 @@ classifiers = [
 ]
 dependencies = [
   "fastapi",
-  "joblib==1.5.3",
+  "joblib==1.6.0",
   "loguru",
   "numpy",
   "pandas",
