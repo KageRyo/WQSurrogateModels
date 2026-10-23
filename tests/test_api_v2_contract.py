@@ -8,7 +8,7 @@ import httpx
 import joblib
 import pytest
 
-from wqsurrogatemodels import api
+from wqsurrogatemodels import __version__, api
 from wqsurrogatemodels.enums import ModelTypeEnum
 from wqsurrogatemodels.services import WaterQualityService
 from wqsurrogatemodels.settings import Settings
@@ -75,7 +75,7 @@ async def test_v2_health_and_ready_contract(client: httpx.AsyncClient) -> None:
         "status": "ok",
         "message": "WQSurrogateModels v2 is healthy.",
         "default_model": "direct_wqi5",
-        "version": "2.2.3",
+        "version": __version__,
     }
     assert ready.status_code == 200
     ready_payload = ready.json()
