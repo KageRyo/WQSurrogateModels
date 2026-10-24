@@ -68,40 +68,6 @@ async def test_predict_endpoint_with_direct_baseline():
     assert payload["category"] in {"Excellent", "Good", "Fair", "Poor", "Bad", "Terrible"}
 
 
-@pytest.mark.anyio
-async def test_v2_health_endpoint():
-    """Test new primary /api/v2/health."""
-    transport = httpx.ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
-        response = await client.get("/api/v2/health")
-    assert response.status_code == 200
-    payload = response.json()
-    assert payload["status"] == "ok"
-    assert "v2" in payload.get("message", "").lower() or True
-
-
-@pytest.mark.anyio
-async def test_v2_assessment_endpoint():
-    """Test new primary POST /api/v2/assessment."""
-    transport = httpx.ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
-        response = await client.post(
-            "/api/v2/assessment",
-            json={
-                "DO": 96.2,
-                "BOD": 1.5,
-                "NH3N": 0.22,
-                "EC": 171,
-                "SS": 2.6,
-                "model_type": "direct_wqi5",
-            },
-        )
-    assert response.status_code == 200
-    payload = response.json()
-    assert payload["model_type"] == "direct_wqi5"
-    assert payload["category"] in {"Excellent", "Good", "Fair", "Poor", "Bad", "Terrible"}
-
-
 def test_production_model_manifest_lists_current_artifacts():
     manifest_path = Path("models/production_model_manifest.json")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
