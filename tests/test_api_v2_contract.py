@@ -50,7 +50,7 @@ def assert_assessment_contract(payload: dict) -> None:
     assert set(payload) == ASSESSMENT_FIELDS
     assert isinstance(payload["score"], float)
     assert 0 <= payload["score"] <= 100
-    assert isinstance(payload["category"], str)
+    assert payload["category"] in {"Excellent", "Good", "Fair", "Poor", "Bad", "Terrible"}
     assert isinstance(payload["rating_range"], str)
     assert payload["model_type"] in {model.value for model in ModelTypeEnum}
     assert isinstance(payload["latency_ms"], float)
