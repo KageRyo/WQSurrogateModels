@@ -369,6 +369,7 @@ def main():
         if not remote_home.startswith("/"):
             raise ValueError("Cannot determine an absolute remote home directory")
         args.remote_root = safe_remote_path(remote_home.rstrip("/") + "/water-quality/edge-research-20261026")
+    args.remote_root = safe_remote_path(args.remote_root)
     state = output / "progress.json"
     # Do not overlap research installation, transfer or inference with the
     # sustained device benchmark. A missing container alone is not success.

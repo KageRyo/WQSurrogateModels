@@ -126,7 +126,7 @@ jobs:
             python -c 'import os, xgboost; from wqsurrogatemodels.api import app; from wqsurrogatemodels.wqi import direct_wqi5_score; assert os.getuid() != 0; assert xgboost.__version__ == "3.2.0"; assert abs(direct_wqi5_score(do=96.2,bod=1.5,nh3n=0.22,ec=171,ss=2.6)-89.542) < 1e-6'
 
       - name: Build locked research ARM64 image
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
         with:
           context: .
           file: Dockerfile.edge-research
