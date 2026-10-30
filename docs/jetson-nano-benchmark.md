@@ -35,8 +35,8 @@ a measured ten-watt MAXN draw. Training stayed off-device. See the
 [deployment procedure](jetson-nano.md) and [runtime contract](edge-runtime.md).
 
 The paired research reference ran on the current WSL2 x86 host: Intel Core
-i7-12700KF, 20 reported virtual CPUs and approximately 31.23 GiB available to
-the WSL VM, Python 3.11.16, with the same research package versions and CPU
+i7-12700KF, 20 reported virtual CPUs and approximately 31.23 GiB reported RAM,
+Python 3.11.16, with the same research package versions and CPU
 thread limits. This host is distinct from the archived workstation hardware
 recorded with the historical x86 experiments; the archive was not overwritten.
 
@@ -91,7 +91,8 @@ removed to obtain a passing label.
 
 ## Production API measurements
 
-The following are the 2026-10-26 native CPU measurements using the approved
+Direct/RF/LightGBM measurements below were recorded on 2026-10-26; corrected
+XGBoost 3.2.0 measurements were recorded on 2026-10-31. All use the approved
 production artifacts, 300 one-row requests per model, after warmup. Raw timing
 excludes DataFrame construction and API overhead; HTTP uses Nano loopback.
 Cold model load includes checksum validation and deserialization. It excludes
@@ -102,7 +103,7 @@ dependency imports. Cold and warm measurements must be reported separately.
 | Direct WQI5 | 0.0258 / 0.0277 | 6.41 / 7.42 | 10.68 / 16.06 | N/A | 28.35 |
 | LightGBM | 6.63 / 7.03 | 15.67 / 17.57 | 24.42 / 34.24 | 10.51 | 174.84 |
 | RF | 137.25 / 148.24 | 146.90 / 163.81 | 212.33 / 270.32 | 167.78 | 1,228.46 |
-| XGBoost 3.2.0 | Deployment revalidation pending | Pending | Pending | Pending | Pending |
+| XGBoost 3.2.0 | 6.72 / 7.14 | 15.52 / 17.42 | 22.49 / 24.17 | 10.29 | 191.52 |
 
 The RF artifact is 1,053,564,815 bytes. Its 30-minute sequential HTTP soak
 completed 11,897 requests in 1,800.099 seconds: 6.609 requests/s, P50 147.78 ms,
@@ -114,7 +115,20 @@ identity changes; actual model loading always checks the complete artifact again
 The historical XGBoost 2.1.4 deployment loaded the artifact but produced incorrect
 scores. Those outputs are retained as diagnostics and excluded from the table.
 The research replay already used 3.2.0. Corrected production-image verification
-and benchmarks are saved separately from the 610-job replay.
+and benchmarks are saved separately from the 610-job replay. Raw XGBoost scores
+match the x86 reference exactly on the five fixed probes; HTTP differs by at most
+0.000471207, within the 0.000501 allowance for the API's three-decimal output.
+The artifact SHA-256 remains unchanged. The API runs as the unprivileged mount
+owner, all four deployment paths pass smoke requests, and MAXN mode 0 was
+restored after the 5W measurements. The four smoke scores are direct 89.542,
+LightGBM 89.587, RF 89.927 and XGBoost 89.958.
+
+The [selected raw deployment records](../statistics/outputs/jetson_nano_20261026/deployment_benchmarks.json)
+include sample counts, package versions, artifact checksums, cold/warm timing,
+process CPU/RSS and the sustained RF test. Their inputs are fixed synthetic
+probes, not private dataset rows. Research uses its archived dependency pins;
+the corrected production measurements record their separate locked runtime
+(NumPy 2.4.6, pandas 3.0.5, scikit-learn 1.5.2 and XGBoost 3.2.0).
 
 Research batch timings are sums of isolated component inference times, excluding
 load, imports, IPC, transfer and HTTP. Their per-row distributions cannot replace

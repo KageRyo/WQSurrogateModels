@@ -1,0 +1,1296 @@
+{
+  "scope": "Fixed synthetic deployment probes and sequential RF soak; not held-out dataset predictions. Legacy XGBoost2.1.4 diagnostics are excluded.",
+  "corrected_xgboost_runtime": {
+    "versions": "3.2.0\naarch64",
+    "image": "watermirror-edge:xgb32-20261030",
+    "image_id": "sha256:95f981d83561423f9ac39f91a3a0c01c1884ba4efc924f20e97fa8563e81a4f9",
+    "production_manifest_sha256": "c98a50cd0723533ccc324ee1e8ba1be032c4b52bffe7ffa65b6352c01be1aaf6"
+  },
+  "runs": [
+    {
+      "source": "results/jetson_nano_20261026/deployment/raw-direct_wqi5.json",
+      "sha256": "9b3e8264fa245c9de27b5cf584444b95dd27dbc160873c5c43e8d1d97bc5d7ef",
+      "result": {
+        "schema_version": 1,
+        "model": "direct_wqi5",
+        "measurement": "raw_inference",
+        "utc": "2026-10-26T02:14:53Z",
+        "platform": "Linux-4.9.253-tegra-aarch64-with-glibc2.36",
+        "machine": "aarch64",
+        "python": "3.11.17",
+        "power_mode": "MAXN-mode-0",
+        "packages": {
+          "numpy": "2.4.6",
+          "pandas": "3.0.5",
+          "scikit-learn": "1.5.2",
+          "joblib": "1.5.3"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1"
+        },
+        "model_thread_settings": null,
+        "artifact": null,
+        "probes": [
+          {
+            "DO": 96.2,
+            "BOD": 1.5,
+            "NH3N": 0.22,
+            "EC": 171.0,
+            "SS": 2.6
+          },
+          {
+            "DO": 85.0,
+            "BOD": 2.0,
+            "NH3N": 0.1,
+            "EC": 400.0,
+            "SS": 10.0
+          },
+          {
+            "DO": 65.0,
+            "BOD": 4.0,
+            "NH3N": 1.0,
+            "EC": 750.0,
+            "SS": 40.0
+          },
+          {
+            "DO": 40.0,
+            "BOD": 10.0,
+            "NH3N": 3.0,
+            "EC": 1500.0,
+            "SS": 100.0
+          },
+          {
+            "DO": 20.0,
+            "BOD": 20.0,
+            "NH3N": 6.0,
+            "EC": 2500.0,
+            "SS": 300.0
+          }
+        ],
+        "predictions": [
+          89.542,
+          83.339,
+          42.981,
+          14.014,
+          5.792
+        ],
+        "direct_wqi5": [
+          89.542,
+          83.339,
+          42.981,
+          14.014,
+          5.792
+        ],
+        "probe_mae_vs_formula": 0.0,
+        "warmup": 10,
+        "model_load_ms": null,
+        "first_prediction_ms": 0.03817800006800098,
+        "first_prediction": 89.542,
+        "latency": {
+          "count": 300,
+          "p50_ms": 0.02575550024630502,
+          "p95_ms": 0.027664799927151765,
+          "max_ms": 0.09052199993675458
+        },
+        "elapsed_seconds": 0.00826458299980004,
+        "throughput_per_second": 36299.472097655555,
+        "client_or_raw_cpu_percent_one_core": 99.24123213716014,
+        "client_or_raw_peak_rss_mib": 28.3515625,
+        "api_url": null,
+        "reference_max_abs_difference": 0.0,
+        "reference_tolerance": 1e-06,
+        "reference_parity_pass": true
+      }
+    },
+    {
+      "source": "results/jetson_nano_20261026/deployment/http-direct_wqi5.json",
+      "sha256": "43c565846790320c1cd54d5d90a390767c532a48b07482e47f76932e077a52e5",
+      "result": {
+        "schema_version": 1,
+        "model": "direct_wqi5",
+        "measurement": "http_end_to_end",
+        "utc": "2026-10-26T02:23:36Z",
+        "platform": "Linux-4.9.253-tegra-aarch64-with-glibc2.36",
+        "machine": "aarch64",
+        "python": "3.11.17",
+        "power_mode": "MAXN-mode-0",
+        "packages": {
+          "numpy": "2.4.6",
+          "pandas": "3.0.5",
+          "scikit-learn": "1.5.2",
+          "joblib": "1.5.3"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1"
+        },
+        "model_thread_settings": null,
+        "artifact": null,
+        "probes": [
+          {
+            "DO": 96.2,
+            "BOD": 1.5,
+            "NH3N": 0.22,
+            "EC": 171.0,
+            "SS": 2.6
+          },
+          {
+            "DO": 85.0,
+            "BOD": 2.0,
+            "NH3N": 0.1,
+            "EC": 400.0,
+            "SS": 10.0
+          },
+          {
+            "DO": 65.0,
+            "BOD": 4.0,
+            "NH3N": 1.0,
+            "EC": 750.0,
+            "SS": 40.0
+          },
+          {
+            "DO": 40.0,
+            "BOD": 10.0,
+            "NH3N": 3.0,
+            "EC": 1500.0,
+            "SS": 100.0
+          },
+          {
+            "DO": 20.0,
+            "BOD": 20.0,
+            "NH3N": 6.0,
+            "EC": 2500.0,
+            "SS": 300.0
+          }
+        ],
+        "predictions": [
+          89.542,
+          83.339,
+          42.981,
+          14.014,
+          5.792
+        ],
+        "direct_wqi5": [
+          89.542,
+          83.339,
+          42.981,
+          14.014,
+          5.792
+        ],
+        "probe_mae_vs_formula": 0.0,
+        "warmup": 10,
+        "model_load_ms": null,
+        "first_prediction_ms": 46.779396000147244,
+        "first_prediction": 89.542,
+        "latency": {
+          "count": 300,
+          "p50_ms": 6.4089519999015465,
+          "p95_ms": 7.421247799834419,
+          "max_ms": 8.794928000043
+        },
+        "elapsed_seconds": 1.9728725529998883,
+        "throughput_per_second": 152.06253416817492,
+        "client_or_raw_cpu_percent_one_core": 20.819390100766604,
+        "client_or_raw_peak_rss_mib": 28.26953125,
+        "api_url": "http://127.0.0.1:8001",
+        "reference_max_abs_difference": 0.0,
+        "reference_tolerance": 0.000501,
+        "reference_parity_pass": true
+      }
+    },
+    {
+      "source": "results/jetson_nano_20261026/deployment/http-5w-direct_wqi5.json",
+      "sha256": "d36fb3d9aaacd82c0e4a9c47750f8cb41bd5450a7a8b69a4fd3cef64dc566b09",
+      "result": {
+        "schema_version": 1,
+        "model": "direct_wqi5",
+        "measurement": "http_end_to_end",
+        "utc": "2026-10-26T02:29:02Z",
+        "platform": "Linux-4.9.253-tegra-aarch64-with-glibc2.36",
+        "machine": "aarch64",
+        "python": "3.11.17",
+        "power_mode": "5W-mode-1",
+        "packages": {
+          "numpy": "2.4.6",
+          "pandas": "3.0.5",
+          "scikit-learn": "1.5.2",
+          "joblib": "1.5.3"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1"
+        },
+        "model_thread_settings": null,
+        "artifact": null,
+        "probes": [
+          {
+            "DO": 96.2,
+            "BOD": 1.5,
+            "NH3N": 0.22,
+            "EC": 171.0,
+            "SS": 2.6
+          },
+          {
+            "DO": 85.0,
+            "BOD": 2.0,
+            "NH3N": 0.1,
+            "EC": 400.0,
+            "SS": 10.0
+          },
+          {
+            "DO": 65.0,
+            "BOD": 4.0,
+            "NH3N": 1.0,
+            "EC": 750.0,
+            "SS": 40.0
+          },
+          {
+            "DO": 40.0,
+            "BOD": 10.0,
+            "NH3N": 3.0,
+            "EC": 1500.0,
+            "SS": 100.0
+          },
+          {
+            "DO": 20.0,
+            "BOD": 20.0,
+            "NH3N": 6.0,
+            "EC": 2500.0,
+            "SS": 300.0
+          }
+        ],
+        "predictions": [
+          89.542,
+          83.339,
+          42.981,
+          14.014,
+          5.792
+        ],
+        "direct_wqi5": [
+          89.542,
+          83.339,
+          42.981,
+          14.014,
+          5.792
+        ],
+        "probe_mae_vs_formula": 0.0,
+        "warmup": 10,
+        "model_load_ms": null,
+        "first_prediction_ms": 56.23919600020599,
+        "first_prediction": 89.542,
+        "latency": {
+          "count": 300,
+          "p50_ms": 10.676831500177286,
+          "p95_ms": 16.059928999698062,
+          "max_ms": 30.728027999884944
+        },
+        "elapsed_seconds": 3.629569900000206,
+        "throughput_per_second": 82.65442139576454,
+        "client_or_raw_cpu_percent_one_core": 17.294617882960864,
+        "client_or_raw_peak_rss_mib": 28.5,
+        "api_url": "http://127.0.0.1:8001",
+        "reference_max_abs_difference": 0.0,
+        "reference_tolerance": 0.000501,
+        "reference_parity_pass": true
+      }
+    },
+    {
+      "source": "results/jetson_nano_20261026/deployment/raw-lightgbm.json",
+      "sha256": "072cf9d22e0260ebbafd550a88944e7f9471e5aa4ca600b5be2f28d4cb86bf0a",
+      "result": {
+        "schema_version": 1,
+        "model": "lightgbm",
+        "measurement": "raw_inference",
+        "utc": "2026-10-26T02:15:18Z",
+        "platform": "Linux-4.9.253-tegra-aarch64-with-glibc2.36",
+        "machine": "aarch64",
+        "python": "3.11.17",
+        "power_mode": "MAXN-mode-0",
+        "packages": {
+          "numpy": "2.4.6",
+          "pandas": "3.0.5",
+          "scikit-learn": "1.5.2",
+          "joblib": "1.5.3"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1"
+        },
+        "model_thread_settings": {},
+        "artifact": {
+          "bytes": 869948,
+          "sha256": "fa019b3d625f4bd612de8c7776b65153ea0dabe88d7034c3398679839b2e5a85"
+        },
+        "probes": [
+          {
+            "DO": 96.2,
+            "BOD": 1.5,
+            "NH3N": 0.22,
+            "EC": 171.0,
+            "SS": 2.6
+          },
+          {
+            "DO": 85.0,
+            "BOD": 2.0,
+            "NH3N": 0.1,
+            "EC": 400.0,
+            "SS": 10.0
+          },
+          {
+            "DO": 65.0,
+            "BOD": 4.0,
+            "NH3N": 1.0,
+            "EC": 750.0,
+            "SS": 40.0
+          },
+          {
+            "DO": 40.0,
+            "BOD": 10.0,
+            "NH3N": 3.0,
+            "EC": 1500.0,
+            "SS": 100.0
+          },
+          {
+            "DO": 20.0,
+            "BOD": 20.0,
+            "NH3N": 6.0,
+            "EC": 2500.0,
+            "SS": 300.0
+          }
+        ],
+        "predictions": [
+          89.58734604701557,
+          88.04066477293436,
+          50.91573579392234,
+          26.844077150006456,
+          13.345709333458748
+        ],
+        "direct_wqi5": [
+          89.542,
+          83.339,
+          42.981,
+          14.014,
+          5.792
+        ],
+        "probe_mae_vs_formula": 6.613106619467495,
+        "warmup": 10,
+        "model_load_ms": 10508.015012000214,
+        "first_prediction_ms": 69.83342799958336,
+        "first_prediction": 89.58734604701557,
+        "latency": {
+          "count": 300,
+          "p50_ms": 6.627712999943469,
+          "p95_ms": 7.029353799953242,
+          "max_ms": 8.221562000017002
+        },
+        "elapsed_seconds": 2.0046433239999715,
+        "throughput_per_second": 149.6525573444128,
+        "client_or_raw_cpu_percent_one_core": 124.94484569964509,
+        "client_or_raw_peak_rss_mib": 174.8359375,
+        "api_url": null,
+        "reference_max_abs_difference": 0.0,
+        "reference_tolerance": 1e-06,
+        "reference_parity_pass": true
+      }
+    },
+    {
+      "source": "results/jetson_nano_20261026/deployment/http-lightgbm.json",
+      "sha256": "c63455d2d69f85382321ee5aa5c012dfa0f8e2dac650f7bdaf955ff0b88dfc55",
+      "result": {
+        "schema_version": 1,
+        "model": "lightgbm",
+        "measurement": "http_end_to_end",
+        "utc": "2026-10-26T02:23:54Z",
+        "platform": "Linux-4.9.253-tegra-aarch64-with-glibc2.36",
+        "machine": "aarch64",
+        "python": "3.11.17",
+        "power_mode": "MAXN-mode-0",
+        "packages": {
+          "numpy": "2.4.6",
+          "pandas": "3.0.5",
+          "scikit-learn": "1.5.2",
+          "joblib": "1.5.3"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1"
+        },
+        "model_thread_settings": null,
+        "artifact": null,
+        "probes": [
+          {
+            "DO": 96.2,
+            "BOD": 1.5,
+            "NH3N": 0.22,
+            "EC": 171.0,
+            "SS": 2.6
+          },
+          {
+            "DO": 85.0,
+            "BOD": 2.0,
+            "NH3N": 0.1,
+            "EC": 400.0,
+            "SS": 10.0
+          },
+          {
+            "DO": 65.0,
+            "BOD": 4.0,
+            "NH3N": 1.0,
+            "EC": 750.0,
+            "SS": 40.0
+          },
+          {
+            "DO": 40.0,
+            "BOD": 10.0,
+            "NH3N": 3.0,
+            "EC": 1500.0,
+            "SS": 100.0
+          },
+          {
+            "DO": 20.0,
+            "BOD": 20.0,
+            "NH3N": 6.0,
+            "EC": 2500.0,
+            "SS": 300.0
+          }
+        ],
+        "predictions": [
+          89.587,
+          88.041,
+          50.916,
+          26.844,
+          13.346
+        ],
+        "direct_wqi5": [
+          89.542,
+          83.339,
+          42.981,
+          14.014,
+          5.792
+        ],
+        "probe_mae_vs_formula": 6.613199999999999,
+        "warmup": 10,
+        "model_load_ms": null,
+        "first_prediction_ms": 9977.830924000045,
+        "first_prediction": 89.587,
+        "latency": {
+          "count": 300,
+          "p50_ms": 15.674538499979462,
+          "p95_ms": 17.56824539995705,
+          "max_ms": 189.63762900011716
+        },
+        "elapsed_seconds": 4.962879213000178,
+        "throughput_per_second": 60.44878126676044,
+        "client_or_raw_cpu_percent_one_core": 8.72512639166632,
+        "client_or_raw_peak_rss_mib": 28.40234375,
+        "api_url": "http://127.0.0.1:8001",
+        "reference_max_abs_difference": 0.00034604701556872897,
+        "reference_tolerance": 0.000501,
+        "reference_parity_pass": true
+      }
+    },
+    {
+      "source": "results/jetson_nano_20261026/deployment/http-5w-lightgbm.json",
+      "sha256": "e07b9f199f6919a07720fc2a9721f974b10544e0ac6e3c5c49c8c8287cbe787d",
+      "result": {
+        "schema_version": 1,
+        "model": "lightgbm",
+        "measurement": "http_end_to_end",
+        "utc": "2026-10-26T02:29:14Z",
+        "platform": "Linux-4.9.253-tegra-aarch64-with-glibc2.36",
+        "machine": "aarch64",
+        "python": "3.11.17",
+        "power_mode": "5W-mode-1",
+        "packages": {
+          "numpy": "2.4.6",
+          "pandas": "3.0.5",
+          "scikit-learn": "1.5.2",
+          "joblib": "1.5.3"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1"
+        },
+        "model_thread_settings": null,
+        "artifact": null,
+        "probes": [
+          {
+            "DO": 96.2,
+            "BOD": 1.5,
+            "NH3N": 0.22,
+            "EC": 171.0,
+            "SS": 2.6
+          },
+          {
+            "DO": 85.0,
+            "BOD": 2.0,
+            "NH3N": 0.1,
+            "EC": 400.0,
+            "SS": 10.0
+          },
+          {
+            "DO": 65.0,
+            "BOD": 4.0,
+            "NH3N": 1.0,
+            "EC": 750.0,
+            "SS": 40.0
+          },
+          {
+            "DO": 40.0,
+            "BOD": 10.0,
+            "NH3N": 3.0,
+            "EC": 1500.0,
+            "SS": 100.0
+          },
+          {
+            "DO": 20.0,
+            "BOD": 20.0,
+            "NH3N": 6.0,
+            "EC": 2500.0,
+            "SS": 300.0
+          }
+        ],
+        "predictions": [
+          89.587,
+          88.041,
+          50.916,
+          26.844,
+          13.346
+        ],
+        "direct_wqi5": [
+          89.542,
+          83.339,
+          42.981,
+          14.014,
+          5.792
+        ],
+        "probe_mae_vs_formula": 6.613199999999999,
+        "warmup": 10,
+        "model_load_ms": null,
+        "first_prediction_ms": 226.92069999993691,
+        "first_prediction": 89.587,
+        "latency": {
+          "count": 300,
+          "p50_ms": 24.422981000043364,
+          "p95_ms": 34.24352250019638,
+          "max_ms": 44.881864999752
+        },
+        "elapsed_seconds": 7.662674367999898,
+        "throughput_per_second": 39.150821970568174,
+        "client_or_raw_cpu_percent_one_core": 8.235621046816329,
+        "client_or_raw_peak_rss_mib": 28.5234375,
+        "api_url": "http://127.0.0.1:8001",
+        "reference_max_abs_difference": 0.00034604701556872897,
+        "reference_tolerance": 0.000501,
+        "reference_parity_pass": true
+      }
+    },
+    {
+      "source": "results/jetson_nano_20261026/deployment/raw-rf.json",
+      "sha256": "35eab3bdb1e7f37bd72bb7d8346973bee03a313d37156246ff324f1cb32d38f6",
+      "result": {
+        "schema_version": 1,
+        "model": "rf",
+        "measurement": "raw_inference",
+        "utc": "2026-10-26T02:20:41Z",
+        "platform": "Linux-4.9.253-tegra-aarch64-with-glibc2.36",
+        "machine": "aarch64",
+        "python": "3.11.17",
+        "power_mode": "MAXN-mode-0",
+        "packages": {
+          "numpy": "2.4.6",
+          "pandas": "3.0.5",
+          "scikit-learn": "1.5.2",
+          "joblib": "1.5.3"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1"
+        },
+        "model_thread_settings": {},
+        "artifact": {
+          "bytes": 1053564815,
+          "sha256": "c0bb0332b77d63dde93b6497a57429cffef929fe341c7a6db610ded73cd6ce79"
+        },
+        "probes": [
+          {
+            "DO": 96.2,
+            "BOD": 1.5,
+            "NH3N": 0.22,
+            "EC": 171.0,
+            "SS": 2.6
+          },
+          {
+            "DO": 85.0,
+            "BOD": 2.0,
+            "NH3N": 0.1,
+            "EC": 400.0,
+            "SS": 10.0
+          },
+          {
+            "DO": 65.0,
+            "BOD": 4.0,
+            "NH3N": 1.0,
+            "EC": 750.0,
+            "SS": 40.0
+          },
+          {
+            "DO": 40.0,
+            "BOD": 10.0,
+            "NH3N": 3.0,
+            "EC": 1500.0,
+            "SS": 100.0
+          },
+          {
+            "DO": 20.0,
+            "BOD": 20.0,
+            "NH3N": 6.0,
+            "EC": 2500.0,
+            "SS": 300.0
+          }
+        ],
+        "predictions": [
+          89.92723333333356,
+          88.13833333333336,
+          50.7522666666668,
+          26.00843333333336,
+          13.658933333333346
+        ],
+        "direct_wqi5": [
+          89.542,
+          83.339,
+          42.981,
+          14.014,
+          5.792
+        ],
+        "probe_mae_vs_formula": 6.563440000000086,
+        "warmup": 10,
+        "model_load_ms": 167775.6065890003,
+        "first_prediction_ms": 1411.776594999992,
+        "first_prediction": 89.92723333333356,
+        "latency": {
+          "count": 300,
+          "p50_ms": 137.25490099977833,
+          "p95_ms": 148.24421304995212,
+          "max_ms": 167.37488399985523
+        },
+        "elapsed_seconds": 41.329634650000116,
+        "throughput_per_second": 7.258714056887971,
+        "client_or_raw_cpu_percent_one_core": 104.77671655149723,
+        "client_or_raw_peak_rss_mib": 1228.46484375,
+        "api_url": null,
+        "reference_max_abs_difference": 1.7763568394002505e-15,
+        "reference_tolerance": 1e-06,
+        "reference_parity_pass": true
+      }
+    },
+    {
+      "source": "results/jetson_nano_20261026/deployment/http-rf.json",
+      "sha256": "250b269be0b225264d5d3f82e05c1a5eb77c04cf5592279da35d56c7e7cabbda",
+      "result": {
+        "schema_version": 1,
+        "model": "rf",
+        "measurement": "http_end_to_end",
+        "utc": "2026-10-26T02:28:27Z",
+        "platform": "Linux-4.9.253-tegra-aarch64-with-glibc2.36",
+        "machine": "aarch64",
+        "python": "3.11.17",
+        "power_mode": "MAXN-mode-0",
+        "packages": {
+          "numpy": "2.4.6",
+          "pandas": "3.0.5",
+          "scikit-learn": "1.5.2",
+          "joblib": "1.5.3"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1"
+        },
+        "model_thread_settings": null,
+        "artifact": null,
+        "probes": [
+          {
+            "DO": 96.2,
+            "BOD": 1.5,
+            "NH3N": 0.22,
+            "EC": 171.0,
+            "SS": 2.6
+          },
+          {
+            "DO": 85.0,
+            "BOD": 2.0,
+            "NH3N": 0.1,
+            "EC": 400.0,
+            "SS": 10.0
+          },
+          {
+            "DO": 65.0,
+            "BOD": 4.0,
+            "NH3N": 1.0,
+            "EC": 750.0,
+            "SS": 40.0
+          },
+          {
+            "DO": 40.0,
+            "BOD": 10.0,
+            "NH3N": 3.0,
+            "EC": 1500.0,
+            "SS": 100.0
+          },
+          {
+            "DO": 20.0,
+            "BOD": 20.0,
+            "NH3N": 6.0,
+            "EC": 2500.0,
+            "SS": 300.0
+          }
+        ],
+        "predictions": [
+          89.927,
+          88.138,
+          50.752,
+          26.008,
+          13.659
+        ],
+        "direct_wqi5": [
+          89.542,
+          83.339,
+          42.981,
+          14.014,
+          5.792
+        ],
+        "probe_mae_vs_formula": 6.563200000000003,
+        "warmup": 10,
+        "model_load_ms": null,
+        "first_prediction_ms": 177.4567620000198,
+        "first_prediction": 89.927,
+        "latency": {
+          "count": 300,
+          "p50_ms": 146.89959149995957,
+          "p95_ms": 163.80742890019067,
+          "max_ms": 196.17496300043058
+        },
+        "elapsed_seconds": 44.59359111899994,
+        "throughput_per_second": 6.727424108980973,
+        "client_or_raw_cpu_percent_one_core": 1.0513106440540774,
+        "client_or_raw_peak_rss_mib": 28.23046875,
+        "api_url": "http://127.0.0.1:8001",
+        "reference_max_abs_difference": 0.00043333333336192936,
+        "reference_tolerance": 0.000501,
+        "reference_parity_pass": true
+      }
+    },
+    {
+      "source": "results/jetson_nano_20261026/deployment/http-5w-rf.json",
+      "sha256": "83dec757384fa5f91bfecacb813c797ef69719e25fd0b507a9daa68858031541",
+      "result": {
+        "schema_version": 1,
+        "model": "rf",
+        "measurement": "http_end_to_end",
+        "utc": "2026-10-26T02:30:40Z",
+        "platform": "Linux-4.9.253-tegra-aarch64-with-glibc2.36",
+        "machine": "aarch64",
+        "python": "3.11.17",
+        "power_mode": "5W-mode-1",
+        "packages": {
+          "numpy": "2.4.6",
+          "pandas": "3.0.5",
+          "scikit-learn": "1.5.2",
+          "joblib": "1.5.3"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1"
+        },
+        "model_thread_settings": null,
+        "artifact": null,
+        "probes": [
+          {
+            "DO": 96.2,
+            "BOD": 1.5,
+            "NH3N": 0.22,
+            "EC": 171.0,
+            "SS": 2.6
+          },
+          {
+            "DO": 85.0,
+            "BOD": 2.0,
+            "NH3N": 0.1,
+            "EC": 400.0,
+            "SS": 10.0
+          },
+          {
+            "DO": 65.0,
+            "BOD": 4.0,
+            "NH3N": 1.0,
+            "EC": 750.0,
+            "SS": 40.0
+          },
+          {
+            "DO": 40.0,
+            "BOD": 10.0,
+            "NH3N": 3.0,
+            "EC": 1500.0,
+            "SS": 100.0
+          },
+          {
+            "DO": 20.0,
+            "BOD": 20.0,
+            "NH3N": 6.0,
+            "EC": 2500.0,
+            "SS": 300.0
+          }
+        ],
+        "predictions": [
+          89.927,
+          88.138,
+          50.752,
+          26.008,
+          13.659
+        ],
+        "direct_wqi5": [
+          89.542,
+          83.339,
+          42.981,
+          14.014,
+          5.792
+        ],
+        "probe_mae_vs_formula": 6.563200000000003,
+        "warmup": 10,
+        "model_load_ms": null,
+        "first_prediction_ms": 254.930910999974,
+        "first_prediction": 89.927,
+        "latency": {
+          "count": 300,
+          "p50_ms": 212.3253229999591,
+          "p95_ms": 270.3219082000487,
+          "max_ms": 1367.3400500001662
+        },
+        "elapsed_seconds": 67.29214736099993,
+        "throughput_per_second": 4.458172487654466,
+        "client_or_raw_cpu_percent_one_core": 0.9349122366759484,
+        "client_or_raw_peak_rss_mib": 28.16015625,
+        "api_url": "http://127.0.0.1:8001",
+        "reference_max_abs_difference": 0.00043333333336192936,
+        "reference_tolerance": 0.000501,
+        "reference_parity_pass": true
+      }
+    },
+    {
+      "source": "results/jetson_nano_20261026/deployment/soak-rf.json",
+      "sha256": "b0897b2d31e81b2bac6751f2fa05481a79d05b8439121cc87e3c1d238817c6e8",
+      "result": {
+        "schema_version": 1,
+        "model": "rf",
+        "measurement": "http_end_to_end",
+        "utc": "2026-10-26T03:01:12Z",
+        "platform": "Linux-4.9.253-tegra-aarch64-with-glibc2.36",
+        "machine": "aarch64",
+        "python": "3.11.17",
+        "power_mode": "MAXN-mode-0",
+        "packages": {
+          "numpy": "2.4.6",
+          "pandas": "3.0.5",
+          "scikit-learn": "1.5.2",
+          "joblib": "1.5.3"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1"
+        },
+        "model_thread_settings": null,
+        "artifact": null,
+        "probes": [
+          {
+            "DO": 96.2,
+            "BOD": 1.5,
+            "NH3N": 0.22,
+            "EC": 171.0,
+            "SS": 2.6
+          },
+          {
+            "DO": 85.0,
+            "BOD": 2.0,
+            "NH3N": 0.1,
+            "EC": 400.0,
+            "SS": 10.0
+          },
+          {
+            "DO": 65.0,
+            "BOD": 4.0,
+            "NH3N": 1.0,
+            "EC": 750.0,
+            "SS": 40.0
+          },
+          {
+            "DO": 40.0,
+            "BOD": 10.0,
+            "NH3N": 3.0,
+            "EC": 1500.0,
+            "SS": 100.0
+          },
+          {
+            "DO": 20.0,
+            "BOD": 20.0,
+            "NH3N": 6.0,
+            "EC": 2500.0,
+            "SS": 300.0
+          }
+        ],
+        "predictions": [
+          89.927,
+          88.138,
+          50.752,
+          26.008,
+          13.659
+        ],
+        "direct_wqi5": [
+          89.542,
+          83.339,
+          42.981,
+          14.014,
+          5.792
+        ],
+        "probe_mae_vs_formula": 6.563200000000003,
+        "warmup": 10,
+        "model_load_ms": null,
+        "first_prediction_ms": 170.48171099986575,
+        "first_prediction": 89.927,
+        "latency": {
+          "count": 11897,
+          "p50_ms": 147.77594600036537,
+          "p95_ms": 179.68988319971683,
+          "max_ms": 416.9208280000021
+        },
+        "elapsed_seconds": 1800.0987224159999,
+        "throughput_per_second": 6.609081964144977,
+        "client_or_raw_cpu_percent_one_core": 1.047241484716941,
+        "client_or_raw_peak_rss_mib": 28.87109375,
+        "api_url": "http://127.0.0.1:8001",
+        "reference_max_abs_difference": 0.00043333333336192936,
+        "reference_tolerance": 0.000501,
+        "reference_parity_pass": true
+      }
+    },
+    {
+      "source": "results/jetson_nano_validation_20261030/raw-xgboost-3.2.0.json",
+      "sha256": "4144a7af47e1fd4981e572b00623ea9586c95ef070ad71621d43862bb8a25273",
+      "result": {
+        "schema_version": 1,
+        "model": "xgboost",
+        "measurement": "raw_inference",
+        "utc": "2026-10-30T16:20:48Z",
+        "platform": "Linux-4.9.253-tegra-aarch64-with-glibc2.36",
+        "machine": "aarch64",
+        "python": "3.11.17",
+        "power_mode": "MAXN-mode-0",
+        "packages": {
+          "numpy": "2.4.6",
+          "pandas": "3.0.5",
+          "scikit-learn": "1.5.2",
+          "joblib": "1.5.3"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1"
+        },
+        "model_thread_settings": {
+          "model__n_jobs": "None"
+        },
+        "artifact": {
+          "bytes": 1416782,
+          "sha256": "463d2f880382f0a1e4ab7b936796c095d643a581d141d96ae5c7c08871686785"
+        },
+        "probes": [
+          {
+            "DO": 96.2,
+            "BOD": 1.5,
+            "NH3N": 0.22,
+            "EC": 171.0,
+            "SS": 2.6
+          },
+          {
+            "DO": 85.0,
+            "BOD": 2.0,
+            "NH3N": 0.1,
+            "EC": 400.0,
+            "SS": 10.0
+          },
+          {
+            "DO": 65.0,
+            "BOD": 4.0,
+            "NH3N": 1.0,
+            "EC": 750.0,
+            "SS": 40.0
+          },
+          {
+            "DO": 40.0,
+            "BOD": 10.0,
+            "NH3N": 3.0,
+            "EC": 1500.0,
+            "SS": 100.0
+          },
+          {
+            "DO": 20.0,
+            "BOD": 20.0,
+            "NH3N": 6.0,
+            "EC": 2500.0,
+            "SS": 300.0
+          }
+        ],
+        "predictions": [
+          89.95816040039062,
+          88.0025863647461,
+          48.79700469970703,
+          28.002286911010742,
+          13.604471206665039
+        ],
+        "direct_wqi5": [
+          89.542,
+          83.339,
+          42.981,
+          14.014,
+          5.792
+        ],
+        "probe_mae_vs_formula": 6.539301916503906,
+        "warmup": 10,
+        "model_load_ms": 10292.34326997539,
+        "first_prediction_ms": 11.30643900251016,
+        "first_prediction": 89.95816040039062,
+        "latency": {
+          "count": 300,
+          "p50_ms": 6.723242026055232,
+          "p95_ms": 7.135639514308424,
+          "max_ms": 10.883253009524196
+        },
+        "elapsed_seconds": 2.035777807002887,
+        "throughput_per_second": 147.36382279442668,
+        "client_or_raw_cpu_percent_one_core": 97.45858998831218,
+        "client_or_raw_peak_rss_mib": 191.5234375,
+        "api_url": null,
+        "reference_max_abs_difference": 0.0,
+        "reference_tolerance": 1e-06,
+        "reference_parity_pass": true
+      }
+    },
+    {
+      "source": "results/jetson_nano_validation_20261030/http-xgboost-3.2.0.json",
+      "sha256": "3508a8c92354a12ad90fb1b997f53e4dea576147e89730a3ddaf2a8b95381a56",
+      "result": {
+        "schema_version": 1,
+        "model": "xgboost",
+        "measurement": "http_end_to_end",
+        "utc": "2026-10-30T16:21:06Z",
+        "platform": "Linux-4.9.253-tegra-aarch64-with-glibc2.36",
+        "machine": "aarch64",
+        "python": "3.11.17",
+        "power_mode": "MAXN-mode-0",
+        "packages": {
+          "numpy": "2.4.6",
+          "pandas": "3.0.5",
+          "scikit-learn": "1.5.2",
+          "joblib": "1.5.3"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1"
+        },
+        "model_thread_settings": null,
+        "artifact": null,
+        "probes": [
+          {
+            "DO": 96.2,
+            "BOD": 1.5,
+            "NH3N": 0.22,
+            "EC": 171.0,
+            "SS": 2.6
+          },
+          {
+            "DO": 85.0,
+            "BOD": 2.0,
+            "NH3N": 0.1,
+            "EC": 400.0,
+            "SS": 10.0
+          },
+          {
+            "DO": 65.0,
+            "BOD": 4.0,
+            "NH3N": 1.0,
+            "EC": 750.0,
+            "SS": 40.0
+          },
+          {
+            "DO": 40.0,
+            "BOD": 10.0,
+            "NH3N": 3.0,
+            "EC": 1500.0,
+            "SS": 100.0
+          },
+          {
+            "DO": 20.0,
+            "BOD": 20.0,
+            "NH3N": 6.0,
+            "EC": 2500.0,
+            "SS": 300.0
+          }
+        ],
+        "predictions": [
+          89.958,
+          88.003,
+          48.797,
+          28.002,
+          13.604
+        ],
+        "direct_wqi5": [
+          89.542,
+          83.339,
+          42.981,
+          14.014,
+          5.792
+        ],
+        "probe_mae_vs_formula": 6.539199999999998,
+        "warmup": 10,
+        "model_load_ms": null,
+        "first_prediction_ms": 8376.442986016627,
+        "first_prediction": 89.958,
+        "latency": {
+          "count": 300,
+          "p50_ms": 15.52014853223227,
+          "p95_ms": 17.421978153288368,
+          "max_ms": 21.18347299983725
+        },
+        "elapsed_seconds": 4.769253307022154,
+        "throughput_per_second": 62.90292854822492,
+        "client_or_raw_cpu_percent_one_core": 9.269464097222176,
+        "client_or_raw_peak_rss_mib": 28.5234375,
+        "api_url": "http://127.0.0.1:8001",
+        "reference_max_abs_difference": 0.0004712066650398583,
+        "reference_tolerance": 0.000501,
+        "reference_parity_pass": true
+      }
+    },
+    {
+      "source": "results/jetson_nano_validation_20261030/http-5w-xgboost-3.2.0.json",
+      "sha256": "50300802e7113826e5c56a8a5723d548eca0215d1667c75b5defc84a7ac5be9b",
+      "result": {
+        "schema_version": 1,
+        "model": "xgboost",
+        "measurement": "http_end_to_end",
+        "utc": "2026-10-30T16:21:17Z",
+        "platform": "Linux-4.9.253-tegra-aarch64-with-glibc2.36",
+        "machine": "aarch64",
+        "python": "3.11.17",
+        "power_mode": "5W-mode-1",
+        "packages": {
+          "numpy": "2.4.6",
+          "pandas": "3.0.5",
+          "scikit-learn": "1.5.2",
+          "joblib": "1.5.3"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1"
+        },
+        "model_thread_settings": null,
+        "artifact": null,
+        "probes": [
+          {
+            "DO": 96.2,
+            "BOD": 1.5,
+            "NH3N": 0.22,
+            "EC": 171.0,
+            "SS": 2.6
+          },
+          {
+            "DO": 85.0,
+            "BOD": 2.0,
+            "NH3N": 0.1,
+            "EC": 400.0,
+            "SS": 10.0
+          },
+          {
+            "DO": 65.0,
+            "BOD": 4.0,
+            "NH3N": 1.0,
+            "EC": 750.0,
+            "SS": 40.0
+          },
+          {
+            "DO": 40.0,
+            "BOD": 10.0,
+            "NH3N": 3.0,
+            "EC": 1500.0,
+            "SS": 100.0
+          },
+          {
+            "DO": 20.0,
+            "BOD": 20.0,
+            "NH3N": 6.0,
+            "EC": 2500.0,
+            "SS": 300.0
+          }
+        ],
+        "predictions": [
+          89.958,
+          88.003,
+          48.797,
+          28.002,
+          13.604
+        ],
+        "direct_wqi5": [
+          89.542,
+          83.339,
+          42.981,
+          14.014,
+          5.792
+        ],
+        "probe_mae_vs_formula": 6.539199999999998,
+        "warmup": 10,
+        "model_load_ms": null,
+        "first_prediction_ms": 68.61073401523754,
+        "first_prediction": 89.958,
+        "latency": {
+          "count": 300,
+          "p50_ms": 22.489854018203914,
+          "p95_ms": 24.17118759767618,
+          "max_ms": 25.049960997421294
+        },
+        "elapsed_seconds": 6.787775242002681,
+        "throughput_per_second": 44.197102777299285,
+        "client_or_raw_cpu_percent_one_core": 9.203525569530827,
+        "client_or_raw_peak_rss_mib": 28.51953125,
+        "api_url": "http://127.0.0.1:8001",
+        "reference_max_abs_difference": 0.0004712066650398583,
+        "reference_tolerance": 0.000501,
+        "reference_parity_pass": true
+      }
+    }
+  ]
+}
