@@ -1,0 +1,26 @@
+annotated-types==0.8.0
+colorama==0.4.6 ; sys_platform == 'win32'
+et-xmlfile==2.0.0
+joblib==1.5.3
+lightgbm==4.6.0
+loguru==0.7.3
+numpy==1.26.4
+nvidia-nccl-cu12==2.32.3 ; sys_platform == 'linux'
+openpyxl==3.1.5
+pandas==2.3.3
+psutil==7.2.2
+pydantic==2.13.3
+pydantic-core==2.46.3
+python-dateutil==3.0.0
+python-dotenv==1.2.4
+pytz==2026.5
+pyyaml==6.0.3
+scikit-learn==1.5.2
+scipy==1.15.3
+six==1.17.0
+threadpoolctl==3.7.0
+typing-extensions==4.16.0
+typing-inspection==0.4.4
+tzdata==2026.5
+win32-setctime==1.2.1 ; sys_platform == 'win32'
+xgboost==3.2.0

@@ -158,7 +158,7 @@ async def health_v2() -> HealthResponseSchema:
 
 
 @app.get("/api/v2/ready", response_model=ReadinessResponseSchema, tags=["v2"])
-async def ready_v2(response: Response) -> ReadinessResponseSchema:
+def ready_v2(response: Response) -> ReadinessResponseSchema:
     """Report assessment dependency status separately from process health."""
     readiness = ReadinessResponseSchema(**service.readiness())
     if readiness.status == "not_ready":
@@ -167,7 +167,7 @@ async def ready_v2(response: Response) -> ReadinessResponseSchema:
 
 
 @app.get("/api/v2/models", tags=["v2"])
-async def list_models_v2() -> dict:
+def list_models_v2() -> dict:
     return {"models": service.list_models(), "default_model": service.settings.default_model}
 
 

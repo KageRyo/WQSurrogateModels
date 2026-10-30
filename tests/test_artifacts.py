@@ -79,6 +79,60 @@ def test_artifact_validation_accepts_matching_checksum(tmp_path: Path):
     assert artifact_path == tmp_path / MODEL_PATHS[ModelTypeEnum.LR]
 
 
+def test_status_reuses_checksum_but_invalidates_changed_or_removed_artifact(tmp_path, monkeypatch):
+    import wqsurrogatemodels.services as services
+
+    write_manifest(tmp_path)
+    service = WaterQualityService(Settings(project_root=tmp_path))
+    original = services.validate_artifact
+    calls = []
+
+    def checked(root, artifact):
+        calls.append(artifact.model_type)
+        return original(root, artifact)
+
+    monkeypatch.setattr(services, "validate_artifact", checked)
+    monkeypatch.setattr(services, "validate_artifact_runtime", lambda *a, **kw: None)
+    service.model_availability()
+    calls.clear()
+    assert all(item["available"] for item in service.model_availability())
+    assert calls == []  # Polling large, unchanged files must not rehash them.
+
+    path = tmp_path / MODEL_PATHS[ModelTypeEnum.RF]
+    contents = path.read_bytes()
+    # Same length and restored mtime still invalidate via ctime.
+    import os
+    stat = path.stat()
+    path.write_bytes(b"X" * len(contents))
+    os.utime(path, ns=(stat.st_atime_ns, stat.st_mtime_ns))
+    available = {item["model_type"]: item["available"] for item in service.model_availability()}
+    assert not available[ModelTypeEnum.RF]
+    assert calls == [ModelTypeEnum.RF]
+
+    path.write_bytes(contents)
+    assert service._pick_available_artifact(ModelTypeEnum.RF) == path
+    path.unlink()
+    assert not next(item["available"] for item in service.model_availability() if item["model_type"] == ModelTypeEnum.RF)
+
+
+def test_status_cache_does_not_skip_checksum_before_deserialization(tmp_path, monkeypatch):
+    import wqsurrogatemodels.services as services
+
+    write_manifest(tmp_path)
+    service = WaterQualityService(Settings(project_root=tmp_path))
+    monkeypatch.setattr(services, "validate_artifact_runtime", lambda *a, **kw: None)
+    service.model_availability()
+
+    def reject(*args):
+        raise ArtifactValidationError("checksum changed")
+
+    monkeypatch.setattr(services, "validate_artifact", reject)
+    monkeypatch.setattr(services.joblib, "load", lambda *a: pytest.fail("Invalid artifact deserialized"))
+    from wqsurrogatemodels.errors import ApplicationError
+    with pytest.raises(ApplicationError):
+        service._load_model(ModelTypeEnum.RF)
+
+
 def test_artifact_validation_reports_missing_artifact_without_local_path(tmp_path: Path):
     manifest = load_production_manifest(write_manifest(tmp_path))
     (tmp_path / MODEL_PATHS[ModelTypeEnum.LR]).unlink()

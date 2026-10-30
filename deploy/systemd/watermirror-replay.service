@@ -1,0 +1,16 @@
+[Unit]
+Description=Resume complete Jetson Nano inference experiments
+
+[Service]
+Type=simple
+WorkingDirectory=%h/research/water-quality
+Environment=PYTHONPATH=WQSurrogateModels/src:WQSurrogateModels/scripts
+Environment=CUDA_VISIBLE_DEVICES=
+Environment=OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
+EnvironmentFile=%h/.config/watermirror-edge/replay.env
+LoadCredentialEncrypted=nano-password:%h/.config/watermirror-edge/nano-password.cred
+ExecCondition=/usr/bin/test ! -e WQSurrogateModels/results/jetson_nano_20261026/replay-results/runner-complete.json
+ExecStart=%h/research/water-quality/.edge-verification/2026-10-26/research-venv/bin/python WQSurrogateModels/scripts/replay_edge_experiments.py run --staging WQSurrogateModels/results/jetson_nano_20261026/replay-staging --output WQSurrogateModels/results/jetson_nano_20261026/replay-results --remote ${WQ_REPLAY_REMOTE} --remote-root ${WQ_REPLAY_ROOT} --ssh-control %t/watermirror-replay-ssh --record-parity-failures --resume-incomplete --systemd-credentials
+KillMode=control-group
+TimeoutStopSec=30
+UMask=0077

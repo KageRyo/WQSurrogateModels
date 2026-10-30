@@ -62,9 +62,9 @@ def test_runtime_validation_identifies_missing_optional_dependency(monkeypatch: 
 
     monkeypatch.setattr(model_runtime, "distribution_version", missing_xgboost)
 
-    with pytest.raises(model_runtime.ArtifactRuntimeCompatibilityError, match="xgboost==2.1.4 is not installed") as exc_info:
+    with pytest.raises(model_runtime.ArtifactRuntimeCompatibilityError, match="xgboost==3.2.0 is not installed") as exc_info:
         model_runtime.validate_artifact_runtime(
-            runtime_artifact(ModelTypeEnum.XGBOOST, {"xgboost": "2.1.4"}),
+            runtime_artifact(ModelTypeEnum.XGBOOST, {"xgboost": "3.2.0"}),
             artifact_path=Path("model.pkl"),
         )
 
