@@ -436,3 +436,51 @@ def test_reconstruction_dependency_cannot_escape_output_directory():
     from edge_replay.schema import Condition
     with pytest.raises(ValueError, match="Replay identifiers"):
         Condition(name="reconstruction", mode="indicator_reconstruction", reconstruction={"BOD": "../original"})
+
+
+@pytest.mark.parametrize("value", ["--all", "-a", "edge container", "edge;id", "registry/edge", "edge:latest", ""])
+def test_container_names_reject_docker_options_and_non_names(value):
+    from edge_replay.runner import safe_container_name
+    with pytest.raises(ValueError, match="Docker container"):
+        safe_container_name(value)
+
+
+@pytest.mark.parametrize("value", ["--privileged", "-v/tmp:/data", "image name", "image;id", ""])
+def test_image_references_reject_option_or_shell_injection(value):
+    from edge_replay.runner import safe_image_reference
+    with pytest.raises(ValueError, match="Docker image"):
+        safe_image_reference(value)
+
+
+@pytest.mark.parametrize("value", ["watermirror-edge-research:20261026", "ghcr.io/team/edge:release-1",
+                                   "localhost:5000/team/edge:v2", "edge@sha256:" + "a" * 64])
+def test_image_references_preserve_registry_port_tag_and_digest(value):
+    from edge_replay.runner import safe_image_reference
+    assert safe_image_reference(value) == value
+
+
+def test_runner_rejects_api_container_option_before_creating_output(tmp_path, monkeypatch):
+    from edge_replay.runner import main
+    import subprocess
+    output = tmp_path / "output"
+    monkeypatch.setattr(sys, "argv", ["run", "--staging", str(tmp_path / "staging"),
+                                     "--output", str(output), "--remote", "user@nano", "--api-container=--all"])
+    monkeypatch.setattr(subprocess, "run", lambda *a, **kw: pytest.fail("Invalid name reached Docker"))
+    with pytest.raises(ValueError, match="Docker container"):
+        main()
+    assert not output.exists()
+
+
+def test_runner_keeps_empty_wait_container_as_disabled(tmp_path, monkeypatch):
+    import edge_replay.runner as runner
+    class StopBeforeCredentials(Exception):
+        pass
+    def stop_after_validation(*args):
+        raise StopBeforeCredentials
+    monkeypatch.setattr(sys, "argv", ["run", "--staging", str(tmp_path / "staging"),
+                                     "--output", str(tmp_path / "output"), "--remote", "user@nano", "--wait-container="])
+    monkeypatch.setattr(runner, "acquire_runner_lock", stop_after_validation)
+    with pytest.raises(StopBeforeCredentials):
+        runner.main()
+    assert runner.safe_container_name("watermirror-edge") == "watermirror-edge"
+    assert runner.safe_container_name("watermirror-soak-rf") == "watermirror-soak-rf"

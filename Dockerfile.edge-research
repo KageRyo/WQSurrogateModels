@@ -6,8 +6,8 @@ RUN apt-get update && apt-get install --no-install-recommends --yes libgomp1 \
 WORKDIR /app
 COPY requirements-edge-research.txt ./
 RUN uv venv /opt/research \
-    && uv pip sync --no-build --only-binary :all: --require-hashes \
-       --python /opt/research/bin/python requirements-edge-research.txt
+    && uv pip sync --no-build --only-binary=:all: --require-hashes \
+       --python=/opt/research/bin/python requirements-edge-research.txt
 ENV PATH="/opt/research/bin:$PATH" \
     PYTHONPATH="/app/src:/app/scripts" \
     PYTHONUNBUFFERED=1 \

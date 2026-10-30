@@ -37,6 +37,18 @@ def safe_ssh_target(value):
     return value
 
 
+def safe_container_name(value):
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", value):
+        raise ValueError("Docker container names must not contain options, paths or whitespace")
+    return value
+
+
+def safe_image_reference(value):
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:/@-]*", value):
+        raise ValueError("Docker image references must not contain leading options, whitespace or shell characters")
+    return value
+
+
 class Remote:
     def __init__(self, target, control, password, ssh_password=None):
         self.target = safe_ssh_target(target)
@@ -336,9 +348,10 @@ def main():
     safe_ssh_target(args.remote)
     if args.remote_root is not None:
         args.remote_root = safe_remote_path(args.remote_root)
-    for name in [args.image, args.api_container, args.wait_container]:
-        if name and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:/@-]*", name):
-            raise ValueError("Image/container identifiers must not contain options or shell characters")
+    args.image = safe_image_reference(args.image)
+    args.api_container = safe_container_name(args.api_container)
+    if args.wait_container:
+        args.wait_container = safe_container_name(args.wait_container)
     output.mkdir(parents=True, exist_ok=True)
     runner_lock = acquire_runner_lock(output)
     if (output / "runner-complete.json").exists():
