@@ -124,3 +124,20 @@ jobs:
         run: |
           docker run --rm --platform linux/arm64 wqsurrogatemodels:jetson-ci-test \
             python -c 'import os, xgboost; from wqsurrogatemodels.api import app; from wqsurrogatemodels.wqi import direct_wqi5_score; assert os.getuid() != 0; assert xgboost.__version__ == "3.2.0"; assert abs(direct_wqi5_score(do=96.2,bod=1.5,nh3n=0.22,ec=171,ss=2.6)-89.542) < 1e-6'
+
+      - name: Build locked research ARM64 image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile.edge-research
+          platforms: linux/arm64
+          push: false
+          load: true
+          tags: wqsurrogatemodels:research-ci-test
+          cache-from: type=gha,scope=edge-research-arm64
+          cache-to: type=gha,mode=max,scope=edge-research-arm64
+
+      - name: Check non-root research imports and archived runtime
+        run: |
+          docker run --rm --platform linux/arm64 wqsurrogatemodels:research-ci-test \
+            python -c 'import os, numpy, xgboost; from edge_replay.worker import replay; assert os.getuid() != 0; assert numpy.__version__ == "1.26.4"; assert xgboost.__version__ == "3.2.0"'

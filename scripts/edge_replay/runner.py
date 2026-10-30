@@ -350,8 +350,7 @@ def main():
         args.remote_root = safe_remote_path(args.remote_root)
     args.image = safe_image_reference(args.image)
     args.api_container = safe_container_name(args.api_container)
-    if args.wait_container:
-        args.wait_container = safe_container_name(args.wait_container)
+    args.wait_container = safe_container_name(args.wait_container) if args.wait_container else ""
     output.mkdir(parents=True, exist_ok=True)
     runner_lock = acquire_runner_lock(output)
     if (output / "runner-complete.json").exists():
