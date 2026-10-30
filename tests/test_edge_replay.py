@@ -59,12 +59,24 @@ def test_resume_archives_only_incomplete_reference_and_excludes_second_controlle
 
 @pytest.mark.parametrize("mode", ["full_reference", "inference_dropout", "reduced_retraining", "indicator_reconstruction"])
 def test_isolated_replay_preserves_original_bundle_predictions(tmp_path, monkeypatch, mode):
+    import importlib.metadata
     scripts = Path(__file__).parents[1] / "scripts"
     monkeypatch.syspath_prepend(str(scripts))
     from edge_replay.schema import Component, Condition, InputFrame, ReplayJob
     from edge_replay.worker import replay, sha256
     from reproduce_results import build_model
     from run_missing_indicator_robustness_experiments import predict_bundle
+
+    # A base install supports LR without optional boosting libraries. Completion
+    # metadata must not introduce a dependency the actual inference does not use.
+    installed_version = importlib.metadata.version
+
+    def base_install_version(name):
+        if name in {"xgboost", "lightgbm"}:
+            raise importlib.metadata.PackageNotFoundError(name)
+        return installed_version(name)
+
+    monkeypatch.setattr(importlib.metadata, "version", base_install_version)
 
     features = ["DO", "BOD", "NH3N", "EC", "SS"]
     available = ["DO", "EC", "SS"]
@@ -107,6 +119,8 @@ def test_isolated_replay_preserves_original_bundle_predictions(tmp_path, monkeyp
     with np.load(output / "wqi.npz") as predictions:
         np.testing.assert_allclose(predictions[mode + "/test"], expected, rtol=0, atol=1e-12)
     before = (output / "completed.json").read_bytes()
+    assert json.loads(before)["versions"]["xgboost"] is None
+    assert json.loads(before)["versions"]["lightgbm"] is None
     with pytest.raises(FileExistsError):
         replay(packet, output, None)
     assert (output / "completed.json").read_bytes() == before

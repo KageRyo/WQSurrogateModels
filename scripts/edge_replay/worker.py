@@ -27,6 +27,17 @@ from edge_replay.schema import ReplayJob
 FEATURES = ["DO", "BOD", "NH3N", "EC", "SS"]
 
 
+def runtime_versions():
+    versions = {name: importlib.metadata.version(name)
+                for name in ["numpy", "pandas", "scipy", "scikit-learn", "joblib"]}
+    for name in ["xgboost", "lightgbm"]:
+        try:
+            versions[name] = importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:
+            versions[name] = None
+    return versions
+
+
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as stream:
@@ -200,7 +211,7 @@ def replay(packet: Path, output: Path, reference: Path | None, *, record_parity_
         "elapsed_seconds_including_subprocesses_and_load": time.perf_counter() - started,
         "platform": platform.platform(), "machine": platform.machine(), "python": platform.python_version(),
         "utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "versions": {name: importlib.metadata.version(name) for name in ["numpy", "pandas", "scipy", "scikit-learn", "joblib", "xgboost", "lightgbm"]},
+        "versions": runtime_versions(),
         "thread_environment": {name: os.getenv(name) for name in ["CUDA_VISIBLE_DEVICES", "OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS"]},
         "job_sha256": sha256(packet / "job.json"),
         "worker_sha256": sha256(Path(__file__)),
