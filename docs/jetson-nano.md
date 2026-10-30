@@ -37,6 +37,7 @@ artifact. Create a data directory even if no dataset is needed:
 ```bash
 mkdir -p data
 docker run -d --name watermirror-edge --restart unless-stopped \
+  --user "$(id -u):$(id -g)" \
   --log-opt max-size=10m --log-opt max-file=3 \
   -p 8001:8001 \
   -e DEFAULT_MODEL=direct_wqi5 -e AUTO_PORT=false \
@@ -75,6 +76,14 @@ For a cold edge deployment, increase `EXPO_PUBLIC_REQUEST_TIMEOUT_MS` to cover
 artifact validation and model loading. Keep a dataset mounted if the app needs
 percentile and category-distribution views; formula readiness alone does not
 require one. Restrict CORS to the actual web origin when exposing a web client.
+
+Both edge images default to an unprivileged UID 10001. The example uses the
+non-root host owner's UID/GID so owner-readable model/data mounts remain
+accessible without changing their permissions. Run it from an unprivileged
+account. Benchmark containers that write a host evidence directory should use
+that same UID/GID. Dependency installs accept locked binary distributions;
+the application source is imported through `/app/src` without running its
+build backend inside the production image.
 
 ## Repeatable measurements
 

@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
+
 
 def test_ssh_recovery_replaces_socket_left_by_killed_controller(tmp_path, monkeypatch):
     import socket
@@ -152,7 +154,7 @@ def test_component_checksum_is_checked_before_deserialization(tmp_path, monkeypa
     (packet / "job.json").write_text(job.model_dump_json())
     monkeypatch.setattr(joblib, "load", lambda *args, **kw: pytest.fail("Unchecked pickle was loaded"))
     with pytest.raises(ValueError, match="checksum mismatch"):
-        component_job(packet, tmp_path, "wqi")
+        component_job(packet, tmp_path / "output", "wqi")
 
 
 @pytest.mark.parametrize("damage", ["missing_frame", "wrong_prediction"])
@@ -368,3 +370,69 @@ def test_unidentified_transfer_is_preserved_and_never_moved_with_live_worker(tmp
         assert not packet.exists() and not reference.exists()
         # Another invocation must accept the now-empty staging area.
         assert recover_remote_result(Remote(), str(root), tmp_path, output, resume_incomplete=True) is None
+
+@pytest.mark.parametrize("target", ["-oProxyCommand=touch /tmp/injected", "user@host;id", "host\n-oProxyCommand=id"])
+def test_remote_rejects_option_or_shell_target_before_starting_transport(target, monkeypatch):
+    from edge_replay.runner import Remote
+    import subprocess
+    monkeypatch.setattr(subprocess, "run", lambda *a, **kw: pytest.fail("Invalid target reached a subprocess"))
+    with pytest.raises(ValueError, match="SSH target"):
+        Remote(target, None, "secret")
+
+
+@pytest.mark.parametrize("remote_path", ["-oProxyCommand=id", "/tmp/../etc", "/tmp/$(id)", "/tmp/a;id", "/"])
+def test_remote_transfer_rejects_unsafe_paths_before_scp(tmp_path, remote_path, monkeypatch):
+    from edge_replay.runner import Remote
+    remote = Remote("user@100.67.19.24", None, "secret")
+    monkeypatch.setattr(remote, "transport", lambda *a, **kw: pytest.fail("Invalid path reached SCP"))
+    for method in [remote.upload, remote.download]:
+        with pytest.raises(ValueError, match="Remote staging"):
+            if method == remote.upload:
+                method(tmp_path / "packet", remote_path)
+            else:
+                method(remote_path, tmp_path / "output")
+
+
+def test_scp_keeps_absolute_paths_and_separates_options(tmp_path, monkeypatch):
+    from edge_replay.runner import Remote
+    remote = Remote("user@nano", None, "secret")
+    calls = []
+    monkeypatch.setattr(remote, "transport", lambda command, **kw: calls.append(command))
+    remote.upload(tmp_path / "-packet", "/home/user/edge-research/current-packet")
+    command, = calls
+    assert command[command.index("--") + 1:] == [str(tmp_path / "-packet"), "user@nano:/home/user/edge-research/current-packet"]
+
+
+@pytest.mark.parametrize("field,value", [("key", "../../original"), ("path", "../../model.joblib"),
+                                         ("path", "/tmp/model.joblib")])
+def test_component_schema_rejects_packet_path_escape(field, value):
+    from edge_replay.schema import Component
+    data = {"key": "wqi", "path": "wqi.joblib", "sha256": "0" * 64, "features": ["DO"]}
+    data[field] = value
+    with pytest.raises(ValueError):
+        Component(**data)
+
+
+def test_replay_path_boundary_preserves_reference_and_rejects_symlink_escape(tmp_path):
+    from edge_replay.worker import packet_file, replay_paths
+    packet = tmp_path / "packet"
+    packet.mkdir()
+    reference = tmp_path / "reference"
+    reference.mkdir()
+    for output in [packet / "result", reference / "result", tmp_path, tmp_path / "safe/../escaped"]:
+        with pytest.raises(ValueError):
+            replay_paths(packet, output, reference)
+        assert not output.exists() or output == tmp_path
+    external = tmp_path / "original-model.joblib"
+    external.write_bytes(b"preserve original")
+    (packet / "wqi.joblib").symlink_to(external)
+    with pytest.raises(ValueError, match="including symlinks"):
+        packet_file(packet.resolve(), "wqi.joblib")
+    assert external.read_bytes() == b"preserve original"
+    assert replay_paths(packet, tmp_path / "new-absolute-output", reference)[1] == tmp_path / "new-absolute-output"
+
+
+def test_reconstruction_dependency_cannot_escape_output_directory():
+    from edge_replay.schema import Condition
+    with pytest.raises(ValueError, match="Replay identifiers"):
+        Condition(name="reconstruction", mode="indicator_reconstruction", reconstruction={"BOD": "../original"})

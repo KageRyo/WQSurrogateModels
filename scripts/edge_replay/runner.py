@@ -6,7 +6,8 @@ import getpass
 import fcntl
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+import re
 import shlex
 import shutil
 import stat
@@ -17,15 +18,29 @@ import time
 
 import numpy as np
 
-from edge_replay.schema import ReplayJob
+from edge_replay.schema import ReplayJob, safe_local_path
 from edge_replay.worker import sha256
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def safe_remote_path(value):
+    if (not isinstance(value, str) or not re.fullmatch(r"/[A-Za-z0-9_./-]+", value)
+            or ".." in PurePosixPath(value).parts or str(PurePosixPath(value)) in {"/", "//"}):
+        raise ValueError("Remote staging paths must be absolute, without traversal or shell characters")
+    return str(PurePosixPath(value))
+
+
+def safe_ssh_target(value):
+    if not re.fullmatch(r"(?:[A-Za-z0-9_][A-Za-z0-9_.-]*@)?(?:[A-Za-z0-9][A-Za-z0-9_.-]*|\[[0-9A-Fa-f:]+\])", value):
+        raise ValueError("SSH target must be a hostname or IP, optionally prefixed with user@")
+    return value
+
+
 class Remote:
     def __init__(self, target, control, password, ssh_password=None):
-        self.target = target
+        self.target = safe_ssh_target(target)
+        control = str(safe_local_path(control)) if control else None
         self.options = ["-o", "BatchMode=yes", "-o", "ConnectTimeout=20", "-o", "ServerAliveInterval=30", "-o", "ServerAliveCountMax=10"]
         if control:
             self.options += ["-o", "ControlPath=" + control]
@@ -36,7 +51,7 @@ class Remote:
     def renew_control(self):
         if not self.control or self.ssh_password is None:
             raise RuntimeError("SSH password renewal requires a control socket and an in-memory password")
-        checked = subprocess.run(["ssh", "-S", self.control, "-O", "check", self.target],
+        checked = subprocess.run(["ssh", "-S", self.control, "-O", "check", "--", self.target],
                                  text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if checked.returncode == 0:
             return
@@ -56,27 +71,29 @@ class Remote:
             result = subprocess.run(["ssh", "-MNf", "-S", self.control, "-o", "ControlPersist=yes",
                                      "-o", "BatchMode=no", "-o", "StrictHostKeyChecking=yes",
                                      "-o", "ServerAliveInterval=30", "-o", "ServerAliveCountMax=10",
-                                     "-o", "ConnectTimeout=20", self.target],
+                                     "-o", "ConnectTimeout=20", "--", self.target],
                                     stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                     text=True, env=environment, start_new_session=True, timeout=45)
             if result.returncode:
                 raise RuntimeError("Could not renew the authenticated SSH control connection")
 
     def transport(self, command, *, check=True, **kwargs):
-        result = subprocess.run(command, check=False, **kwargs)
+        if not isinstance(command, list) or not command or command[0] not in {"ssh", "scp"}:
+            raise ValueError("Replay transport only invokes SSH or SCP argument lists")
+        result = subprocess.run(command, check=False, shell=False, **kwargs)
         # This error proves authentication failed before the remote command ran.
         # A dropped connection during a running Docker command is NOT retried:
         # the existing worker must be inspected/recovered instead of repeated.
         if result.returncode == 255 and "Permission denied (publickey,password)" in (result.stderr or "") and self.ssh_password is not None:
             print(json.dumps({"phase":"renewing_ssh_control_connection"}), flush=True)
             self.renew_control()
-            result = subprocess.run(command, check=False, **kwargs)
+            result = subprocess.run(command, check=False, shell=False, **kwargs)
         if check:
             result.check_returncode()
         return result
 
     def shell(self, command, *, check=True, input=None):
-        return self.transport(["ssh", *self.options, self.target, command], input=input,
+        return self.transport(["ssh", *self.options, "--", self.target, command], input=input,
                               text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=check)
 
     def docker(self, args, *, check=True):
@@ -84,14 +101,18 @@ class Remote:
 
     def sudo(self, args, *, check=True):
         # Password is passed only through stdin, never argv, files or logs.
-        command = "sudo -S -p '' " + shlex.join(args)
+        command = "sudo -S -p '' -- " + shlex.join(args)
         return self.shell(command, check=check, input=self.password + "\n")
 
     def upload(self, local, remote):
-        self.transport(["scp", *self.options, "-q", "-r", str(local), self.target + ":" + remote], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        remote = safe_remote_path(remote)
+        local = safe_local_path(local)
+        self.transport(["scp", *self.options, "-q", "-r", "--", str(local), self.target + ":" + remote], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def download(self, remote, local):
-        self.transport(["scp", *self.options, "-q", "-r", self.target + ":" + remote, str(local)], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        remote = safe_remote_path(remote)
+        local = safe_local_path(local)
+        self.transport(["scp", *self.options, "-q", "-r", "--", self.target + ":" + remote, str(local)], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
 def progress(path, **values):
@@ -258,14 +279,14 @@ def recover_remote_result(remote, remote_root, staging, output, *, record_parity
 
 
 def install_remote_source(remote, remote_root):
-    target = remote_root + "/source"
+    target = safe_remote_path(remote_root) + "/source"
     remote.shell("mkdir -p " + shlex.quote(target + "/scripts") + " " + shlex.quote(target + "/src"))
     for item in ["Dockerfile.edge-research", "requirements-edge-research.txt"]:
         remote.upload(ROOT / item, target + "/")
     # Only public runtime/research source is sent to the image build context.
     # Model packets and private inputs have a separate directory and mounts.
     archive = subprocess.Popen(["tar", "--exclude=__pycache__", "-C", str(ROOT), "-cf", "-", "src", "scripts"], stdout=subprocess.PIPE)
-    subprocess.run(["ssh", *remote.options, remote.target,
+    subprocess.run(["ssh", *remote.options, "--", remote.target,
                     "tar -xf - -C " + shlex.quote(target)], stdin=archive.stdout, check=True)
     archive.stdout.close()
     if archive.wait() != 0:
@@ -308,7 +329,16 @@ def main():
     parser.add_argument("--resume-incomplete", action="store_true", help="Archive terminal incomplete outputs before retrying; wait for live Nano workers")
     parser.add_argument("--systemd-credentials", action="store_true", help="Read nano-password from systemd's credential directory")
     args = parser.parse_args()
-    output = args.output.resolve()
+    args.staging = safe_local_path(args.staging)
+    output = safe_local_path(args.output)
+    if output.is_relative_to(args.staging) or args.staging.is_relative_to(output):
+        raise ValueError("Runner output must not overlap replay staging")
+    safe_ssh_target(args.remote)
+    if args.remote_root is not None:
+        args.remote_root = safe_remote_path(args.remote_root)
+    for name in [args.image, args.api_container, args.wait_container]:
+        if name and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:/@-]*", name):
+            raise ValueError("Image/container identifiers must not contain options or shell characters")
     output.mkdir(parents=True, exist_ok=True)
     runner_lock = acquire_runner_lock(output)
     if (output / "runner-complete.json").exists():
@@ -326,7 +356,7 @@ def main():
         remote_home = remote.shell('printf "%s" "$HOME"').stdout.strip()
         if not remote_home.startswith("/"):
             raise ValueError("Cannot determine an absolute remote home directory")
-        args.remote_root = remote_home.rstrip("/") + "/water-quality/edge-research-20261026"
+        args.remote_root = safe_remote_path(remote_home.rstrip("/") + "/water-quality/edge-research-20261026")
     state = output / "progress.json"
     # Do not overlap research installation, transfer or inference with the
     # sustained device benchmark. A missing container alone is not success.

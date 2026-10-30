@@ -22,7 +22,7 @@ import time
 import numpy as np
 import pandas as pd
 
-from edge_replay.schema import ReplayJob
+from edge_replay.schema import ReplayJob, safe_identifier, safe_local_path
 
 FEATURES = ["DO", "BOD", "NH3N", "EC", "SS"]
 
@@ -65,21 +65,39 @@ def cpu_estimator(model):
     return updates
 
 
+def replay_paths(packet, output, reference=None):
+    packet, output = safe_local_path(packet), safe_local_path(output)
+    reference = safe_local_path(reference) if reference is not None else None
+    for source in [packet, reference]:
+        if source is not None and (output.is_relative_to(source) or source.is_relative_to(output)):
+            raise ValueError("Replay output must not overlap its packet or reference")
+    return packet, output, reference
+
+
+def packet_file(packet, name):
+    path = (packet / name).resolve()
+    if not path.is_relative_to(packet):
+        raise ValueError("Replay input must stay inside its packet, including symlinks")
+    return path
+
+
 def component_job(packet: Path, output: Path, key: str):
     import joblib
 
-    job = ReplayJob.model_validate_json((packet / "job.json").read_text())
+    packet, output, _ = replay_paths(packet, output)
+    key = safe_identifier(key)
+    job = ReplayJob.model_validate_json(packet_file(packet, "job.json").read_text())
     component = next(item for item in job.components if item.key == key)
-    artifact = packet / component.path
+    artifact = packet_file(packet, component.path)
     if sha256(artifact) != component.sha256:
         raise ValueError("Component artifact checksum mismatch")
-    if sha256(packet / "inputs.npz") != job.inputs_sha256:
+    if sha256(packet_file(packet, "inputs.npz")) != job.inputs_sha256:
         raise ValueError("Replay input checksum mismatch")
     load_start = time.perf_counter()
     model = joblib.load(artifact)
     load_seconds = time.perf_counter() - load_start
     backend_updates = cpu_estimator(model)
-    data = np.load(packet / "inputs.npz", allow_pickle=False)
+    data = np.load(packet_file(packet, "inputs.npz"), allow_pickle=False)
     predictions = {}
     timing = []
     process_cpu_start = time.process_time()
@@ -132,7 +150,8 @@ def replay(packet: Path, output: Path, reference: Path | None, *, record_parity_
     from run_missing_indicator_robustness_experiments import prediction_metrics, score_to_category
     from run_stress107_event_windows import append_window_rows, sequential_windows
 
-    job = ReplayJob.model_validate_json((packet / "job.json").read_text())
+    packet, output, reference = replay_paths(packet, output, reference)
+    job = ReplayJob.model_validate_json(packet_file(packet, "job.json").read_text())
     if output.exists():
         raise FileExistsError(f"Replay output already exists: {output}")
     output.mkdir(parents=True)
@@ -141,10 +160,10 @@ def replay(packet: Path, output: Path, reference: Path | None, *, record_parity_
     components += [item for item in job.components if item.key == "wqi"]
     for component in components:
         subprocess.run([sys.executable, str(Path(__file__).parents[1] / "replay_edge_experiments.py"),
-                        "worker", "--packet", str(packet), "--output", str(output),
-                        "--component", component.key], check=True)
+                        "worker", "--packet=" + str(packet), "--output=" + str(output),
+                        "--component=" + component.key], check=True)
     predictions = np.load(output / "wqi.npz", allow_pickle=False)
-    inputs = np.load(packet / "inputs.npz", allow_pickle=False)
+    inputs = np.load(packet_file(packet, "inputs.npz"), allow_pickle=False)
     metrics = []
     window_rows = []
     parity_rows = []

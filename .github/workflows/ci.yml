@@ -110,9 +110,17 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
+          file: Dockerfile.jetson
           platforms: linux/arm64
           push: false
+          load: true
+          tags: wqsurrogatemodels:jetson-ci-test
           build-args: |
             INSTALL_MODEL_EXTRAS=true
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Check non-root ARM64 runtime and direct inference
+        run: |
+          docker run --rm --platform linux/arm64 wqsurrogatemodels:jetson-ci-test \
+            python -c 'import os, xgboost; from wqsurrogatemodels.api import app; from wqsurrogatemodels.wqi import direct_wqi5_score; assert os.getuid() != 0; assert xgboost.__version__ == "3.2.0"; assert abs(direct_wqi5_score(do=96.2,bod=1.5,nh3n=0.22,ec=171,ss=2.6)-89.542) < 1e-6'
