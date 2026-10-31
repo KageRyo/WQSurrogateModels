@@ -97,3 +97,32 @@ def test_backup_rejects_overlapping_sources_before_creating_files(tmp_path, monk
     with pytest.raises(ValueError, match="overlaps a source"):
         backup.main()
     assert {str(path.relative_to(tmp_path)) for path in tmp_path.rglob("*")} == before
+
+
+@pytest.mark.parametrize("source_name", ["experiment", "report", "evidence"])
+@pytest.mark.parametrize("link_kind", ["output_ancestor", "file", "broken"])
+def test_backup_rejects_nested_source_links_before_creating_files(
+    tmp_path, monkeypatch, source_name, link_kind,
+):
+    monkeypatch.syspath_prepend(str(Path(__file__).parents[1] / "scripts"))
+    from edge_replay import backup
+
+    sources = {name: tmp_path / name for name in ("experiment", "report", "evidence")}
+    for source in sources.values():
+        source.mkdir()
+    nested = sources[source_name] / "nested"
+    nested.mkdir()
+    target = tmp_path if link_kind == "output_ancestor" else tmp_path / "input.txt"
+    if link_kind == "file":
+        target.write_text("original")
+    (nested / "alias").symlink_to(target, target_is_directory=link_kind == "output_ancestor")
+    destination = tmp_path / "snapshot"
+    before = {str(path.relative_to(tmp_path)) for path in tmp_path.rglob("*")}
+    monkeypatch.setattr(sys, "argv", ["backup", "--experiment", str(sources["experiment"]),
+        "--report", str(sources["report"]), "--evidence", str(sources["evidence"]),
+        "--destination", str(destination)])
+    with pytest.raises(ValueError, match="source contains a symbolic link"):
+        backup.main()
+    assert {str(path.relative_to(tmp_path)) for path in tmp_path.rglob("*")} == before
+    assert not destination.exists()
+    assert not destination.with_name("snapshot.partial").exists()

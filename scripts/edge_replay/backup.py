@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -42,6 +43,14 @@ def main():
         for output in (destination, temporary):
             if output == source or source in output.parents or output in source.parents:
                 raise ValueError("Backup destination overlaps a source directory: " + str(source))
+    # copytree dereferences nested links by default. A link back to an output
+    # ancestor would recursively copy the new partial backup into itself. Reject
+    # links before creating any output; never traverse directory links here.
+    for source in sources:
+        for directory, directories, files in os.walk(source, followlinks=False):
+            for name in directories + files:
+                if (Path(directory) / name).is_symlink():
+                    raise ValueError("Backup source contains a symbolic link: " + str(Path(directory) / name))
     report = json.loads((report_directory / "manifest.json").read_text())
     runner = json.loads((experiment / "replay-results/runner-complete.json").read_text())
     findings_allowed = (args.record_parity_failures and report.get("parity_findings_recorded") is True
