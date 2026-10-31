@@ -63,7 +63,9 @@ under memory and I/O pressure. Warm inference timing excludes this cost.
 Run one Uvicorn worker on this device. Blocking model, CSV and dataset operations
 run in FastAPI worker threads, so health checks can continue while a model loads.
 A per-service lock serializes model loading and surrogate prediction, preventing
-duplicate initial RF instances and overlapping inference allocations. Separate
+duplicate initial RF instances and overlapping inference allocations. RF source
+arrays use read-only memory mapping during deserialization; the final sklearn
+trees still occupy heap memory and the model artifact remains unchanged. Separate
 processes do not share this lock. Distinct cached models remain resident, and
 large CSV requests can still exhaust memory; keep Nano requests bounded.
 Swap must be available for this artifact on the 2GB device. Never interpret

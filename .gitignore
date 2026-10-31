@@ -201,3 +201,4 @@ statistics/outputs/jetson_nano_20261026/*
 !statistics/outputs/jetson_nano_20261026/cpu_timing_summary.csv
 !statistics/outputs/jetson_nano_20261026/resource_summary.csv
 !statistics/outputs/jetson_nano_20261026/deployment_benchmarks.json
+!statistics/outputs/jetson_nano_20261026/coldstart_concurrency.json

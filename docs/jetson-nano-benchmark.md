@@ -136,6 +136,47 @@ the one-row API measurements above. Component-process RSS is not whole-device
 or whole-container memory; RF required swap on the 2GB device. Completion of the
 native workload alone is not evidence of low resource use.
 
+## Cold-start concurrency acceptance (2026-10-31)
+
+Assessment/CSV/legacy inference handlers now run synchronous work in FastAPI's
+worker threads. A per-service lock serializes surrogate deserialization and
+prediction, preventing duplicate first loads; the Nano deployment uses one
+worker. Readiness checksum verification is independently serialized.
+
+The first two-request RF trial completed both assessments with one model load
+and no OOM, but two health polls failed; that trial is retained as a failed
+health-continuity result. First readiness took 14.66 seconds, confirming that
+the former 10-second settings timeout was insufficient in this run.
+
+RF now loads source arrays with read-only joblib memory mapping. The original
+artifact and weights are unchanged. sklearn still allocates its own tree
+buffers, so this does not remove the roughly 1 GiB forest or establish that RF
+fits in RAM without swap.
+
+A separate fresh-process follow-up passed:
+
+| Check | Observed result |
+| --- | --- |
+| Two concurrent first RF assessments | Both HTTP 200, score 89.927; one model-load event |
+| Health during RF load | 35/35 HTTP 200; maximum 578.50 ms |
+| Readiness during RF load | HTTP 200, 308.17 ms |
+| Direct formula during RF load | HTTP 200, 31.45 ms |
+| Five fixed RF probes | Maximum difference 0.00043334 against raw reference; within 0.000501 API rounding tolerance |
+| OOM termination | None observed |
+
+See the [selected acceptance record](../statistics/outputs/jetson_nano_20261026/coldstart_concurrency.json)
+for exact source/image versions, values and hashes of private evidence. OS file
+caches were not flushed, and memory sampling changed from blocking Docker
+statistics to an independent bounded sampler. This is a process-cold integration
+check, not a controlled speedup experiment or a replacement for the earlier
+cold-load/latency benchmark. Sparse memory samples do not establish peak memory.
+The checks do not guarantee availability under arbitrary concurrent load.
+
+WaterMirror now shares candidate/saved-backend readiness checks and separates
+health (3s), ordinary HTTP (10s), readiness (60s) and assessment/CSV (240s) budgets.
+Its pending message explains first model loading. Existing APKs retain their
+bundled settings until rebuilt.
+
 ## Reproduction and follow-up
 
 Use [the replay workflow](jetson-experiment-replay.md) for packet preparation,

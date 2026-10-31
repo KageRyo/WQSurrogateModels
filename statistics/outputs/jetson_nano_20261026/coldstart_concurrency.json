@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "measurement": "single_worker_process_cold_concurrency_validation",
+  "utc": "2026-10-31T05:57:09Z",
+  "runtime_head": "f0334cc9bb585336f91125372f9ca86b24a9375d",
+  "image": "watermirror-edge:review-mmap-20261031-f0334cc",
+  "image_id": "sha256:b56226cedcd9015732fa863e71fac7814864f7bc9cc0064775b56f783cd2e92d",
+  "source_sha256": {
+    "src/wqsurrogatemodels/api.py": "7d88b3883cef41947765653e2fef4c4574037c4b2349cda3776ce0c0bd289448",
+    "src/wqsurrogatemodels/services.py": "477db54a53ab7f7038c5bec16d87e4fdc12adc46698f5700f9f2135db0131e94"
+  },
+  "prior_trial": {
+    "outcome": "failed_health_continuity",
+    "backend_head": "dc9c78a780ac10a015ddc60347a967a5faef24fa",
+    "rf_requests_completed": 2,
+    "same_rf_score": 89.927,
+    "rf_load_events": 1,
+    "health_polls": 23,
+    "health_failures": 2,
+    "original_research_untouched": true,
+    "rollback_to_previous_service": true,
+    "note": "Failed run retained. Both RF assessments completed, one model load and no OOM, but health continuity failed; blocking docker-stats collection caused a polling gap. Not a passing stability result."
+  },
+  "readonly_mapping_trial": {
+    "rf_load_events": 1,
+    "rf_responses": [
+      {
+        "status": 200,
+        "elapsed_ms": 39372.790216933936,
+        "score": 89.927
+      },
+      {
+        "status": 200,
+        "elapsed_ms": 39514.33340704534,
+        "score": 89.927
+      }
+    ],
+    "health_poll_count": 35,
+    "health_all_http_200": true,
+    "health_max_ms": 578.5032660933211,
+    "initial_readiness_ms": 12337.213822989725,
+    "during_load_readiness_ms": 308.16814897116274,
+    "during_load_direct_ms": 31.45440004300326,
+    "rf_five_probe_parity": {
+      "http_scores": [
+        89.927,
+        88.138,
+        50.752,
+        26.008,
+        13.659
+      ],
+      "reference_scores": [
+        89.92723333333356,
+        88.13833333333336,
+        50.7522666666668,
+        26.00843333333336,
+        13.658933333333346
+      ],
+      "max_abs_difference": 0.00043333333336192936,
+      "tolerance": 0.000501,
+      "pass": true
+    },
+    "oom_killed": false
+  },
+  "evidence_sha256": {
+    "coldstart/concurrent-rf.json": "3bcb8d1978d5b619a3351dbea6aeb925fd909cae9e02ac8356931c058e86173c",
+    "coldstart/container-after.json": "d4b0a065919c1f2f6997a52e1df94f0ae54d4cf7cbca9e77c1b454a073813d01",
+    "coldstart/container-memory.json": "3ba9ff82d06946eac84533169c1ec7a64899460876cd59d67ebb9a309878ed34",
+    "coldstart/during-load-direct.json": "f1ef490204e2a2a3e5904448017e8734a13e23cfc3e70e3806107df929f5898e",
+    "coldstart/during-load-readiness.json": "90710ecce0b27768c2d0b50b72d9789563b37ed5f0e3f8297f5e2360de771c94",
+    "coldstart/failed-validation.json": "d5d133b10d23e72921dfc56405e974f695e658d3e5cbfe7dd4b89e70115c3782",
+    "coldstart/health-polls.json": "e7970d8476ebfc0df700a4ce3edb3e0c1c5bde464c8e8201c646049be6e7a24b",
+    "coldstart/initial-health.json": "89f61f5001da12467cc0529bb8d4174a3c8a00542148da8b6e18e338c0319374",
+    "coldstart/initial-readiness.json": "714aba19c20adbdd3d4c4aa9778300432b0edf02f837c810c6fe474d5817f0ab",
+    "coldstart-mmap/completed.json": "cd1806cb152a785e69d062ed3d35127b22859eca2053b29eda3bde55c12c57ec",
+    "coldstart-mmap/concurrent-rf.json": "cbfc01562c163180f4eb299851704e1f36a9de240eb992ac1335dfeea4274f78",
+    "coldstart-mmap/container-after.json": "0e08429fcfd85c3959dd9e6d496b740e63c93b15e1630ddef752686f1c1a08b2",
+    "coldstart-mmap/container-memory.json": "18d9d752504834b087c374a78638ccbb722bf234a8c19e23f03223ef0b8a3785",
+    "coldstart-mmap/during-load-direct.json": "d35b422671e4d1a6e2f9b5802e4da5b09edd98e013b97ffba23477c078db2fd2",
+    "coldstart-mmap/during-load-readiness.json": "4f3cf37397ca51072e0eed9904b5eb1f8155e49984e2247a1adad4c6f6324f9d",
+    "coldstart-mmap/health-polls.json": "e4a02de98bbf882a8e2f8ef2af455fc36ca2f9a84f3c81165b15d6a28d281982",
+    "coldstart-mmap/initial-health.json": "d8f7d48c478b9415851d11d45cf9b609eb99953c305fd6c83b08acf6c59189f4",
+    "coldstart-mmap/initial-readiness.json": "23d5d6923d8623b5a1a0650d14f34f3d9769b53f880991b8603426894b7fef2a",
+    "coldstart-mmap/rf-probe-parity.json": "e61704f671a0478520a3e3944c233ee76a7252c347b2a6ec44166b84cfe092b8"
+  },
+  "limitations": [
+    "Fresh process; OS filesystem caches were not flushed.",
+    "Health was polled approximately once per second with a three-second timeout; this is not a hard real-time guarantee.",
+    "First trial blocked on Docker statistics collection; follow-up used an independent bounded sampler. Timing differences do not isolate the mapping effect.",
+    "Memory mapping applies to deserialization source arrays; sklearn still allocates owned tree buffers. Sparse memory samples do not establish peak RSS or prove absence of swap.",
+    "This supplements the original benchmark and does not replace the 610-job replay, original measurements or model artifacts."
+  ]
+}
