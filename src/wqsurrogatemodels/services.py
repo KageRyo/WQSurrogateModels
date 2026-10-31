@@ -255,6 +255,10 @@ class WaterQualityService:
                             "scripts/rehydrate_xgboost_artifact.py to create and verify a candidate artifact."
                         )
                     self._models[model_type] = model
+                elif model_type == ModelTypeEnum.RF:
+                    # Reclaimable file-backed source arrays reduce anonymous
+                    # deserialization pressure; sklearn still owns its final trees.
+                    self._models[model_type] = joblib.load(artifact, mmap_mode="r")
                 else:
                     self._models[model_type] = joblib.load(artifact)
                 log_event("model_loaded", model_type=model_type.value)
