@@ -60,6 +60,12 @@ The expected formula score is `89.542`. Repeat the assessment with
 an extended client timeout: the production RF artifact is 1,053,564,815 bytes
 and a measured cold load took approximately 168 seconds on the audited device
 under memory and I/O pressure. Warm inference timing excludes this cost.
+Run one Uvicorn worker on this device. Blocking model, CSV and dataset operations
+run in FastAPI worker threads, so health checks can continue while a model loads.
+A per-service lock serializes model loading and surrogate prediction, preventing
+duplicate initial RF instances and overlapping inference allocations. Separate
+processes do not share this lock. Distinct cached models remain resident, and
+large CSV requests can still exhaust memory; keep Nano requests bounded.
 Swap must be available for this artifact on the 2GB device. Never interpret
 successful formula readiness as proof that every surrogate has been loaded.
 
@@ -72,8 +78,15 @@ For WaterMirror, set `EXPO_PUBLIC_API_BASE_URL=http://<nano-ip>:8001` in its loc
 `.env` and restart Metro. Alternatively save that URL in **Backend settings**
 in an installed APK. Both devices must share a LAN or reachable Tailscale
 network. Do not append `/api/v2`. Set `EXPO_PUBLIC_DEFAULT_MODEL=direct_wqi5`.
-For a cold edge deployment, increase `EXPO_PUBLIC_REQUEST_TIMEOUT_MS` to cover
-artifact validation and model loading. Keep a dataset mounted if the app needs
+WaterMirror separates ordinary HTTP requests from readiness and assessment
+budgets: `EXPO_PUBLIC_READINESS_TIMEOUT_MS` defaults to 60000, and
+`EXPO_PUBLIC_ASSESSMENT_TIMEOUT_MS` defaults to 240000. The general timeout
+remains 10000. An explicitly configured general timeout is retained as the
+fallback unless dedicated values are set. Restart/rebuild the client after
+changing build-time settings; an existing APK does not update automatically.
+Backend settings tests the candidate URL using the same readiness policy.
+The pending assessment message explains initial model loading without claiming
+measured progress. Keep a dataset mounted if the app needs
 percentile and category-distribution views; formula readiness alone does not
 require one. Restrict CORS to the actual web origin when exposing a web client.
 

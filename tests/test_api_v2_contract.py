@@ -250,3 +250,142 @@ async def test_v2_surrogate_assessment_contract_with_safe_fixture(
     assert_assessment_contract(payload)
     assert payload["model_type"] == "lr"
     assert payload["score"] == 73.25
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize("endpoint", [
+    "/api/v2/assessment", "/predict",
+    "/api/v2/assessment/csv/summary", "/api/v2/assessment/csv/rows",
+    "/score/total/", "/score/all/",
+])
+async def test_cold_assessment_keeps_health_responsive_and_loads_once(
+    client: httpx.AsyncClient, safe_surrogate_artifact: None,
+    monkeypatch: pytest.MonkeyPatch, endpoint: str,
+) -> None:
+    import asyncio
+    import threading
+
+    entered = threading.Event()
+    release = threading.Event()
+    loads = []
+    real_load = joblib.load
+
+    def blocked_load(path):
+        loads.append(path)
+        entered.set()
+        if not release.wait(5):
+            raise AssertionError("cold load was not released while health responded")
+        return real_load(path)
+
+    monkeypatch.setattr(joblib, "load", blocked_load)
+
+    async def request():
+        if endpoint in {"/api/v2/assessment", "/predict"}:
+            payload = read_json_fixture("single_assessment.json")
+            payload["model_type"] = "lr"
+            return await client.post(endpoint, json=payload)
+        return await client.post(
+            endpoint, data={"model_type": "lr"},
+            files={"file": ("input.csv", read_csv_fixture("valid_assessments.csv"), "text/csv")},
+        )
+
+    first = asyncio.create_task(request())
+    second = None
+    try:
+        assert await asyncio.to_thread(entered.wait, 2)
+        second = asyncio.create_task(request())
+        health = await asyncio.wait_for(client.get("/api/v2/health"), timeout=1)
+        assert health.status_code == 200
+        assert not first.done()
+        assert len(loads) == 1
+    finally:
+        release.set()
+        responses = await asyncio.gather(first, *([second] if second is not None else []))
+    assert len(loads) == 1
+    for response in responses:
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["model_type"] == "lr"
+        if endpoint in {"/api/v2/assessment/csv/rows", "/score/all/"}:
+            assert payload["scores"] == [73.25, 73.25]
+        else:
+            assert payload["score"] == 73.25
+
+
+def test_model_predictions_are_serialized_across_models() -> None:
+    from concurrent.futures import ThreadPoolExecutor
+    import threading
+    import pandas as pd
+
+    service = WaterQualityService()
+    first_entered = threading.Event()
+    release = threading.Event()
+    second_attempted = threading.Event()
+    second_entered = threading.Event()
+
+    class First:
+        def predict(self, frame):
+            first_entered.set()
+            assert release.wait(5)
+            return [1.0]
+
+    class Second:
+        def predict(self, frame):
+            second_entered.set()
+            return [2.0]
+
+    service._models = {ModelTypeEnum.LR: First(), ModelTypeEnum.RF: Second()}
+    frame = pd.DataFrame([[1, 2, 3, 4, 5]], columns=["DO", "BOD", "NH3N", "EC", "SS"])
+
+    def predict_second():
+        second_attempted.set()
+        return service._predict(ModelTypeEnum.RF, frame)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        first = pool.submit(service._predict, ModelTypeEnum.LR, frame)
+        try:
+            assert first_entered.wait(2)
+            second = pool.submit(predict_second)
+            assert second_attempted.wait(2)
+            assert not second_entered.wait(0.1)
+        finally:
+            release.set()
+        assert first.result() == [1.0]
+        assert second.result() == [2.0]
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize("endpoint", ["/api/v2/ready", "/api/v2/models", "/models"])
+async def test_concurrent_dependency_checks_hash_once_without_blocking_health(
+    client: httpx.AsyncClient, safe_surrogate_artifact: None,
+    monkeypatch: pytest.MonkeyPatch, endpoint: str,
+) -> None:
+    import asyncio
+    import threading
+
+    entered = threading.Event()
+    release = threading.Event()
+    validations = []
+    real_pick = api.service._pick_artifact
+
+    def blocked_pick(model_type):
+        validations.append(model_type)
+        entered.set()
+        if not release.wait(5):
+            raise AssertionError("artifact hash check blocked health")
+        return real_pick(model_type)
+
+    monkeypatch.setattr(api.service, "_pick_artifact", blocked_pick)
+    first = asyncio.create_task(client.get(endpoint))
+    second = None
+    try:
+        assert await asyncio.to_thread(entered.wait, 2)
+        second = asyncio.create_task(client.get(endpoint))
+        health = await asyncio.wait_for(client.get("/api/v2/health"), timeout=1)
+        assert health.status_code == 200
+        assert not first.done()
+    finally:
+        release.set()
+        responses = await asyncio.gather(first, *([second] if second is not None else []))
+    assert validations == [ModelTypeEnum.LR]
+    assert all(response.status_code == 200 for response in responses)

@@ -33,6 +33,15 @@ def main():
     args = parser.parse_args()
     experiment = args.experiment.resolve()
     report_directory = args.report.resolve()
+    destination = args.destination.resolve()
+    temporary = destination.with_name(destination.name + ".partial").resolve()
+    sources = [experiment, report_directory]
+    if args.evidence:
+        sources.append(args.evidence.resolve())
+    for source in sources:
+        for output in (destination, temporary):
+            if output == source or source in output.parents or output in source.parents:
+                raise ValueError("Backup destination overlaps a source directory: " + str(source))
     report = json.loads((report_directory / "manifest.json").read_text())
     runner = json.loads((experiment / "replay-results/runner-complete.json").read_text())
     findings_allowed = (args.record_parity_failures and report.get("parity_findings_recorded") is True
@@ -50,8 +59,6 @@ def main():
         path = ROOT / relative
         if path.stat().st_size != record["bytes"] or sha256(path) != record["sha256"]:
             raise ValueError("An archived x86 result changed: " + record["path"])
-    destination = args.destination.resolve()
-    temporary = destination.with_name(destination.name + ".partial")
     if destination.exists() or temporary.exists():
         raise FileExistsError("Choose a new backup name; existing backups are never overwritten")
     temporary.mkdir(parents=True)

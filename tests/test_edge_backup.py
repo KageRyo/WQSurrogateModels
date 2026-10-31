@@ -64,3 +64,36 @@ def test_copy_verified_refuses_corrupted_copy(tmp_path, monkeypatch):
     monkeypatch.setattr(backup.shutil, "copy2", lambda source, target: Path(target).write_text("damaged!"))
     with pytest.raises(ValueError, match="differs"):
         backup.copy_verified(source, tmp_path / "output")
+
+
+@pytest.mark.parametrize("source_name", ["experiment", "report", "evidence"])
+@pytest.mark.parametrize("relationship", ["same", "inside", "ancestor", "partial_inside", "symlink"])
+def test_backup_rejects_overlapping_sources_before_creating_files(tmp_path, monkeypatch, source_name, relationship):
+    monkeypatch.syspath_prepend(str(Path(__file__).parents[1] / "scripts"))
+    from edge_replay import backup
+
+    sources = {name: tmp_path / name for name in ("experiment", "report", "evidence")}
+    for source in sources.values():
+        source.mkdir()
+    source = sources[source_name]
+    if relationship == "same":
+        destination = source
+    elif relationship == "inside":
+        destination = source / "nested" / "snapshot"
+    elif relationship == "ancestor":
+        destination = tmp_path
+    elif relationship == "partial_inside":
+        sources[source_name] = source / "snapshot.partial" / "input"
+        sources[source_name].mkdir(parents=True)
+        destination = source / "snapshot"
+    else:
+        alias = tmp_path / "alias"
+        alias.symlink_to(source, target_is_directory=True)
+        destination = alias / "snapshot"
+    before = {str(path.relative_to(tmp_path)) for path in tmp_path.rglob("*")}
+    monkeypatch.setattr(sys, "argv", ["backup", "--experiment", str(sources["experiment"]),
+        "--report", str(sources["report"]), "--evidence", str(sources["evidence"]),
+        "--destination", str(destination)])
+    with pytest.raises(ValueError, match="overlaps a source"):
+        backup.main()
+    assert {str(path.relative_to(tmp_path)) for path in tmp_path.rglob("*")} == before

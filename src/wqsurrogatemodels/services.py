@@ -4,6 +4,7 @@ import io
 import logging
 import time
 from pathlib import Path
+from threading import RLock
 
 import joblib
 import pandas as pd
@@ -19,6 +20,7 @@ from .artifacts import (
 from .enums import ModelTypeEnum
 from .errors import ApplicationError, ErrorCode
 from .model_runtime import ArtifactRuntimeCompatibilityError, validate_artifact_runtime
+from .observability import log_event
 from .schemas import AssessmentRequestSchema, AssessmentResponseSchema
 from .settings import FEATURE_COLUMNS, MODEL_DIR_NAMES, Settings
 from .wqi import assess_indicator_quality, categorize_score, direct_wqi5_score
@@ -38,6 +40,12 @@ class WaterQualityService:
         self._dataset: pd.DataFrame | None = None
         self._scores: pd.Series | None = None
         self._models: dict[str, object] = {}
+        # One process-wide service serializes deserialization and prediction:
+        # simultaneous cold requests must not materialize duplicate large forests
+        # or overlap model scratch allocations on memory-constrained devices.
+        self._model_lock = RLock()
+        self._dataset_lock = RLock()
+        self._availability_lock = RLock()
         self._production_manifest: ProductionModelManifest | None = None
         self._availability_checks: dict[ModelTypeEnum, tuple] = {}
 
@@ -143,6 +151,10 @@ class WaterQualityService:
 
     @property
     def dataset(self) -> pd.DataFrame:
+        with self._dataset_lock:
+            return self._load_dataset()
+
+    def _load_dataset(self) -> pd.DataFrame:
         if self._dataset is None:
             try:
                 self._dataset = pd.read_csv(self.settings.dataset_path)
@@ -184,6 +196,10 @@ class WaterQualityService:
         )
 
     def _pick_available_artifact(self, model_type: ModelTypeEnum) -> Path:
+        with self._availability_lock:
+            return self._pick_available_artifact_locked(model_type)
+
+    def _pick_available_artifact_locked(self, model_type: ModelTypeEnum) -> Path:
         """Reuse a checksum for status polling until file identity changes.
 
         This cache never authorizes deserialization: _load_model still calls
@@ -207,6 +223,10 @@ class WaterQualityService:
         return path
 
     def _load_model(self, model_type: ModelTypeEnum):
+        with self._model_lock:
+            return self._load_model_locked(model_type)
+
+    def _load_model_locked(self, model_type: ModelTypeEnum):
         if model_type not in MODEL_DIR_NAMES:
             raise ApplicationError(
                 status_code=400,
@@ -237,6 +257,7 @@ class WaterQualityService:
                     self._models[model_type] = model
                 else:
                     self._models[model_type] = joblib.load(artifact)
+                log_event("model_loaded", model_type=model_type.value)
             except Exception as exc:
                 logger.warning("Surrogate model load failed: %s", exc)
                 raise ApplicationError(
@@ -245,6 +266,10 @@ class WaterQualityService:
                     message="The selected surrogate model is unavailable.",
                 ) from exc
         return self._models[model_type]
+
+    def _predict(self, model_type: ModelTypeEnum, frame: pd.DataFrame):
+        with self._model_lock:
+            return self._load_model(model_type).predict(frame)
 
     def list_models(self) -> list[dict]:
         models: list[dict] = [
@@ -315,9 +340,8 @@ class WaterQualityService:
                 ss=record["SS"],
             )
         else:
-            model = self._load_model(model_type)
             frame = pd.DataFrame([record], columns=FEATURE_COLUMNS)
-            score = float(model.predict(frame)[0])
+            score = float(self._predict(model_type, frame)[0])
         latency_ms = (time.perf_counter() - start) * 1000
         return self._build_response(score, record, model_type, latency_ms)
 
@@ -364,8 +388,7 @@ class WaterQualityService:
                 axis=1,
             )
         else:
-            model = self._load_model(model_name)
-            predictions = pd.Series(model.predict(frame[FEATURE_COLUMNS]))
+            predictions = pd.Series(self._predict(model_name, frame[FEATURE_COLUMNS]))
         latency_ms = (time.perf_counter() - start) * 1000
         score = float(predictions.mean())
         representative_record = frame[FEATURE_COLUMNS].mean().to_dict()
@@ -387,8 +410,7 @@ class WaterQualityService:
                 axis=1,
             )
         else:
-            model = self._load_model(model_name)
-            predictions = pd.Series(model.predict(frame[FEATURE_COLUMNS]))
+            predictions = pd.Series(self._predict(model_name, frame[FEATURE_COLUMNS]))
         latency_ms = (time.perf_counter() - start) * 1000
         return {
             "scores": [round(float(value), 3) for value in predictions],
