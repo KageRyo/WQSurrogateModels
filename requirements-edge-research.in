@@ -1,0 +1,15 @@
+# Match the archived workstation experiment artifacts, not the production API.
+numpy==1.26.4
+pandas==2.3.3
+scikit-learn==1.5.2
+scipy==1.15.3
+joblib==1.5.3
+xgboost==3.2.0
+lightgbm==4.6.0
+pydantic==2.13.3
+pyyaml==6.0.3
+loguru==0.7.3
+python-dotenv==1.2.4
+openpyxl==3.1.5
+psutil==7.2.2
+threadpoolctl==3.7.0

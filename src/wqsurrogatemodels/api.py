@@ -158,7 +158,7 @@ async def health_v2() -> HealthResponseSchema:
 
 
 @app.get("/api/v2/ready", response_model=ReadinessResponseSchema, tags=["v2"])
-async def ready_v2(response: Response) -> ReadinessResponseSchema:
+def ready_v2(response: Response) -> ReadinessResponseSchema:
     """Report assessment dependency status separately from process health."""
     readiness = ReadinessResponseSchema(**service.readiness())
     if readiness.status == "not_ready":
@@ -167,28 +167,28 @@ async def ready_v2(response: Response) -> ReadinessResponseSchema:
 
 
 @app.get("/api/v2/models", tags=["v2"])
-async def list_models_v2() -> dict:
+def list_models_v2() -> dict:
     return {"models": service.list_models(), "default_model": service.settings.default_model}
 
 
 @app.get("/api/v2/percentile", tags=["v2"])
-async def percentile_v2(score: float) -> dict:
+def percentile_v2(score: float) -> dict:
     return {"percentile": service.calculate_percentile(score)}
 
 
 @app.get("/api/v2/categories", tags=["v2"])
-async def categories_v2() -> dict:
+def categories_v2() -> dict:
     return {"data": service.category_distribution()}
 
 
 @app.post("/api/v2/assessment", response_model=AssessmentResponseSchema, tags=["v2"])
-async def assess(payload: AssessmentRequestSchema, request: Request) -> AssessmentResponseSchema:
+def assess(payload: AssessmentRequestSchema, request: Request) -> AssessmentResponseSchema:
     request.state.model_type = payload.model_type.value
     return service.assess_single(payload)
 
 
 @app.post("/api/v2/assessment/csv/summary", response_model=AssessmentResponseSchema, tags=["v2"])
-async def assess_csv_summary(
+def assess_csv_summary(
     request: Request,
     file: UploadFile = File(...),
     model_type: ModelTypeEnum | None = Form(default=None),
@@ -198,7 +198,7 @@ async def assess_csv_summary(
 
 
 @app.post("/api/v2/assessment/csv/rows", tags=["v2"])
-async def assess_csv_rows(
+def assess_csv_rows(
     request: Request,
     file: UploadFile = File(...),
     model_type: ModelTypeEnum | None = Form(default=None),
@@ -226,32 +226,32 @@ async def status() -> HealthResponseSchema:
 
 
 @app.get("/models", deprecated=True)
-async def list_models() -> dict:
+def list_models() -> dict:
     """Deprecated: Use GET /api/v2/models instead."""
     return {"models": service.list_models(), "default_model": service.settings.default_model}
 
 
 @app.get("/percentile", deprecated=True)
-async def percentile(score: float) -> dict:
+def percentile(score: float) -> dict:
     """Deprecated: Use GET /api/v2/percentile instead."""
     return {"percentile": service.calculate_percentile(score)}
 
 
 @app.get("/categories", deprecated=True)
-async def categories() -> dict:
+def categories() -> dict:
     """Deprecated: Use GET /api/v2/categories instead."""
     return {"data": service.category_distribution()}
 
 
 @app.post("/predict", response_model=AssessmentResponseSchema, deprecated=True)
-async def predict(payload: AssessmentRequestSchema, request: Request) -> AssessmentResponseSchema:
+def predict(payload: AssessmentRequestSchema, request: Request) -> AssessmentResponseSchema:
     """Deprecated: Use POST /api/v2/assessment instead."""
     request.state.model_type = payload.model_type.value
     return service.assess_single(payload)
 
 
 @app.post("/score/total/", response_model=AssessmentResponseSchema, deprecated=True)
-async def predict_total(
+def predict_total(
     request: Request,
     file: UploadFile = File(...),
     model_type: ModelTypeEnum | None = Form(default=None),
@@ -262,7 +262,7 @@ async def predict_total(
 
 
 @app.post("/score/all/", deprecated=True)
-async def predict_all(
+def predict_all(
     request: Request,
     file: UploadFile = File(...),
     model_type: ModelTypeEnum | None = Form(default=None),

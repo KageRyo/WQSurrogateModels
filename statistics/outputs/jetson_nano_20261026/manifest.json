@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "source_experiment": "jetson_nano_20261026",
+  "verified_jobs": 610,
+  "conditions": 730,
+  "protocol_coverage": [
+    {
+      "protocol": "complete_input",
+      "jobs": 35,
+      "conditions": 35
+    },
+    {
+      "protocol": "missing_indicator_core",
+      "jobs": 90,
+      "conditions": 120
+    },
+    {
+      "protocol": "missing_indicator_robustness",
+      "jobs": 210,
+      "conditions": 300
+    },
+    {
+      "protocol": "reduced_indicator",
+      "jobs": 155,
+      "conditions": 155
+    },
+    {
+      "protocol": "sample_size_experiments",
+      "jobs": 120,
+      "conditions": 120
+    }
+  ],
+  "parity_pass_jobs": 597,
+  "parity_fail_jobs": 13,
+  "max_prediction_difference": 0.5930534429741812,
+  "category_disagreement_events": 561,
+  "original_x86_baseline_files_verified": 58,
+  "sources_sha256": {
+    "reports/replay-complete/manifest.json": "14c41e3c1976dd45fa02283dcff26f143ef22eb2d4a819f5552f4c5052fc62df",
+    "reports/replay-complete/metrics_summary.csv": "6fd1a92d37f6d43dcdcbfe95598b291090bfad9e1f796199e952d2f8bc37bc6b",
+    "reports/replay-complete/prediction_parity.csv": "6fe9f46435c83a3aace6f67ad9ffca6b807354ddd1a75b9372a7f83c81ea7241",
+    "reports/replay-complete/cpu_inference_timing.csv": "56c3f13a6828c91c9600974c701cd3a5d256037eb32e9ba61934c4ac29b7974f",
+    "reports/replay-complete/component_resources.csv": "9f2759e5c3da308038d04cbeefb503b7f607c062ecd55dfb8e3a2d9e65889f56",
+    "replay-results/runner-complete.json": "fb071b16beaf783c4924875cbd82fa215f17a107594816b4a6dcb2cf57e622ec",
+    "replay-staging/preparation-complete.json": "7173ed99f44063299a30ddce50c36ce2ac025369f768ca2fb31fb67749e5a0fa",
+    "provenance/original_x86_results_sha256.json": "aa7dbcb0ea6a1017671c851af39ef1da24e941c5a9e8cfc0e50cb71893746327"
+  },
+  "packet_manifest_set_sha256": "4fb5ff6b36005c6d550d8a084635b2694c4bcd95ec76ac25595267c4cfc5ea99",
+  "packet_manifest_set_hash_contract": "SHA-256 of UTF-8 compact JSON list of [experiment-relative path, file SHA-256], sorted by path",
+  "timing_contract": "Sum of isolated component inference times, excluding imports, loading, transfers and process orchestration. Not API latency. Cold/orchestration time is retained per job.",
+  "memory_contract": "Per-component process peak RSS; not total device/container memory. Driver RSS is recorded separately per job.",
+  "timing_summary_contract": "Unweighted summaries across observed seed/fold and repeat measurements within platform/protocol/dataset/model/experiment/source; not API latency. Row-count range and repetition counts are retained. Accuracy-only frame timings are absent from the timing source.",
+  "resource_summary_contract": "Ranges pool all replay protocols/components for each platform/model; load_seconds is component deserialization time, not end-to-end cold-start latency. Process RSS is not total device/container memory or model size.",
+  "seed_contract": "sample_size_experiments uses fold IDs 1-5; other protocols use seeds 0-4. Folds are not independent repeated experiments.",
+  "parity_contract": "Absolute tolerance retained from source; category disagreements and weighted means count frame-row events, including repeated protocols and synthetic scenarios, not unique people/samples.",
+  "accuracy_contract": "metrics_summary.csv is an exact byte copy of the complete aggregate. training_s is missing because no device training occurred. Deterministic WQI5 is a definition baseline; fitting dataset Score is not proof of greater correctness.",
+  "scope_contract": "CPU inference replay of current-state assessment and controlled synthetic stress; not forecasting or real-event validation. Research runtime results are not deployment API benchmarks."
+}

@@ -62,9 +62,9 @@ def test_runtime_validation_identifies_missing_optional_dependency(monkeypatch: 
 
     monkeypatch.setattr(model_runtime, "distribution_version", missing_xgboost)
 
-    with pytest.raises(model_runtime.ArtifactRuntimeCompatibilityError, match="xgboost==2.1.4 is not installed") as exc_info:
+    with pytest.raises(model_runtime.ArtifactRuntimeCompatibilityError, match="xgboost==3.2.0 is not installed") as exc_info:
         model_runtime.validate_artifact_runtime(
-            runtime_artifact(ModelTypeEnum.XGBOOST, {"xgboost": "2.1.4"}),
+            runtime_artifact(ModelTypeEnum.XGBOOST, {"xgboost": "3.2.0"}),
             artifact_path=Path("model.pkl"),
         )
 
@@ -140,3 +140,32 @@ def test_service_intercepts_known_xgboost_legacy_pickle_warning(
     assert not [warning for warning in recwarn if xgboost_artifacts.LEGACY_PICKLE_WARNING_FRAGMENT in str(warning.message)]
     migration_notice.assert_called_once()
     assert "rehydrate_xgboost_artifact.py" in migration_notice.call_args.args[0]
+
+
+def test_rf_readonly_source_mapping_preserves_predictions(tmp_path, monkeypatch):
+    import joblib
+    import numpy as np
+    import pandas as pd
+    from sklearn.ensemble import RandomForestRegressor
+    from wqsurrogatemodels import services
+    from wqsurrogatemodels.settings import FEATURE_COLUMNS
+
+    frame = pd.DataFrame(np.arange(40).reshape(8, 5), columns=FEATURE_COLUMNS)
+    model = RandomForestRegressor(n_estimators=2, random_state=0, n_jobs=1).fit(frame, np.arange(8))
+    artifact = tmp_path / "forest.pkl"
+    joblib.dump(model, artifact, compress=0)
+    service = WaterQualityService()
+    monkeypatch.setattr(service, "_pick_artifact", lambda _: artifact)
+    monkeypatch.setattr(services, "validate_artifact_runtime", lambda *args, **kwargs: None)
+    real_load = joblib.load
+    modes = []
+
+    def observed_load(path, *, mmap_mode=None):
+        modes.append(mmap_mode)
+        return real_load(path, mmap_mode=mmap_mode)
+
+    monkeypatch.setattr(joblib, "load", observed_load)
+    np.testing.assert_array_equal(service._predict(ModelTypeEnum.RF, frame), model.predict(frame))
+    np.testing.assert_array_equal(service._predict(ModelTypeEnum.RF, frame), model.predict(frame))
+    # RF source arrays must remain reclaimable during first deserialization.
+    assert modes == ["r"]

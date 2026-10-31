@@ -96,7 +96,7 @@
       "training_seed": 2,
       "feature_columns": ["DO", "BOD", "NH3N", "EC", "SS"],
       "evaluation": {"source": "external_10714", "experiment": "full_reference"},
-      "runtime_compatibility": {"python": ">=3.10", "joblib": "1.5.3", "scikit_learn": "1.5.2", "xgboost": "2.1.4"},
+      "runtime_compatibility": {"python": ">=3.10", "joblib": "1.5.3", "scikit_learn": "1.5.2", "xgboost": "3.2.0"},
       "metrics": {
         "r2": 0.9993356816434588,
         "mae": 0.2448908820836784,

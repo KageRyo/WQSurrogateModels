@@ -1,0 +1,25 @@
+FROM ghcr.io/astral-sh/uv:0.13.4 AS uv
+FROM python:3.11-slim-bookworm@sha256:f06d01d4ba3f8ad5af45a3ec87df19c1d317d8e8961edc0fabda61811af6f7cf
+COPY --from=uv /uv /bin/uv
+RUN apt-get update && apt-get install --no-install-recommends --yes libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY requirements-edge-research.txt ./
+RUN uv venv /opt/research \
+    && uv pip install --no-deps --no-build --require-hashes \
+       --python=/opt/research/bin/python -r requirements-edge-research.txt
+ENV PATH="/opt/research/bin:$PATH" \
+    PYTHONPATH="/app/src:/app/scripts" \
+    PYTHONUNBUFFERED=1 \
+    CUDA_VISIBLE_DEVICES="" \
+    OMP_NUM_THREADS=1 \
+    OPENBLAS_NUM_THREADS=1 \
+    MKL_NUM_THREADS=1 \
+    NUMEXPR_NUM_THREADS=1
+COPY src ./src
+COPY scripts ./scripts
+RUN groupadd --system --gid 10001 research \
+    && useradd --system --uid 10001 --gid 10001 --no-create-home research
+USER 10001:10001
+# Research data, model artifacts and outputs must be mounted separately.
+CMD ["python", "scripts/replay_edge_experiments.py", "--help"]

@@ -1,0 +1,12 @@
+[Unit]
+Description=Check for completed Jetson Nano experiments every five minutes
+
+[Timer]
+OnBootSec=60s
+OnCalendar=*-*-* *:0/5:00
+Persistent=true
+AccuracySec=10s
+Unit=watermirror-report.service
+
+[Install]
+WantedBy=timers.target

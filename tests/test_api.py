@@ -82,7 +82,7 @@ def test_production_model_manifest_lists_current_artifacts():
         assert artifact["runtime_compatibility"]["python"] == ">=3.10"
         assert artifact["runtime_compatibility"]["joblib"] == "1.5.3"
         assert artifact["runtime_compatibility"]["scikit_learn"] == "1.5.2"
-    assert artifacts["xgboost"]["runtime_compatibility"]["xgboost"] == "2.1.4"
+    assert artifacts["xgboost"]["runtime_compatibility"]["xgboost"] == "3.2.0"
     assert artifacts["lightgbm"]["runtime_compatibility"]["lightgbm"] == "4.6.0"
 
 
