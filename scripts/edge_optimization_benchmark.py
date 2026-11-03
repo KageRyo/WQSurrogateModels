@@ -1,0 +1,184 @@
+"""Portable single-process CPU worker for isolated native/ONNX comparisons.
+
+Inputs and model are read-only mounts. No API, training or production mutation.
+Process-cold loading follows checksum verification; OS caches are not controlled.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import platform
+import resource
+import sys
+import time
+
+import numpy as np
+import pandas as pd
+
+
+def sha(path):
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for block in iter(lambda: f.read(4 * 1024 * 1024), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--kind", choices=["native", "onnx"], required=True)
+    p.add_argument("--model", type=Path, required=True)
+    p.add_argument("--inputs", type=Path, required=True)
+    p.add_argument("--output", type=Path, required=True)
+    p.add_argument(
+        "--mode",
+        choices=[
+            "full_reference",
+            "inference_dropout",
+            "reduced_retraining",
+            "indicator_reconstruction",
+        ],
+        default="full_reference",
+    )
+    p.add_argument("--missing", nargs="*", default=[])
+    args = p.parse_args()
+    if args.output.exists():
+        raise FileExistsError(args.output)
+    args.output.mkdir(parents=True)
+    began = time.monotonic()
+
+    def progress(phase, **values):
+        record = dict(phase=phase, elapsed_seconds=time.monotonic() - began, **values)
+        temporary = args.output / "progress.tmp"
+        temporary.write_text(json.dumps(record) + "\n")
+        temporary.replace(args.output / "progress.json")
+        print(json.dumps(record), flush=True)
+
+    progress("verifying_inputs")
+    model_sha = sha(args.model)
+    inputs_sha = sha(args.inputs)
+    data = np.load(args.inputs, allow_pickle=False)
+    X = data["X"]
+    columns = list(data["columns"])
+    import threadpoolctl
+
+    with threadpoolctl.threadpool_limits(limits=1):
+        started = time.perf_counter()
+        progress("loading_model", kind=args.kind)
+        if args.kind == "native":
+            import joblib
+
+            bundle = joblib.load(args.model, mmap_mode="r")
+            model = bundle["wqi_model"]
+            model.set_params(model__n_jobs=1)
+            for indicator_model in bundle.get("indicator_models", {}).values():
+                indicator_model.set_params(model__n_jobs=1)
+
+            def predict(values):
+                frame = pd.DataFrame(values, columns=columns)
+                if args.mode == "inference_dropout":
+                    frame[args.missing] = np.nan
+                elif args.mode == "reduced_retraining":
+                    frame = frame[bundle["available_features"]]
+                elif args.mode == "indicator_reconstruction":
+                    for name, indicator_model in bundle["indicator_models"].items():
+                        frame[name] = indicator_model.predict(
+                            frame[bundle["available_features"]]
+                        )
+                return model.predict(frame)
+
+            version = __import__("sklearn").__version__
+        else:
+            import onnxruntime as ort
+
+            options = ort.SessionOptions()
+            options.intra_op_num_threads = 1
+            options.inter_op_num_threads = 1
+            options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
+            model = ort.InferenceSession(
+                str(args.model),
+                sess_options=options,
+                providers=["CPUExecutionProvider"],
+            )
+
+            def predict(values):
+                return model.run(None, {"features": values.astype(np.float32)})[
+                    0
+                ].reshape(-1)
+
+            version = ort.__version__
+        load_s = time.perf_counter() - started
+        load_rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        progress("model_loaded", load_s=load_s)
+        # Chunked whole-set parity prevents a large ONNX batch from changing
+        # the memory claim relative to the batch-1/128 latency measurements.
+        chunks = []
+        for i in range(0, len(X), 128):
+            progress("predicting_chunk", completed_rows=i, total_rows=len(X))
+            chunks.append(predict(X[i : i + 128]))
+            progress(
+                "chunk_completed",
+                completed_rows=min(i + 128, len(X)),
+                total_rows=len(X),
+            )
+        outputs = np.concatenate(chunks)
+        if not np.isfinite(outputs).all():
+            raise ValueError("Nonfinite runtime prediction")
+        np.savez_compressed(args.output / "predictions.npz", predicted=outputs)
+        delta = np.abs(outputs - data["reference"])
+        timings = []
+        for size in [1, 128]:
+            progress("timing_warmup", batch_rows=size)
+            probe = X[:size]
+            for _ in range(3):
+                predict(probe)
+            samples = []
+            for repeat in range(300):
+                if repeat % 10 == 0:
+                    progress(
+                        "timing",
+                        batch_rows=size,
+                        completed_repeats=repeat,
+                        total_repeats=300,
+                    )
+                started = time.perf_counter_ns()
+                predict(probe)
+                samples.append((time.perf_counter_ns() - started) / 1e6)
+            timings.append(
+                dict(
+                    rows=size,
+                    repeats=300,
+                    p50_ms=float(np.percentile(samples, 50)),
+                    p95_ms=float(np.percentile(samples, 95)),
+                    samples_ms=samples,
+                )
+            )
+        result = dict(
+            kind=args.kind,
+            mode=args.mode,
+            missing=args.missing,
+            platform=platform.platform(),
+            machine=platform.machine(),
+            python=sys.version,
+            runtime_version=version,
+            model_sha256=model_sha,
+            input_sha256=inputs_sha,
+            model_bytes=args.model.stat().st_size,
+            process_cold_load_s=load_s,
+            load_high_water_rss_kib=load_rss,
+            process_peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+            parity_rows=len(delta),
+            max_abs_difference=float(delta.max()),
+            above_1e_6=int((delta > 1e-6).sum()),
+            timing=timings,
+            caveat="Process-cold only; checksum read warms file cache. Shared host API remains running. Not isolated-device or power-meter results.",
+        )
+        (args.output / "result.json").write_text(json.dumps(result, indent=2) + "\n")
+        progress("completed")
+
+
+if __name__ == "__main__":
+    main()

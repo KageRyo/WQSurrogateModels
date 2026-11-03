@@ -1,0 +1,34 @@
+name: Edge optimization research checks
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v7
+      - name: Install hash-locked isolated research dependencies
+        run: |
+          uv venv .venv-research
+          uv pip sync --python .venv-research/bin/python --require-hashes requirements-edge-optimization.txt
+      - name: Require conversion and deadline tests without skips
+        run: |
+          .venv-research/bin/python -m pytest tests/test_edge_optimization.py tests/test_edge_optimization_control.py research_tests -q --junitxml=research-tests.xml
+          .venv-research/bin/python - <<'PY'
+          import xml.etree.ElementTree as ET
+          root = ET.parse('research-tests.xml').getroot()
+          suites = list(root.iter('testsuite'))
+          assert sum(int(s.attrib['tests']) for s in suites) > 0
+          assert sum(int(s.attrib.get('skipped', 0)) for s in suites) == 0
+          PY
