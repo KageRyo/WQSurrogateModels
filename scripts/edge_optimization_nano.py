@@ -18,6 +18,19 @@ class BoundedRemote(Remote):
         return super().transport(command, check=check, **kwargs)
 
 
+def prepare_remote_output(remote, path):
+    """Create only a validated staging output; operands cannot become options."""
+    path = safe_remote_path(path)
+    if not any(
+        part.startswith("edge-optimization-") for part in PurePosixPath(path).parts
+    ):
+        raise ValueError(
+            "Use a dedicated edge-optimization-* research staging directory"
+        )
+    remote.sudo(["mkdir", "--", path])
+    remote.sudo(["chown", "--", "1000:1000", path])
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--host", required=True)
@@ -62,8 +75,7 @@ def main():
     remote = BoundedRemote(args.host, args.control, password, ssh_password=password)
     remote.renew_control()
     # Refuse existing outputs. Never clear a result or replace a running service.
-    remote.sudo(["mkdir", args.remote_output])
-    remote.sudo(["chown", "1000:1000", args.remote_output])
+    prepare_remote_output(remote, args.remote_output)
     create = [
         "--network",
         "none",
