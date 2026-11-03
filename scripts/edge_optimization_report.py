@@ -7,16 +7,79 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import yaml
 from openpyxl import load_workbook
 from openpyxl.styles import Font, PatternFill
 
+from edge_optimization import all_jobs, job_id, sha
+from edge_optimization_paths import artifact_path
 
-def tables(root):
-    paths = sorted((root / "jobs").glob("*/metrics.csv"))
-    paths = [p for p in paths if (p.parent / "completed.json").is_file()]
-    if not paths:
+MISSING_MODES = ("inference_dropout", "reduced_retraining", "indicator_reconstruction")
+SOURCES = ("internal_test", "external_10714")
+ROW_KEYS = ["seed", "trees", "missing", "mode", "source"]
+
+
+def recorded(directory, name, field):
+    """Return a consumed file only if it matches its completion-time SHA-256."""
+    record = json.loads((directory / "completed.json").read_text())
+    digest = record.get(field, {}).get(name)
+    path = directory / name
+    if digest is None:
+        raise ValueError(f"Completion record does not cover {path}")
+    if not path.is_file() or sha(path) != digest:
+        raise ValueError(f"Completed output changed: {path}")
+    return path
+
+
+def frozen_config(root, config_path):
+    """Load the experiment matrix only from the config frozen in identity.json."""
+    identity = json.loads((root / "identity.json").read_text())
+    if sha(config_path) not in identity["source_sha256"].values():
+        raise ValueError("Config differs from the experiment's frozen identity")
+    return yaml.safe_load(Path(config_path).read_text())
+
+
+def destination_path(root, destination):
+    """Confine a new export; never write into data/models or source evidence."""
+    destination = artifact_path(destination)
+    root = Path(root).resolve()
+    if (destination == root or root in destination.parents) and (
+        root / "reports" not in destination.parents
+    ):
+        raise ValueError("Exports inside the result tree must be under reports/")
+    if destination.exists():
+        raise FileExistsError(destination)
+    return destination
+
+
+def job_metrics(root, config, partial):
+    """Read only hash-verified metrics, each matching its job and the matrix."""
+    frames = []
+    # Name order keeps re-exports byte-identical to the archived glob order.
+    for job in sorted(all_jobs(config), key=lambda job: job_id(**job)):
+        directory = root / "jobs" / job_id(**job)
+        if not (directory / "completed.json").is_file():
+            if partial:
+                continue
+            raise ValueError(f"Incomplete experiment matrix: {directory.name}")
+        frame = pd.read_csv(recorded(directory, "metrics.csv", "sha256"))
+        modes = ("full_reference",) if job["missing"] == "complete" else MISSING_MODES
+        expected = {
+            (job["seed"], job["trees"], job["missing"], mode, source)
+            for mode in modes
+            for source in SOURCES
+        }
+        observed = list(frame[ROW_KEYS].itertuples(index=False, name=None))
+        if len(observed) != len(set(observed)) or set(observed) != expected:
+            raise ValueError(f"Metrics do not match the job matrix: {directory.name}")
+        frames.append(frame)
+    if not frames:
         raise ValueError("No completed metrics")
-    raw = pd.concat([pd.read_csv(p) for p in paths], ignore_index=True)
+    return pd.concat(frames, ignore_index=True)
+
+
+def tables(root, config, partial=False):
+    raw = job_metrics(root, config, partial)
     keys = ["seed", "missing", "mode", "source"]
     baseline = raw[raw.trees == 300][keys + ["mae", "accuracy"]].rename(
         columns={"mae": "baseline_mae", "accuracy": "baseline_accuracy"}
@@ -30,7 +93,9 @@ def tables(root):
     for p in sorted((root / "nano-benchmarks").glob("*/result/result.json")):
         if not (p.parents[1] / "completed.json").is_file():
             continue
-        d = json.loads(p.read_text())
+        d = json.loads(
+            recorded(p.parents[1], "result/result.json", "output_sha256").read_text()
+        )
         for t in d["timing"]:
             native.append(
                 dict(
@@ -70,12 +135,10 @@ def tables(root):
     }
 
 
-def export(root, destination, partial=False):
-    result = tables(root)
-    if not partial and len(result["metrics_by_seed"]) != 400:
-        raise ValueError("Expected all 400 dataset/condition metric records")
-    if destination.exists():
-        raise FileExistsError(destination)
+def export(root, destination, config_path, partial=False):
+    root = Path(root).resolve()
+    destination = destination_path(root, destination)
+    result = tables(root, frozen_config(root, config_path), partial)
     destination.mkdir(parents=True)
     for name, frame in result.items():
         frame.to_csv(destination / (name + ".csv"), index=False)
@@ -176,9 +239,10 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--root", type=Path, required=True)
     p.add_argument("--destination", type=Path, required=True)
+    p.add_argument("--config", type=Path, required=True)
     p.add_argument("--partial", action="store_true")
     args = p.parse_args()
-    print(json.dumps(export(args.root, args.destination, args.partial)))
+    print(json.dumps(export(args.root, args.destination, args.config, args.partial)))
 
 
 if __name__ == "__main__":
