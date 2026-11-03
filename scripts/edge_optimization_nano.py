@@ -49,12 +49,14 @@ def main():
     args = p.parse_args()
     # Reject before creating a remote output directory or research container.
     try:
-        validate_request(args.kind, args.mode, args.missing)
+        missing = validate_request(args.kind, args.mode, args.missing)
     except ValueError as exc:
         p.error(str(exc))
     args.evidence = artifact_path(args.evidence)
+    args.packet = safe_remote_path(args.packet)
+    args.worker = safe_remote_path(args.worker)
+    args.remote_output = safe_remote_path(args.remote_output)
     for value in [args.packet, args.worker, args.remote_output]:
-        safe_remote_path(value)
         parts = PurePosixPath(value).parts
         if ".." in parts or not any(x.startswith("edge-optimization-") for x in parts):
             raise ValueError(
@@ -118,7 +120,7 @@ def main():
         "--mode",
         args.mode,
         "--missing",
-        *args.missing,
+        *missing,
     ]
     result = supervise_container(
         remote,
