@@ -18,6 +18,22 @@ result directory. The [experiment plan](edge-optimization-plan.md) and committed
 tools describe reproduction and engineering controls. Controls added after the
 archived measurements have unit/CI validation, not a rerun of the full matrix.
 
+## Evaluation coverage
+
+| Scope | Actual outcome |
+|---|---|
+| RF compression on the workstation | All 80 jobs completed: four tree counts, five splits, complete and missing-input conditions; 400 dataset/condition metric records. |
+| Native RF on Nano | 39 of 40 jobs completed; RF300 double-missing reconstruction was administratively stopped without completed predictions. |
+| Full-input RF ONNX conversion on x86 | RF50 and RF300 converted; native/ONNX numerical differences were quantified. |
+| Full-input RF ONNX on Nano | RF50 completed; RF300 hit the recorded container memory limit. |
+| Missing-input ONNX bundles and other model families | Not evaluated in this stage. No parity, resource or portability conclusion is claimed for them. |
+
+The deployment decision applies to the tested RF paths. The initial full-input
+comparison already exposed precision and loading-resource constraints; this
+stage did not proceed to missing-bundle conversions or a single universal ONNX
+runtime for all model families. Those untested extensions are not counted as
+completed experiments.
+
 Workstation: 80 jobs, 200 conditions, 400 unique dataset/condition metric rows.
 RF50/100/200/300 use five matched stratified splits, first50,000-row source,
 80/20 split, and external10,714 rows. Three missing sets cover BOD, NH3N and both,
@@ -125,6 +141,16 @@ claim of an established cause or a commitment to start another experiment.
    the maintained research lock now uses 1.23.2 for security fixes. Archived parity
    has not been remeasured under that newer version. The verified local E-drive
    copy does not establish remote Nextcloud integrity or successful restoration.
+6. **Untested ONNX extensions and how to evaluate them.** A future missing-bundle
+   study would first convert each fitted reconstruction stage and its imputer,
+   preserve feature order, then compose and validate the full path for BOD,
+   NH3N and double-missing conditions. Start with the existing RF50 case, record
+   native float64, native float32 and ONNX predictions separately, and inspect
+   branch-boundary/category changes under the unchanged 1e-6 threshold. Only
+   after x86 validation should a bounded Nano test measure loading, peak memory,
+   warm latency and health continuity. Other model families require their own
+   converter/operator-support and preprocessing checks. These are proposed
+   evaluation steps, not results or an automatically scheduled continuation.
 
 The WQI5 formula/dataset `Score` disagreement and the original replay's 13 parity
 findings remain part of the [first-stage benchmark](jetson-nano-benchmark.md).
