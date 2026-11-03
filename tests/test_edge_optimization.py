@@ -51,6 +51,44 @@ def test_nonfinite_predictions_cannot_be_completed():
         metrics(np.array([10.0, 20.0]), np.array([np.nan, 20.0]))
 
 
+def test_remote_output_is_normalized_and_separated_from_options():
+    from edge_optimization_nano import prepare_remote_output
+
+    class Remote:
+        def __init__(self):
+            self.calls = []
+
+        def sudo(self, args):
+            self.calls.append(args)
+
+    remote = Remote()
+    prepare_remote_output(remote, "/home/user/edge-optimization-run//output")
+    assert remote.calls == [
+        ["mkdir", "--", "/home/user/edge-optimization-run/output"],
+        ["chown", "--", "1000:1000", "/home/user/edge-optimization-run/output"],
+    ]
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "--reference=/etc/passwd",
+        "/etc/output",
+        "/home/edge-optimization-run/../data",
+        "/home/edge-optimization-run/out;id",
+    ],
+)
+def test_invalid_remote_output_cannot_invoke_sudo(path):
+    from edge_optimization_nano import prepare_remote_output
+
+    class Remote:
+        def sudo(self, args):
+            pytest.fail("Invalid CLI operands must be rejected before remote calls")
+
+    with pytest.raises(ValueError):
+        prepare_remote_output(Remote(), path)
+
+
 def test_native_worker_reports_prediction_and_timing_progress(tmp_path):
     import json
     import subprocess
