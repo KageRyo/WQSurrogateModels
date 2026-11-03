@@ -75,7 +75,13 @@ Docker build so their runtime libraries are installed.
 ## 2. Run with Docker Compose
 
 Docker Compose mounts `LOCAL_MODEL_DIR` at `/app/models` and `LOCAL_DATA_DIR`
-at `/app/data`, both read-only. Build and start the service:
+at `/app/data`, both read-only. The image runs as the unprivileged UID/GID
+10001. When the mounted files are readable only by their host owner, set
+`CONTAINER_UID=$(id -u)` and `CONTAINER_GID=$(id -g)` in `.env` from an
+unprivileged account instead of widening their permissions. Dependency
+installs accept only locked binary distributions, and the application source
+is imported through `/app/src` without running its build backend. Build and
+start the service:
 
 ```bash
 docker compose up -d --build

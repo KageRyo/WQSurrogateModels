@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:0.13.4 AS uv
+FROM ghcr.io/astral-sh/uv:0.13.7 AS uv
 FROM python:3.11-slim-bookworm@sha256:f06d01d4ba3f8ad5af45a3ec87df19c1d317d8e8961edc0fabda61811af6f7cf
 COPY --from=uv /uv /bin/uv
 RUN apt-get update && apt-get install --no-install-recommends --yes libgomp1 \
