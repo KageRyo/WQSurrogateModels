@@ -1,6 +1,6 @@
 # Edge optimization: independent second-stage evaluation
 
-The archived plan below remains unchanged in scope. A new [ONNX extension](onnx-extension-evaluation.md) is executing in a separate result root.
+The archived plan below remains unchanged in scope. The [ONNX extension](onnx-extension-evaluation.md) completed its actual measurements in a separate result root.
 
 Authorized on 2026-11-01, after completion of WaterMirror Edge Deployment v1.
 Issues #58 and #59 record this completed evaluation. The closure decisions,

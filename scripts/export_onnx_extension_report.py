@@ -11,6 +11,21 @@ from edge_optimization import categories, sha, write_json, utc
 from edge_optimization_paths import artifact_path
 
 
+def markdown_table(frame):
+    def cell(value):
+        return str(value).replace("|", "\\|").replace("\n", " ")
+
+    rows = [
+        "| " + " | ".join(map(cell, frame.columns)) + " |",
+        "| " + " | ".join(["---"] * len(frame.columns)) + " |",
+    ]
+    rows.extend(
+        "| " + " | ".join(map(cell, row)) + " |"
+        for row in frame.itertuples(index=False, name=None)
+    )
+    return "\n".join(rows)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run", type=Path, required=True)
@@ -283,7 +298,7 @@ def main():
         "",
     ]
     for name, frame in frames.items():
-        report.extend(["## " + name, "", frame.to_csv(index=False), ""])
+        report.extend(["## " + name, "", markdown_table(frame), ""])
     (out / "report.md").write_text("\n".join(report))
     write_json(
         out / "manifest.json",

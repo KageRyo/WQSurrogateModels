@@ -1,6 +1,7 @@
 # ONNX missing-input and model-family extension
 
-Status: actual evaluation in progress, 2026-11-03. This is a separately dated
+Status: the 14-path x86/Nano measurement matrix and local backup completed on
+2026-11-03. SVM numerical follow-up is also complete; final review remains pending. This is a separately dated
 extension of the archived [RF/ONNX evaluation](edge-optimization-results.md),
 not a production replacement or a rerun of the original 610 jobs.
 
@@ -74,25 +75,108 @@ This localizes the large differences to sensitivity of the second-stage trees
 to changed reconstruction values. It does not establish the cause of the
 separate historical native x86/Nano 54-row finding.
 
-## Nano, reports and preservation
+## Nano results and decision
 
-Nano measurements are in progress; terminal outcomes and measurements will be
-added after retrieval and hash verification. The running API image and restart
-count are checked around every job. The first two single-missing reconstructions
-completed with identical x86/Nano ONNX predictions across all 10,714 rows.
+All **14/14** Nano paths completed: nine RF missing-input graphs and five
+complete-input model families. No inference OOM or timeout occurred. Thirteen
+paths match x86 ONNX predictions exactly across all 10,714 external rows each.
+SVM differs across platforms: 6,996/10,714 rows exceed `1e-6`, maximum difference
+`0.00020980835`, and one WQI5 category changes.
 
-New private root: `results/onnx_missing_20261103`. It retains executed-source
-snapshots, runtime/host provenance, source hashes, row predictions, progress,
-bounded worker logs, container state, health probes and stage-isolation results.
-Final CSV/Excel exports and a separate E-drive SHA-256 backup follow terminal
-measurement states. A first 30-second SCP transfer timeout is retained; it did
-not start a Nano worker. A separate staging attempt uses 600-second transfers.
+For that boundary case, native output is `50.0000470866`, x86 ONNX is
+`50.0000152588` and Nano ONNX is `49.9999847412`. Nano SVM differs from native
+on 10,657 rows above `1e-6`, maximum `0.00134839176`; the x86 comparison above
+has different counts. A separate repeatability/batch/optimizer follow-up is
+saved under `results/onnx_svm_validation_20261103`; see below.
+
+| Path | Load s | Batch-1 P50 / P95 ms | Process peak MiB |
+|---|---:|---:|---:|
+| RF50 BOD reconstruction | 34.669 | 0.184 / 0.357 | 1103.6 |
+| RF50 BOD dropout | 8.554 | 0.108 / 0.212 | 1123.9 |
+| RF50 BOD reduced | 8.659 | 0.099 / 0.207 | 1117.3 |
+| RF50 BOD+NH3N reconstruction | 161.457 | 0.213 / 0.439 | 1121.3 |
+| RF50 BOD+NH3N dropout | 8.818 | 0.112 / 0.224 | 1126.3 |
+| RF50 BOD+NH3N reduced | 9.271 | 0.089 / 0.181 | 1128.9 |
+| RF50 NH3N reconstruction | 21.504 | 0.141 / 0.263 | 1126.6 |
+| RF50 NH3N dropout | 8.984 | 0.122 / 0.287 | 1119.6 |
+| RF50 NH3N reduced | 9.260 | 0.091 / 0.204 | 1126.8 |
+| lightgbm | 0.240 | 0.124 / 0.233 | 103.0 |
+| lr | 0.199 | 0.090 / 0.209 | 92.4 |
+| mpr | 0.156 | 0.197 / 0.293 | 91.8 |
+| svm | 0.159 | 2.250 / 2.392 | 118.2 |
+| xgboost | 0.239 | 0.135 / 0.242 | 110.4 |
+
+These are raw ONNX timings, not HTTP/app latency. Process RSS high-water and
+charged cgroup memory are distinct measurements. RF graph load-memory costs
+remain large despite sub-millisecond warm single-row timings. The API retained
+its image, restart count and no-OOM state around every job.
+
+Paired inference health probes total 108. Network HTTP succeeds in 107, with one
+SVM `URLError`; loopback succeeds in 107, with one SSH `TimeoutExpired` leaving
+that local HTTP result unknown. These observations do not establish uninterrupted
+service, and do not explain the historical 14-case health finding.
+
+Decision: keep the native production models. The extension establishes working
+conversion and ARM64 execution for this measured matrix; it does not meet the
+unchanged native `1e-6` equivalence requirement. In particular, composed
+reconstruction and SVM have observed category changes. No quantization, model
+promotion or release is included.
+
+## SVM repeatability and batch follow-up
+
+The same saved graph, inputs and ORT 1.31.1 were exercised on each platform with
+four variants: two separate batch-128 runs, batch 1, and batch 128 with graph
+optimization disabled. This is a post-hoc numerical diagnostic, not another
+latency benchmark. It uses a separate result directory and 300-second deadline.
+
+| Variant | x86/Nano rows above 1e-6 | Maximum cross-platform difference | Category changes |
+|---|---:|---:|---:|
+| Batch 128, first run | 6,996 | 0.00020980835 | 1 |
+| Batch 128, repeat | 6,996 | 0.00020980835 | 1 |
+| Batch 1 | 10,652 | 0.00302886963 | 1 |
+| Batch 128, graph optimization disabled | 6,996 | 0.00020980835 | 1 |
+
+Within each platform the two batch-128 runs are bit-identical, and disabling
+graph optimization also leaves those outputs unchanged. Nano batch 1 matches
+its batch-128 output exactly; x86 batch 1 differs from its batch-128 output on
+10,670 rows above `1e-6`, maximum `0.00302886963`. The one Nano category change
+persists across all four variants. These tests identify reproducible platform
+and batch-size sensitivity and do not isolate a particular runtime kernel or
+hardware instruction as the cause. Changing graph optimization alone does not
+resolve this case; a blanket claim of ONNX batch/platform equivalence is invalid.
+
+The follow-up includes three CSVs and a three-sheet Excel workbook. A separate
+`20261103-onnx-svm-validation` E-drive backup contains 23 files / 384,965 bytes,
+verified source/destination SHA-256. Manifest SHA-256:
+`e09423325101577a50f33020b8c7392aeb3e61d24fdc64550e09f943468b16dc`.
+The original 294-file extension snapshot was not rewritten.
+
+## Reports and preservation
+
+The private `results/onnx_missing_20261103` root is frozen. It retains executed
+source snapshots, runtime/host provenance, source hashes, row predictions,
+progress, bounded worker logs, container state, health probes and stage-isolation
+results. A first 30-second SCP transfer timeout before any worker is retained;
+a separate staging attempt used 600-second transfers.
+
+`reports/final/` contains six CSV tables, Markdown and a seven-sheet Excel
+workbook: coverage 28 rows, x86 parity 69, x86 metrics 23, Nano timing 28,
+health 14 and stage isolation 3. The 28 coverage entries are paired x86/Nano
+records for 14 model paths, not 28 independent conditions. The workbook was
+reopened and checked for error cells; table values were derived from saved
+predictions. Public Git contains summaries and code, not graphs/private rows.
+
+Separate local E-drive backup: `20261103-onnx-extension`, completed at 15:45 CST,
+294 files and 1,304,368,452 bytes. All source and destination file hashes were
+independently rechecked during final acceptance. Manifest SHA-256:
+`e226e63dd03605226d719c480a7e8eebe386ef3420795249e6a81baac29a5312`.
+Remote Nextcloud readback and restoration remain unverified.
 
 This screen uses one RF seed/size and a reused external dataset. It does not
 cover larger missing-input RF graphs or missing-input bundles for every other
-model family. Neither zero category changes nor identical x86/Nano ONNX output
-establishes native `1e-6` equivalence. No quantization, model promotion or release
-is included.
+model family. The original 610 jobs, 20261101 run and production model/manifest
+hashes are unchanged. Identical x86/Nano ONNX output in 13 paths does not establish
+native numerical equivalence.
 
 ## Reproduction
 
