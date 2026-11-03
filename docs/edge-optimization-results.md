@@ -63,7 +63,8 @@ hit OOM in the stated Nano container budget. Its workstation conversion also
 hit an8GiB budget before succeeding in a14GiB budget, peak about11.8GiB;
 conversion and inference memory are different costs.
 
-Keep the native production format. Missing-bundle ONNX conversion is untested.
+Keep the native production format. Missing-bundle ONNX conversion is untested;
+the worker now refuses ONNX missing-value requests instead of running full inputs.
 No tolerance changes, quantization, production replacement or claim that every
 Nano2GB configuration fails is warranted.
 

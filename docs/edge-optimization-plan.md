@@ -84,8 +84,13 @@ not stopped by these new controls. Never retroactively relabel it as passing a
 predeclared timeout policy or rerun into the old output directory.
 
 RF children run in a dedicated process group: TERM, then KILL after a grace
-period, with logs and execution JSON retained. A timeout cannot publish a
-successful completion marker. Partial output directories remain available.
+period, with logs and execution JSON retained. The whole group is killed even
+when the leader honours TERM, so TERM-ignoring descendants cannot survive.
+Everything after launch, including the first evidence write, is supervised, and
+every cleanup wait is bounded; a worker that cannot be reaped (for example in an
+uninterruptible kernel wait) is recorded as `termination: unconfirmed` instead
+of blocking the controller. A timeout cannot publish a successful completion
+marker. Partial output directories remain available.
 Workers now report input verification, model loading/training, prediction
 chunks, stress evaluation and timing repeats. A running-stage message is not a
 completed-row count; unchanged chunk progress is a reason to investigate.
@@ -115,6 +120,10 @@ worker as `benchmark.py` with `edge_optimization_paths.py` alongside, the model
 and `inputs.npz`, verifying hashes before
 running; this supervisor does not choose/transfer private data or promote models.
 The research image must contain coreutils `timeout` and have no ENTRYPOINT.
+Only complete-input pipelines have an ONNX conversion, so the worker and this
+supervisor refuse `--kind onnx` with a missing-value mode or `--missing`, and
+any mode/`--missing` combination whose labels would not describe the
+computation, before creating remote or local outputs.
 
 Ordinary CI runs pure integrity/deadline tests using `.[dev]`, without psutil
 or ONNX at test collection. `Edge optimization research checks` installs the
@@ -131,7 +140,25 @@ python scripts/edge_optimization_control.py --timeout-seconds 3600 \
   --data-root /path/to/private-inputs --output results/NEW-RUN/onnx
 ```
 
-Existing evidence/log/output paths are refused. Research CI needs only tiny
+Existing evidence/log/output paths are refused.
+
+The CSV/Excel package is exported from completed evidence only:
+
+```bash
+python scripts/edge_optimization_report.py --root results/RUN \
+  --config CONFIG-FROZEN-IN-identity.json \
+  --destination results/RUN/reports/NEW-EXPORT
+```
+
+The config must byte-match a source hash in `identity.json` (for the archived
+`20261101` run, its `provenance/source/configs` copy; the later committed
+config adds prospective deadlines and is refused). Each consumed `metrics.csv`
+and Nano `result/result.json` is re-verified against its completion SHA-256,
+and each job's rows must be exactly its (seed, trees, missing, mode, source)
+keys; a full export requires the whole matrix (400 rows for this config).
+Destinations follow the artifact rules below and, inside the run, must be under
+`reports/`. ONNX `result.json` files have no separate completion digest and are
+read as recorded. Research CI needs only tiny
 synthetic fixtures; it does not train on private research data or contact Nano.
 Write destinations are restricted to designated `results/` trees, the `/output/`
 container mount, or temporary scratch. Traversal components, symbolic links and
