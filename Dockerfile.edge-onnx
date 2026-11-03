@@ -5,7 +5,8 @@ FROM ${BASE_IMAGE}
 USER root
 COPY requirements-edge-onnx-runtime.txt /tmp/onnx-runtime.txt
 RUN uv pip install --python /app/.venv/bin/python --require-hashes --only-binary :all: -r /tmp/onnx-runtime.txt \
-    && /app/.venv/bin/python -c "import onnxruntime, numpy; assert numpy.__version__ == '1.26.4'; print(onnxruntime.__version__)"
+    && /app/.venv/bin/python -c \
+      "import onnxruntime, numpy; assert numpy.__version__ == '1.26.4'; print(onnxruntime.__version__)"
 USER 1000:1000
 HEALTHCHECK NONE
 CMD ["python", "-c", "import onnxruntime; print(onnxruntime.__version__)"]
