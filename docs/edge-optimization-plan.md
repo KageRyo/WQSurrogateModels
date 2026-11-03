@@ -123,6 +123,11 @@ worker as `benchmark.py` with `edge_optimization_paths.py` alongside, the model
 and `inputs.npz`, verifying hashes before
 running; this supervisor does not choose/transfer private data or promote models.
 The research image must contain coreutils `timeout` and have no ENTRYPOINT.
+The wrapper binds filenames to the standard packet layout before any remote
+operation: native full/dropout use `full_reference.joblib`, reduced uses
+`reduced_retraining.joblib`, reconstruction uses `indicator_reconstruction.joblib`,
+and the supported complete-input ONNX case uses `pipeline.onnx`. Kind, mode and
+missing-indicator operands are serialized from validated domain constants.
 Only complete-input pipelines have an ONNX conversion, so the worker and this
 supervisor refuse `--kind onnx` with a missing-value mode or `--missing`, and
 any mode/`--missing` combination whose labels would not describe the
