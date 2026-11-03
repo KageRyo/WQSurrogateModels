@@ -83,10 +83,10 @@ paths match x86 ONNX predictions exactly across all 10,714 external rows each.
 SVM differs across platforms: 6,996/10,714 rows exceed `1e-6`, maximum difference
 `0.00020980835`, and one WQI5 category changes.
 
-For that boundary case, native output is `50.0000470866`, x86 ONNX is
-`50.0000152588` and Nano ONNX is `49.9999847412`. Nano SVM differs from native
-on 10,657 rows above `1e-6`, maximum `0.00134839176`; the x86 comparison above
-has different counts. A separate repeatability/batch/optimizer follow-up is
+The changed category is a boundary case: native and x86 ONNX scores lie above
+the 50-point threshold, while Nano ONNX lies below it. Exact per-row scores remain
+in the private follow-up. Nano SVM differs from native on 10,657 rows above
+`1e-6`, maximum `0.00134839176`; the x86 comparison above has different counts. A separate repeatability/batch/optimizer follow-up is
 saved under `results/onnx_svm_validation_20261103`; see below.
 
 | Path | Load s | Batch-1 P50 / P95 ms | Process peak MiB |
