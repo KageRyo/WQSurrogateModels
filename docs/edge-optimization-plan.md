@@ -1,7 +1,10 @@
 # Edge optimization: independent second-stage evaluation
 
 Authorized on 2026-11-01, after completion of WaterMirror Edge Deployment v1.
-Issues #58 and #59 track this work. Source branch: `feature/edge-optimization`.
+Issues #58 and #59 record this completed evaluation. The closure decisions,
+research limitations and optional future work are maintained in the
+[results document](edge-optimization-results.md); no further experiment is
+scheduled by this plan. Source branch: `feature/edge-optimization`.
 Production remains WQSurrogateModels 2.3.0 / WaterMirror 2.3.6.
 
 ## Fixed comparisons

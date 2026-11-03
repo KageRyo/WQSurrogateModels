@@ -1,8 +1,22 @@
-# RF compression and ONNX evaluation — review evidence
+# RF compression and ONNX evaluation — conclusions
 
-Status: measurements and local backup complete; independent review remains open.
-No production promotion or app release. Engineering deadlines/progress added
-after these measurements have not been validated by replaying this full matrix.
+Status: evaluation complete, with the deployment decisions below approved for
+this stage on 2026-11-03. The original measurements, negative findings and local
+backup are preserved. There is no production model replacement or app release.
+
+## Closure decisions
+
+| Evaluation | Decision | Evidence and scope |
+|---|---|---|
+| ONNX (#58) | Keep the native production format. | Conversion and ARM64 measurements are complete for the tested full-input RF pipelines. Float32 parity, loading memory and RF300 OOM prevent adopting these artifacts under the current requirements. |
+| Smaller RF ensembles (#59) | Keep the current production RF. | RF50/100/200 were compared with the matched RF300 baseline. RF200 is a candidate for a future complete-input confirmation study; missing-input exceptions prevent promoting it across all conditions. |
+
+These issues close as **completed evaluations**. The limitations and possible
+future investigations are recorded in this document; they are not active tasks
+or new Issues. Any later experiment needs its own scope, configuration and new
+result directory. The [experiment plan](edge-optimization-plan.md) and committed
+tools describe reproduction and engineering controls. Controls added after the
+archived measurements have unit/CI validation, not a rerun of the full matrix.
 
 Workstation: 80 jobs, 200 conditions, 400 unique dataset/condition metric rows.
 RF50/100/200/300 use five matched stratified splits, first50,000-row source,
@@ -79,4 +93,39 @@ Local E-drive copy completed2026-11-02 18:00 CST:1,744 files,
 `684f7d1491d1640dd5245e5198a1586567484d8c37261baecc222c3c64ae483e`.
 Folder:`20261101-edge-optimization`. Remote Nextcloud readback and environment
 restoration have not been verified. No private models,data,row predictions or
-full workbooks are published in Git. See issues #58 and #59 for review status.
+full workbooks are published in Git.
+
+## Research limitations and future work
+
+The following questions remain documented after this stage closes. None is a
+claim of an established cause or a commitment to start another experiment.
+
+1. **Cross-platform reconstruction differences.** RF300 BOD reconstruction has
+   54 rows above the unchanged 1e-6 threshold and one category change. A future
+   investigation could compare reconstructed indicators and the corresponding
+   tree branch thresholds for those exact rows, with runtime and artifact hashes
+   fixed. The current evidence does not establish ordinary floating-point error
+   as the cause.
+2. **Service continuity.** Fourteen completed cases contain failed health polls.
+   A future study could align network-local and remote health probes with CPU,
+   memory, swap and I/O samples to distinguish network faults from resource
+   contention. Zero API restarts and no API OOM do not resolve those failures.
+3. **RF300 double-missing noncompletion and ONNX300 OOM.** The isolated run's
+   memory budget and shared API constrain the conclusion. The administrative
+   timeout is post-hoc, with diagnostic interference recorded. A future bounded,
+   instrumented reproduction could examine the stalled chunk and model stages;
+   the current record neither proves a specific loop defect nor establishes
+   failure for every Nano configuration.
+4. **Comparison limits.** Five reused data splits support paired descriptive
+   accuracy comparisons. Nano resource/timing measurements use seed 0, a fixed
+   execution order and an uncontrolled OS cache. The 300 consecutive warm timing
+   samples are not 300 independent cold starts. In-sample indicator reconstruction
+   follows the original protocol and does not establish a new leakage-free method.
+5. **Runtime and backup scope.** The archived ONNX conversion used version 1.17.0;
+   the maintained research lock now uses 1.23.2 for security fixes. Archived parity
+   has not been remeasured under that newer version. The verified local E-drive
+   copy does not establish remote Nextcloud integrity or successful restoration.
+
+The WQI5 formula/dataset `Score` disagreement and the original replay's 13 parity
+findings remain part of the [first-stage benchmark](jetson-nano-benchmark.md).
+Neither closing this evaluation nor merging its tools resolves those limitations.
