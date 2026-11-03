@@ -31,6 +31,43 @@ def prepare_remote_output(remote, path):
     remote.sudo(["chown", "--", "1000:1000", path])
 
 
+def build_worker_command(kind, mode, missing, model_filename):
+    """Serialize the fixed packet schema, not caller-supplied command operands."""
+    kinds = {"native": "native", "onnx": "onnx"}
+    modes = {value: value for value in MODES}
+    try:
+        kind = kinds[kind]
+        mode = modes[mode]
+    except KeyError as exc:
+        raise ValueError("Unsupported worker kind or mode") from exc
+    missing = validate_request(kind, mode, missing)
+    native_models = {
+        "full_reference": "full_reference.joblib",
+        "inference_dropout": "full_reference.joblib",
+        "reduced_retraining": "reduced_retraining.joblib",
+        "indicator_reconstruction": "indicator_reconstruction.joblib",
+    }
+    expected_model = "pipeline.onnx" if kind == "onnx" else native_models[mode]
+    if model_filename != expected_model:
+        raise ValueError("Model filename does not match the worker packet schema")
+    return [
+        "python",
+        "/worker/benchmark.py",
+        "--kind",
+        kind,
+        "--model",
+        "/packet/" + expected_model,
+        "--inputs",
+        "/packet/inputs.npz",
+        "--output",
+        "/output/result",
+        "--mode",
+        mode,
+        "--missing",
+        *missing,
+    ]
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--host", required=True)
@@ -49,7 +86,9 @@ def main():
     args = p.parse_args()
     # Reject before creating a remote output directory or research container.
     try:
-        missing = validate_request(args.kind, args.mode, args.missing)
+        command = build_worker_command(
+            args.kind, args.mode, args.missing, args.model_filename
+        )
     except ValueError as exc:
         p.error(str(exc))
     args.evidence = artifact_path(args.evidence)
@@ -105,22 +144,6 @@ def main():
         "-v",
         args.remote_output + ":/output:rw",
         safe_image_reference(args.image),
-    ]
-    command = [
-        "python",
-        "/worker/benchmark.py",
-        "--kind",
-        args.kind,
-        "--model",
-        "/packet/" + args.model_filename,
-        "--inputs",
-        "/packet/inputs.npz",
-        "--output",
-        "/output/result",
-        "--mode",
-        args.mode,
-        "--missing",
-        *missing,
     ]
     result = supervise_container(
         remote,

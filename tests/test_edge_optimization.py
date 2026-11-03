@@ -70,6 +70,49 @@ def test_remote_output_is_normalized_and_separated_from_options():
 
 
 @pytest.mark.parametrize(
+    "kind, mode, missing, filename",
+    [
+        ("native", "full_reference", [], "full_reference.joblib"),
+        ("native", "inference_dropout", ["BOD"], "full_reference.joblib"),
+        ("native", "reduced_retraining", ["NH3N"], "reduced_retraining.joblib"),
+        (
+            "native",
+            "indicator_reconstruction",
+            ["NH3N", "BOD"],
+            "indicator_reconstruction.joblib",
+        ),
+        ("onnx", "full_reference", [], "pipeline.onnx"),
+    ],
+)
+def test_worker_packet_schema_binds_mode_to_model(kind, mode, missing, filename):
+    from edge_optimization_nano import build_worker_command
+
+    command = build_worker_command(kind, mode, missing, filename)
+    assert command[command.index("--model") + 1] == "/packet/" + filename
+    assert command[command.index("--missing") + 1 :] == [
+        x for x in FEATURES if x in missing
+    ]
+
+
+@pytest.mark.parametrize(
+    "kind, mode, filename",
+    [
+        ("native", "full_reference", "pipeline.onnx"),
+        ("native", "full_reference", "model.joblib;id"),
+        ("--privileged", "full_reference", "full_reference.joblib"),
+        ("native", "--privileged", "full_reference.joblib"),
+    ],
+)
+def test_worker_schema_rejects_wrong_files_and_unknown_command_labels(
+    kind, mode, filename
+):
+    from edge_optimization_nano import build_worker_command
+
+    with pytest.raises(ValueError):
+        build_worker_command(kind, mode, [], filename)
+
+
+@pytest.mark.parametrize(
     "path",
     [
         "--reference=/etc/passwd",
