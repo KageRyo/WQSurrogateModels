@@ -25,6 +25,7 @@ from edge_optimization import (
     verified,
     write_json,
 )
+from edge_optimization_paths import artifact_path
 
 
 def convert_pipeline(pipeline):
@@ -72,6 +73,7 @@ def main():
     p.add_argument("--data-root", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
     args = p.parse_args()
+    args.output = artifact_path(args.output)
     if not verified(args.job):
         raise ValueError("Unverified source job")
     if args.output.exists():

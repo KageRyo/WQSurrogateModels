@@ -14,6 +14,7 @@ import platform
 import resource
 import sys
 import time
+from edge_optimization_paths import artifact_path, atomic_json
 
 import numpy as np
 import pandas as pd
@@ -45,16 +46,15 @@ def main():
     )
     p.add_argument("--missing", nargs="*", default=[])
     args = p.parse_args()
+    args.output = artifact_path(args.output)
     if args.output.exists():
         raise FileExistsError(args.output)
-    args.output.mkdir(parents=True)
+    args.output.mkdir(parents=True, mode=0o700)
     began = time.monotonic()
 
     def progress(phase, **values):
         record = dict(phase=phase, elapsed_seconds=time.monotonic() - began, **values)
-        temporary = args.output / "progress.tmp"
-        temporary.write_text(json.dumps(record) + "\n")
-        temporary.replace(args.output / "progress.json")
+        atomic_json(args.output / "progress.json", record)
         print(json.dumps(record), flush=True)
 
     progress("verifying_inputs")
@@ -176,7 +176,7 @@ def main():
             timing=timings,
             caveat="Process-cold only; checksum read warms file cache. Shared host API remains running. Not isolated-device or power-meter results.",
         )
-        (args.output / "result.json").write_text(json.dumps(result, indent=2) + "\n")
+        atomic_json(args.output / "result.json", result)
         progress("completed")
 
 

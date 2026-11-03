@@ -111,7 +111,8 @@ python scripts/edge_optimization_nano.py \
 
 Run through systemd `LoadCredentialEncrypted` with credential name
 `nano-password`; no password argument or file is published. Pre-stage the exact
-worker as `benchmark.py`, the model and `inputs.npz`, verifying hashes before
+worker as `benchmark.py` with `edge_optimization_paths.py` alongside, the model
+and `inputs.npz`, verifying hashes before
 running; this supervisor does not choose/transfer private data or promote models.
 The research image must contain coreutils `timeout` and have no ENTRYPOINT.
 
@@ -132,3 +133,7 @@ python scripts/edge_optimization_control.py --timeout-seconds 3600 \
 
 Existing evidence/log/output paths are refused. Research CI needs only tiny
 synthetic fixtures; it does not train on private research data or contact Nano.
+Write destinations are restricted to designated `results/` trees, the `/output/`
+container mount, or temporary scratch. Traversal components, symbolic links and
+input/model/Git directories are refused. Metadata uses exclusive random temporary
+files and atomic publication; predictable `.tmp` links cannot redirect writes.

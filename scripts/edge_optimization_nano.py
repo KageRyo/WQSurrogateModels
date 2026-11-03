@@ -8,6 +8,7 @@ from pathlib import Path, PurePosixPath
 
 from edge_replay.runner import Remote, safe_image_reference, safe_remote_path
 from edge_optimization_control import supervise_container
+from edge_optimization_paths import artifact_path
 
 
 class BoundedRemote(Remote):
@@ -41,6 +42,7 @@ def main():
     )
     p.add_argument("--missing", nargs="*", default=[])
     args = p.parse_args()
+    args.evidence = artifact_path(args.evidence)
     for value in [args.packet, args.worker, args.remote_output]:
         safe_remote_path(value)
         parts = PurePosixPath(value).parts

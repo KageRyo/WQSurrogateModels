@@ -9,6 +9,7 @@ from pathlib import Path
 import signal
 import subprocess
 import time
+from edge_optimization_paths import artifact_path, atomic_json
 
 
 def positive_seconds(value):
@@ -19,11 +20,7 @@ def positive_seconds(value):
 
 
 def save(path, value):
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(path.name + ".tmp")
-    temporary.write_text(json.dumps(value, indent=2, allow_nan=False) + "\n")
-    temporary.replace(path)
+    atomic_json(path, value)
 
 
 def run_bounded(command, *, timeout_seconds, log, evidence, grace_seconds=15):
@@ -194,6 +191,8 @@ def main():
     parser.add_argument("--log", type=Path, required=True)
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
+    args.evidence = artifact_path(args.evidence)
+    args.log = artifact_path(args.log)
     command = args.command[1:] if args.command[:1] == ["--"] else args.command
     if not command:
         parser.error("Provide a worker command after --")
