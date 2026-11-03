@@ -15,7 +15,9 @@ psutil==7.2.2
 threadpoolctl==3.7.0
 
 # Optional isolated evaluation runtime; never added to production dependencies.
-onnx==1.17.0
+# The archived 20261101 run used onnx 1.17.0 (see its provenance lock); later
+# runs use a release with the 2026 external-data and shape-inference fixes.
+onnx==1.23.2
 onnxruntime
 skl2onnx
 pytest>=7.4

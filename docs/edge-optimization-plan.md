@@ -135,6 +135,11 @@ or ONNX at test collection. `Edge optimization research checks` installs the
 hash-locked research environment and directly imports conversion dependencies;
 its actual imputer/RF forward-path test must run with zero skipped tests.
 Missing research dependencies fail that job rather than silently skipping it.
+The archived `20261101` conversions used onnx 1.17.0, as recorded in that run's
+provenance lock and `source.json`. The committed research lock now pins onnx
+1.23.2 (plus its `ml-dtypes` dependency) for the 2026 external-data, path and
+shape-inference security fixes; archived ONNX parity was not re-measured with it,
+so any new ONNX comparison must record its own versions.
 
 For a standalone ONNX conversion, use the same bounded subprocess entry point:
 
