@@ -1,0 +1,4 @@
+# Release build backend for `uv build --build-constraints ... --require-hashes`.
+# Mirrors [build-system].requires in pyproject.toml.
+setuptools>=77
+wheel

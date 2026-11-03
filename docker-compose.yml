@@ -4,6 +4,9 @@ services:
       context: .
       args:
         INSTALL_MODEL_EXTRAS: ${INSTALL_MODEL_EXTRAS:-false}
+    # The image defaults to the unprivileged UID/GID 10001. Set CONTAINER_UID and
+    # CONTAINER_GID to the host owner when the mounts are owner-readable only.
+    user: "${CONTAINER_UID:-10001}:${CONTAINER_GID:-10001}"
     env_file:
       - .env
     ports:

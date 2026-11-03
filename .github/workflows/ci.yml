@@ -21,34 +21,39 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "pip"
 
-      - name: Install package with dev dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+      - name: Set up uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.13.7"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      # Dependencies come only from hash-locked wheels in uv.lock; no
+      # third-party source distribution or setup script runs.
+      - name: Install locked dev dependencies
+        run: uv sync --locked --no-build --extra dev --python "${{ matrix.python-version }}"
 
       - name: Run test suite
-        run: |
-          pytest -q --tb=short
+        run: uv run --locked --no-build --extra dev pytest -q --tb=short
 
   docker:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Build Docker image (no push)
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           push: false
@@ -67,47 +72,53 @@ jobs:
             sleep 1
           done
           curl --fail --silent http://127.0.0.1:18001/api/v2/ready
+          response="$RUNNER_TEMP/assessment.json"
           curl --fail --silent --request POST http://127.0.0.1:18001/api/v2/assessment \
             --header 'Content-Type: application/json' \
             --data '{"DO":96.2,"BOD":1.5,"NH3N":0.22,"EC":171,"SS":2.6,"model_type":"direct_wqi5"}' \
-            | python -c 'import json, sys; payload = json.load(sys.stdin); assert payload["model_type"] == "direct_wqi5"; assert 0 <= payload["score"] <= 100'
+            --output "$response"
+          python -c 'import json, sys; payload = json.load(open(sys.argv[1])); assert payload["model_type"] == "direct_wqi5"; assert 0 <= payload["score"] <= 100' "$response"
 
   runtime-smoke:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.11'
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.13.7"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
 
       - name: Verify locked project environment
         run: |
           uv lock --check
-          uv sync --locked --extra dev
+          uv sync --locked --no-build --extra dev
 
       - name: Smoke test local API runtime
-        run: uv run python scripts/smoke_api.py
+        run: uv run --locked --no-build --extra dev python scripts/smoke_api.py
 
   arm64-model-runtime:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Build ARM64 image with optional model dependencies
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: Dockerfile.jetson
@@ -126,7 +137,7 @@ jobs:
             python -c 'import os, xgboost; from wqsurrogatemodels.api import app; from wqsurrogatemodels.wqi import direct_wqi5_score; assert os.getuid() != 0; assert xgboost.__version__ == "3.2.0"; assert abs(direct_wqi5_score(do=96.2,bod=1.5,nh3n=0.22,ec=171,ss=2.6)-89.542) < 1e-6'
 
       - name: Build locked research ARM64 image
-        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: Dockerfile.edge-research
