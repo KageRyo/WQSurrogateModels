@@ -4,6 +4,9 @@ Status: evaluation complete, with the deployment decisions below approved for
 this stage on 2026-11-03. The original measurements, negative findings and local
 backup are preserved. There is no production model replacement or app release.
 
+A separately dated [ONNX missing-input and model-family extension](onnx-extension-evaluation.md)
+is now executing; its new results are distinct from the archived stage below.
+
 ## Closure decisions
 
 | Evaluation | Decision | Evidence and scope |

@@ -20,7 +20,7 @@ jobs:
       - name: Install hash-locked isolated research dependencies
         run: |
           python -m venv .venv-research
-          .venv-research/bin/python -m pip install --require-hashes --no-deps --only-binary=:all: -r requirements-edge-optimization.txt
+          .venv-research/bin/python -m pip install --require-hashes --no-deps --only-binary=:all: -r requirements-edge-optimization.txt -r requirements-edge-onnxmltools.txt
       - name: Require conversion and deadline tests without skips
         run: |
           .venv-research/bin/python -m pytest tests/test_edge_optimization.py tests/test_edge_optimization_control.py tests/test_edge_optimization_paths.py tests/test_edge_optimization_report.py research_tests -q --junitxml=research-tests.xml
