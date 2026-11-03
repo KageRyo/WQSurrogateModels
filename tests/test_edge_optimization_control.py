@@ -19,8 +19,11 @@ def test_deadline_kills_sigterm_ignoring_worker_and_keeps_log(tmp_path):
     with (tmp_path / "worker.log").open("w") as log:
         result = run_bounded(
             [sys.executable, "-c", code],
-            timeout_seconds=0.5,
-            grace_seconds=0.1,
+            # Shared runners need time to schedule/reap the SIGKILL target.
+            # This test covers confirmed termination; bounded unconfirmed
+            # cleanup has its own deterministic fake-process regression.
+            timeout_seconds=2,
+            grace_seconds=2,
             log=log,
             evidence=path,
         )

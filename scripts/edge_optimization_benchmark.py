@@ -54,6 +54,11 @@ def validate_request(kind, mode, missing):
         raise ValueError("--mode " + mode + " requires the --missing indicators")
     if len(set(missing)) != len(missing):
         raise ValueError("--missing must not repeat an indicator")
+    if any(indicator not in INDICATORS for indicator in missing):
+        raise ValueError("--missing contains an unknown water-quality indicator")
+    # Emit the fixed domain constants in feature order, never raw variadic CLI
+    # strings. This also makes equivalent label sets deterministic in wrappers.
+    return [indicator for indicator in INDICATORS if indicator in missing]
 
 
 def validate_bundle(bundle, mode, missing):

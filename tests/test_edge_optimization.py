@@ -282,6 +282,18 @@ def test_missing_indicators_must_be_known_and_unique(tmp_path):
     assert not (tmp_path / "result").exists()
     with pytest.raises(ValueError, match="repeat"):
         validate_request("native", "inference_dropout", ["BOD", "BOD"])
+    with pytest.raises(ValueError, match="unknown"):
+        validate_request("native", "inference_dropout", ["--privileged"])
+
+
+def test_missing_request_emits_only_canonical_indicator_operands():
+    from edge_optimization_benchmark import validate_request
+
+    assert validate_request("native", "indicator_reconstruction", ["NH3N", "BOD"]) == [
+        "BOD",
+        "NH3N",
+    ]
+    assert validate_request("native", "full_reference", []) == []
 
 
 @pytest.mark.parametrize(
