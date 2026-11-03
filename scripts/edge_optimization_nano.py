@@ -7,7 +7,7 @@ import os
 from pathlib import Path, PurePosixPath
 
 from edge_replay.runner import Remote, safe_image_reference, safe_remote_path
-from edge_optimization_benchmark import MODES, validate_request
+from edge_optimization_benchmark import INDICATORS, MODES, validate_request
 from edge_optimization_control import supervise_container
 from edge_optimization_paths import artifact_path
 
@@ -32,7 +32,7 @@ def main():
     p.add_argument("--kind", choices=["native", "onnx"], required=True)
     p.add_argument("--model-filename", required=True)
     p.add_argument("--mode", choices=MODES, default="full_reference")
-    p.add_argument("--missing", nargs="*", default=[])
+    p.add_argument("--missing", nargs="*", default=[], choices=INDICATORS)
     args = p.parse_args()
     # Reject before creating a remote output directory or research container.
     try:

@@ -123,7 +123,12 @@ The research image must contain coreutils `timeout` and have no ENTRYPOINT.
 Only complete-input pipelines have an ONNX conversion, so the worker and this
 supervisor refuse `--kind onnx` with a missing-value mode or `--missing`, and
 any mode/`--missing` combination whose labels would not describe the
-computation, before creating remote or local outputs.
+computation, before creating remote or local outputs. `--missing` accepts only
+the five indicators, without repeats. After loading a native bundle the worker
+also requires its trained `missing_indicators` to equal `--missing` for
+`reduced_retraining`/`indicator_reconstruction` (which compute from the
+bundle's own features), and a complete-input bundle for `full_reference` and
+`inference_dropout`; all 42 archived Nano tasks satisfy these checks.
 
 Ordinary CI runs pure integrity/deadline tests using `.[dev]`, without psutil
 or ONNX at test collection. `Edge optimization research checks` installs the

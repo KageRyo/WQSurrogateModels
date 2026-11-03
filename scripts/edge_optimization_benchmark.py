@@ -34,6 +34,8 @@ MODES = (
     "reduced_retraining",
     "indicator_reconstruction",
 )
+INDICATORS = ("DO", "BOD", "NH3N", "EC", "SS")
+RETRAINED_MODES = ("reduced_retraining", "indicator_reconstruction")
 
 
 def validate_request(kind, mode, missing):
@@ -50,6 +52,25 @@ def validate_request(kind, mode, missing):
         raise ValueError("--mode full_reference does not accept --missing")
     if mode != "full_reference" and not missing:
         raise ValueError("--mode " + mode + " requires the --missing indicators")
+    if len(set(missing)) != len(missing):
+        raise ValueError("--missing must not repeat an indicator")
+
+
+def validate_bundle(bundle, mode, missing):
+    """Refuse an artifact whose trained missing-value condition differs.
+
+    Reduced and reconstruction bundles compute from their own stored features,
+    not from --missing; dropout and full reference require a complete-input
+    model, to which only --missing NaNs are applied at inference.
+    """
+    trained = set(bundle.get("missing_indicators", []))
+    expected = set(missing) if mode in RETRAINED_MODES else set()
+    if trained != expected:
+        raise ValueError(
+            "Requested missing indicators do not match model artifact: "
+            f"{mode} needs a model trained without {sorted(expected)}, "
+            f"but the artifact was trained without {sorted(trained)}"
+        )
 
 
 def main():
@@ -59,7 +80,7 @@ def main():
     p.add_argument("--inputs", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
     p.add_argument("--mode", choices=MODES, default="full_reference")
-    p.add_argument("--missing", nargs="*", default=[])
+    p.add_argument("--missing", nargs="*", default=[], choices=INDICATORS)
     args = p.parse_args()
     try:
         validate_request(args.kind, args.mode, args.missing)
@@ -91,6 +112,7 @@ def main():
             import joblib
 
             bundle = joblib.load(args.model, mmap_mode="r")
+            validate_bundle(bundle, args.mode, args.missing)
             model = bundle["wqi_model"]
             model.set_params(model__n_jobs=1)
             for indicator_model in bundle.get("indicator_models", {}).values():

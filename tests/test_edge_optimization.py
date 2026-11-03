@@ -178,3 +178,93 @@ def test_nano_wrapper_rejects_onnx_missing_request_before_remote_setup(monkeypat
     with pytest.raises(SystemExit) as stopped:
         nano.main()
     assert stopped.value.code == 2
+
+
+def run_native_worker(tmp_path, bundle, *request_args):
+    import subprocess
+
+    import joblib
+
+    rng = np.random.default_rng(5)
+    frame = pd.DataFrame(rng.uniform(1, 20, size=(8, len(FEATURES))), columns=FEATURES)
+    joblib.dump(bundle, tmp_path / "model.joblib")
+    np.savez_compressed(
+        tmp_path / "inputs.npz",
+        X=frame.to_numpy(),
+        columns=np.array(FEATURES),
+        reference=np.zeros(len(frame)),
+    )
+    return subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPTS / "edge_optimization_benchmark.py"),
+            "--kind=native",
+            "--model",
+            str(tmp_path / "model.joblib"),
+            "--inputs",
+            str(tmp_path / "inputs.npz"),
+            "--output",
+            str(tmp_path / "result"),
+            *request_args,
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+
+
+def test_native_worker_rejects_bundle_trained_for_other_missing_indicator(tmp_path):
+    rng = np.random.default_rng(4)
+    available = [c for c in FEATURES if c != "BOD"]
+    frame = pd.DataFrame(rng.uniform(1, 20, size=(32, len(FEATURES))), columns=FEATURES)
+    config = {"forest_random_state": 0, "training_jobs": 1}
+    bod_bundle = dict(
+        wqi_model=forest(config, 2, frame, frame.DO),
+        indicator_models={"BOD": forest(config, 2, frame[available], frame.BOD)},
+        available_features=available,
+        missing_indicators=["BOD"],
+    )
+    # The bundle reconstructs BOD; the label would record an NH3N experiment.
+    result = run_native_worker(
+        tmp_path, bod_bundle, "--mode=indicator_reconstruction", "--missing", "NH3N"
+    )
+    assert result.returncode != 0
+    assert "do not match model artifact" in result.stderr
+    assert not (tmp_path / "result" / "result.json").exists()
+
+
+def test_missing_indicators_must_be_known_and_unique(tmp_path):
+    from edge_optimization_benchmark import validate_request
+
+    result = run_native_worker(
+        tmp_path, {}, "--mode=inference_dropout", "--missing", "TEMP"
+    )
+    assert result.returncode == 2
+    assert "invalid choice" in result.stderr
+    assert not (tmp_path / "result").exists()
+    with pytest.raises(ValueError, match="repeat"):
+        validate_request("native", "inference_dropout", ["BOD", "BOD"])
+
+
+@pytest.mark.parametrize(
+    "mode, trained, requested, accepted",
+    [
+        ("reduced_retraining", ["BOD", "NH3N"], ["NH3N", "BOD"], True),
+        ("indicator_reconstruction", ["BOD"], ["NH3N"], False),
+        # Archived Nano dropout runs used the complete full_reference bundle.
+        ("inference_dropout", [], ["BOD"], True),
+        ("inference_dropout", ["BOD"], ["BOD"], False),
+        ("full_reference", ["BOD"], [], False),
+    ],
+)
+def test_bundle_condition_must_match_recorded_labels(
+    mode, trained, requested, accepted
+):
+    from edge_optimization_benchmark import validate_bundle
+
+    bundle = {"missing_indicators": trained}
+    if accepted:
+        validate_bundle(bundle, mode, requested)
+    else:
+        with pytest.raises(ValueError, match="do not match model artifact"):
+            validate_bundle(bundle, mode, requested)
