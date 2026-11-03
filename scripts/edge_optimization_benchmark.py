@@ -28,24 +28,43 @@ def sha(path):
     return h.hexdigest()
 
 
+MODES = (
+    "full_reference",
+    "inference_dropout",
+    "reduced_retraining",
+    "indicator_reconstruction",
+)
+
+
+def validate_request(kind, mode, missing):
+    """Refuse requests whose recorded mode/missing labels would not be computed.
+
+    Only complete-input pipelines have an ONNX conversion; an ONNX session would
+    otherwise run full inputs while the result claims a missing-value condition.
+    """
+    if kind == "onnx" and (mode != "full_reference" or missing):
+        raise ValueError(
+            "ONNX evaluation supports only --mode full_reference without --missing"
+        )
+    if mode == "full_reference" and missing:
+        raise ValueError("--mode full_reference does not accept --missing")
+    if mode != "full_reference" and not missing:
+        raise ValueError("--mode " + mode + " requires the --missing indicators")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--kind", choices=["native", "onnx"], required=True)
     p.add_argument("--model", type=Path, required=True)
     p.add_argument("--inputs", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
-    p.add_argument(
-        "--mode",
-        choices=[
-            "full_reference",
-            "inference_dropout",
-            "reduced_retraining",
-            "indicator_reconstruction",
-        ],
-        default="full_reference",
-    )
+    p.add_argument("--mode", choices=MODES, default="full_reference")
     p.add_argument("--missing", nargs="*", default=[])
     args = p.parse_args()
+    try:
+        validate_request(args.kind, args.mode, args.missing)
+    except ValueError as exc:
+        p.error(str(exc))
     args.output = artifact_path(args.output)
     if args.output.exists():
         raise FileExistsError(args.output)

@@ -99,3 +99,82 @@ def test_native_worker_reports_prediction_and_timing_progress(tmp_path):
         == "completed"
     )
     assert json.loads((tmp_path / "result/result.json").read_text())["above_1e_6"] == 0
+
+
+@pytest.mark.parametrize(
+    "request_args",
+    [
+        ["--mode", "inference_dropout", "--missing", "BOD"],
+        ["--missing", "BOD", "NH3N"],
+    ],
+)
+def test_onnx_worker_refuses_missing_value_requests(tmp_path, request_args):
+    import subprocess
+
+    # The ONNX session would run complete inputs while recording these labels.
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPTS / "edge_optimization_benchmark.py"),
+            "--kind",
+            "onnx",
+            "--model",
+            str(tmp_path / "pipeline.onnx"),
+            "--inputs",
+            str(tmp_path / "inputs.npz"),
+            "--output",
+            str(tmp_path / "result"),
+            *request_args,
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        timeout=30,
+    )
+    assert result.returncode == 2
+    assert "ONNX evaluation supports only" in result.stderr
+    assert not (tmp_path / "result").exists()
+
+
+@pytest.mark.parametrize(
+    "mode, missing",
+    [("full_reference", ["BOD"]), ("reduced_retraining", [])],
+)
+def test_recorded_mode_and_missing_labels_must_agree(mode, missing):
+    from edge_optimization_benchmark import validate_request
+
+    with pytest.raises(ValueError, match="missing"):
+        validate_request("native", mode, missing)
+
+
+def test_nano_wrapper_rejects_onnx_missing_request_before_remote_setup(monkeypatch):
+    import edge_optimization_nano as nano
+
+    def no_remote(*args, **kwargs):
+        raise AssertionError("remote output must not be created")
+
+    monkeypatch.setattr(nano, "BoundedRemote", no_remote)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "edge_optimization_nano.py",
+            "--host=nano",
+            "--control=control",
+            "--name=wm-opt-test",
+            "--image=example/research:tag",
+            "--packet=/srv/edge-optimization-test/packet",
+            "--worker=/srv/edge-optimization-test/worker",
+            "--remote-output=/srv/edge-optimization-test/output",
+            "--evidence=/tmp/edge-optimization-test-evidence.json",
+            "--timeout-seconds=60",
+            "--kind=onnx",
+            "--model-filename=pipeline.onnx",
+            "--mode=indicator_reconstruction",
+            "--missing",
+            "BOD",
+        ],
+    )
+    with pytest.raises(SystemExit) as stopped:
+        nano.main()
+    assert stopped.value.code == 2
