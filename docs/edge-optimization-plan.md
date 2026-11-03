@@ -146,13 +146,14 @@ The CSV/Excel package is exported from completed evidence only:
 
 ```bash
 python scripts/edge_optimization_report.py --root results/RUN \
-  --config CONFIG-FROZEN-IN-identity.json \
   --destination results/RUN/reports/NEW-EXPORT
 ```
 
-The config must byte-match a source hash in `identity.json` (for the archived
-`20261101` run, its `provenance/source/configs` copy; the later committed
-config adds prospective deadlines and is refused). Each consumed `metrics.csv`
+The experiment matrix comes only from a config that byte-matches a source hash
+in `identity.json`: the repository `configs/edge_optimization.yaml`, else the
+run's `provenance/source/configs` copy (used by the archived `20261101` run,
+because the committed config later gained prospective deadlines); no config
+path is accepted from the command line. Each consumed `metrics.csv`
 and Nano `result/result.json` is re-verified against its completion SHA-256,
 and each job's rows must be exactly its (seed, trees, missing, mode, source)
 keys; a full export requires the whole matrix (400 rows for this config).

@@ -29,9 +29,10 @@ def write_metrics(directory, frame):
 @pytest.fixture
 def experiment(tmp_path):
     root = tmp_path / "results" / "edge_optimization_test"
-    config = tmp_path / "edge_optimization.yaml"
+    # The repository config differs, so the archived provenance copy must match.
+    config = root / "provenance" / "source" / "configs" / "edge_optimization.yaml"
+    config.parent.mkdir(parents=True)
     config.write_text(yaml.safe_dump(CONFIG))
-    root.mkdir(parents=True)
     (root / "identity.json").write_text(
         json.dumps({"source_sha256": {str(config): sha(config)}})
     )
@@ -53,12 +54,12 @@ def experiment(tmp_path):
 
 
 def test_modified_completed_metrics_are_not_exported(experiment):
-    root, config = experiment
-    assert export(root, root / "reports" / "first", config)["metrics_by_seed"] == 16
+    root, _ = experiment
+    assert export(root, root / "reports" / "first")["metrics_by_seed"] == 16
     edited = root / "jobs" / "s0-rf50-complete" / "metrics.csv"
     edited.write_text(edited.read_text().replace("1.0", "0.5"))
     with pytest.raises(ValueError, match="Completed output changed"):
-        export(root, root / "reports" / "second", config)
+        export(root, root / "reports" / "second")
     assert not (root / "reports" / "second").exists()
 
 
@@ -88,21 +89,21 @@ def shrink_matrix(root, config):
         (drop_completion, "Incomplete experiment matrix"),
         (duplicate_row, "do not match the job matrix"),
         (relabel_job, "do not match the job matrix"),
-        (shrink_matrix, "frozen identity"),
+        (shrink_matrix, "matches the frozen identity"),
     ],
 )
 def test_export_requires_the_frozen_complete_matrix(experiment, corrupt, message):
     root, config = experiment
     corrupt(root, config)
     with pytest.raises(ValueError, match=message):
-        export(root, root / "reports" / "final", config)
+        export(root, root / "reports" / "final")
     assert not (root / "reports" / "final").exists()
 
 
 def test_partial_snapshot_may_omit_unfinished_jobs(experiment):
     root, config = experiment
     drop_completion(root, config)
-    counts = export(root, root / "reports" / "progress", config, partial=True)
+    counts = export(root, root / "reports" / "progress", partial=True)
     assert counts["metrics_by_seed"] == 10
 
 
@@ -123,10 +124,10 @@ def symlinked_parent(root, tmp_path):
     ],
 )
 def test_export_destination_is_confined(experiment, tmp_path, target, message):
-    root, config = experiment
+    root, _ = experiment
     destination, protected = target(root, tmp_path)
     with pytest.raises(ValueError, match=message):
-        export(root, destination, config)
+        export(root, destination)
     assert not (tmp_path / "models").exists()
     assert not (root / "jobs" / "export").exists()
     if protected is not None:

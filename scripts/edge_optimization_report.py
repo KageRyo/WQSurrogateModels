@@ -17,11 +17,13 @@ from edge_optimization_paths import artifact_path
 MISSING_MODES = ("inference_dropout", "reduced_retraining", "indicator_reconstruction")
 SOURCES = ("internal_test", "external_10714")
 ROW_KEYS = ["seed", "trees", "missing", "mode", "source"]
+COMPLETED = "completed.json"
+CONFIG = Path(__file__).resolve().parents[1] / "configs" / "edge_optimization.yaml"
 
 
 def recorded(directory, name, field):
     """Return a consumed file only if it matches its completion-time SHA-256."""
-    record = json.loads((directory / "completed.json").read_text())
+    record = json.loads((directory / COMPLETED).read_text())
     digest = record.get(field, {}).get(name)
     path = directory / name
     if digest is None:
@@ -31,12 +33,20 @@ def recorded(directory, name, field):
     return path
 
 
-def frozen_config(root, config_path):
-    """Load the experiment matrix only from the config frozen in identity.json."""
-    identity = json.loads((root / "identity.json").read_text())
-    if sha(config_path) not in identity["source_sha256"].values():
-        raise ValueError("Config differs from the experiment's frozen identity")
-    return yaml.safe_load(Path(config_path).read_text())
+def frozen_config(root):
+    """Load the matrix from the config whose bytes match the run's identity.
+
+    Candidates are fixed: the repository config, then the run's archived
+    provenance copy (later prospective config edits change the repository hash).
+    """
+    frozen = set(
+        json.loads((root / "identity.json").read_text())["source_sha256"].values()
+    )
+    archived = root / "provenance" / "source" / "configs" / CONFIG.name
+    for candidate in (CONFIG, archived):
+        if candidate.is_file() and sha(candidate) in frozen:
+            return yaml.safe_load(candidate.read_text())
+    raise ValueError("No repository or archived config matches the frozen identity")
 
 
 def destination_path(root, destination):
@@ -58,7 +68,7 @@ def job_metrics(root, config, partial):
     # Name order keeps re-exports byte-identical to the archived glob order.
     for job in sorted(all_jobs(config), key=lambda job: job_id(**job)):
         directory = root / "jobs" / job_id(**job)
-        if not (directory / "completed.json").is_file():
+        if not (directory / COMPLETED).is_file():
             if partial:
                 continue
             raise ValueError(f"Incomplete experiment matrix: {directory.name}")
@@ -91,7 +101,7 @@ def tables(root, config, partial=False):
     ) * 100
     native = []
     for p in sorted((root / "nano-benchmarks").glob("*/result/result.json")):
-        if not (p.parents[1] / "completed.json").is_file():
+        if not (p.parents[1] / COMPLETED).is_file():
             continue
         d = json.loads(
             recorded(p.parents[1], "result/result.json", "output_sha256").read_text()
@@ -135,10 +145,10 @@ def tables(root, config, partial=False):
     }
 
 
-def export(root, destination, config_path, partial=False):
+def export(root, destination, partial=False):
     root = Path(root).resolve()
     destination = destination_path(root, destination)
-    result = tables(root, frozen_config(root, config_path), partial)
+    result = tables(root, frozen_config(root), partial)
     destination.mkdir(parents=True)
     for name, frame in result.items():
         frame.to_csv(destination / (name + ".csv"), index=False)
@@ -239,10 +249,9 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--root", type=Path, required=True)
     p.add_argument("--destination", type=Path, required=True)
-    p.add_argument("--config", type=Path, required=True)
     p.add_argument("--partial", action="store_true")
     args = p.parse_args()
-    print(json.dumps(export(args.root, args.destination, args.config, args.partial)))
+    print(json.dumps(export(args.root, args.destination, args.partial)))
 
 
 if __name__ == "__main__":
