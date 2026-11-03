@@ -1,0 +1,33 @@
+name: Edge optimization research checks
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.12'
+      - name: Install hash-locked isolated research dependencies
+        run: |
+          python -m venv .venv-research
+          .venv-research/bin/python -m pip install --require-hashes --no-deps --only-binary=:all: -r requirements-edge-optimization.txt
+      - name: Require conversion and deadline tests without skips
+        run: |
+          .venv-research/bin/python -m pytest tests/test_edge_optimization.py tests/test_edge_optimization_control.py tests/test_edge_optimization_paths.py tests/test_edge_optimization_report.py research_tests -q --junitxml=research-tests.xml
+          .venv-research/bin/python - <<'PY'
+          import xml.etree.ElementTree as ET
+          root = ET.parse('research-tests.xml').getroot()
+          suites = list(root.iter('testsuite'))
+          assert sum(int(s.attrib['tests']) for s in suites) > 0
+          assert sum(int(s.attrib.get('skipped', 0)) for s in suites) == 0
+          PY

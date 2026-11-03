@@ -185,8 +185,10 @@ with `scripts/export_edge_summary.py` and an Excel view of the complete statisti
 tables with `scripts/export_edge_workbook.py`. The workbook indexes the full
 481,500-row stress CSV instead of silently truncating it.
 
-ONNX (#58) and smaller RF ensembles (#59) have not been evaluated. They remain
-optional follow-up studies, with explicit accuracy/resource comparisons needed
-before model replacement. No quantization or pruning was required to finish this
-replay. No production artifact was replaced, and ARM support preserves the v2 API.
-Merge and release remain subject to user review.
+The separate [ONNX and smaller-RF evaluation](edge-optimization-results.md)
+subsequently completed the work tracked by #58 and #59. Its decision is to keep
+the native production format and current production RF; RF200 remains a possible
+complete-input candidate for a separately scoped study. That document preserves
+the precision, resource, missing-input and service-continuity limitations.
+No quantization or pruning was required to finish this original replay, its
+results were not rewritten, and ARM support preserves the v2 API.

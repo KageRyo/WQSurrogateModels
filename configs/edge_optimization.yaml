@@ -1,0 +1,37 @@
+# Independent second-stage evaluation. Never promotes production artifacts.
+execution:
+  rf_job_timeout_seconds: 3600
+  nano_job_timeout_seconds: 14400
+  termination_grace_seconds: 15
+  note: Prospective engineering limits; not applied retroactively to archived measurements.
+seeds: [0, 1, 2, 3, 4]
+trees: [50, 100, 200, 300]
+forest_random_state: 0
+training_jobs: 2
+test_size: 0.2
+expected_train_source_rows: 50000
+expected_external_rows: 10714
+missing_sets:
+  missing_bod: [BOD]
+  missing_nh3n: [NH3N]
+  missing_bod_nh3n: [BOD, NH3N]
+timing:
+  warmup: 3
+  repeats: 30
+  rows: [1, 128]
+stress107:
+  windows: 107
+  severity_factors: [1.3, 2.0, 4.0]
+  scenarios: [organic_pollution, ammonia_pollution, suspended_solids_event, conductivity_event, combined_pollution]
+onnx:
+  seeds: [0]
+  trees: [50, 300]
+  absolute_parity_tolerance: 0.000001
+  threads: 1
+  target_opset: 17
+  input_dtype: float32
+  include_preprocessing: true
+screening_only:
+  max_relative_mae_increase: 0.01
+  max_accuracy_drop_percentage_points: 1.0
+  minimum_resource_reduction_fraction: 0.20

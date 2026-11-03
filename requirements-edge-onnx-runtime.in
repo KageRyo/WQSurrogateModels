@@ -1,0 +1,6 @@
+# Separate inference-only ARM64 experiment image, not production dependencies.
+numpy==1.26.4
+onnxruntime==1.31.1
+flatbuffers==25.12.19
+packaging==26.3
+protobuf==7.36.2
