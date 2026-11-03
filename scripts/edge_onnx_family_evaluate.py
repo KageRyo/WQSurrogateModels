@@ -52,7 +52,6 @@ def main():
     out = artifact_path(args.output)
     if out.exists():
         raise FileExistsError(out)
-    out.mkdir(parents=True)
     manifest = args.data_root / "models/production_model_manifest.json"
     entry = next(
         e
@@ -60,7 +59,9 @@ def main():
         if e["model_type"] == args.model
     )
     source = args.data_root / entry["production_artifact"]
-    assert sha(source) == entry["sha256"]
+    if sha(source) != entry["sha256"]:
+        raise ValueError("Production artifact checksum mismatch")
+    out.mkdir(parents=True)
     write_json(
         out / "source.json",
         dict(

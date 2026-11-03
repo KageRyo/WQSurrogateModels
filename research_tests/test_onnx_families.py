@@ -49,3 +49,51 @@ def test_registered_family_full_pipeline_executes(tmp_path, family):
     probe[0, 2] = np.nan
     output = session(path).run(None, {"features": probe})[0].reshape(-1)
     np.testing.assert_allclose(output, pipeline.predict(probe), rtol=1e-5, atol=1e-4)
+
+
+def test_checksum_guard_survives_python_optimized_mode(tmp_path):
+    import json
+    import subprocess
+
+    root = tmp_path / "source"
+    artifact = root / "models" / "fixture.joblib"
+    artifact.parent.mkdir(parents=True)
+    # This is deliberately not a pickle. Bypassing the guard reaches a different
+    # deserialization error, so the diagnostic proves rejection before loading.
+    artifact.write_bytes(b"not a serialized model")
+    (root / "models/production_model_manifest.json").write_text(
+        json.dumps(
+            dict(
+                artifacts=[
+                    dict(
+                        model_type="lr",
+                        production_artifact="models/fixture.joblib",
+                        sha256="0" * 64,
+                    )
+                ]
+            )
+        )
+    )
+    output = tmp_path / "results" / "rejected"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-O",
+            str(
+                Path(__file__).resolve().parents[1]
+                / "scripts/edge_onnx_family_evaluate.py"
+            ),
+            "--data-root",
+            str(root),
+            "--model",
+            "lr",
+            "--output",
+            str(output),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert result.returncode != 0
+    assert "Production artifact checksum mismatch" in result.stderr
+    assert not output.exists()

@@ -178,6 +178,24 @@ model family. The original 610 jobs, 20261101 run and production model/manifest
 hashes are unchanged. Identical x86/Nano ONNX output in 13 paths does not establish
 native numerical equivalence.
 
+## Final export acceptance safeguards
+
+The maintained exporter requires all 14 x86 controllers/results and all 14 Nano
+completion records/containers to report successful execution. It checks the
+recorded hashes of consumed evidence, external prediction shapes/finiteness,
+and exact unique keys for all six tables: Coverage 28, X86Parity 69,
+X86Metrics 23, Nano 28, Health 14 and StageIsolation 3. Missing, unsuccessful,
+duplicate or incomplete evidence is rejected before creating an output directory.
+Completed numerical-parity and health findings remain reportable observations;
+the export gate does not turn them into parity or continuity passes.
+
+A new destination inside the source result root must be under `reports/`;
+source-evidence directories and symlinked destinations are refused. Acceptance
+re-export used a separate temporary directory: all six CSVs were byte-identical
+to the archived tables. The frozen experiment and its two backups were retained.
+The family evaluator also checks model SHA-256 explicitly before deserialization,
+including when Python is started with `-O`.
+
 ## Reproduction
 
 Install the hash-locked research dependencies plus
