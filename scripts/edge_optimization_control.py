@@ -51,6 +51,36 @@ def _kill_group(proc, grace_seconds):
     return "confirmed"
 
 
+def _await_deadline(proc, timeout_seconds, grace_seconds):
+    """Return terminal evidence for a launched group; every wait is bounded."""
+    try:
+        proc.wait(timeout=timeout_seconds)
+    except subprocess.TimeoutExpired:
+        _signal_group(proc.pid, signal.SIGTERM)
+        try:
+            proc.wait(timeout=grace_seconds)
+        except subprocess.TimeoutExpired:
+            pass
+        # A leader that honours TERM proves nothing about its descendants.
+        termination = _kill_group(proc, grace_seconds)
+        return dict(
+            phase="timed_out",
+            returncode=124,
+            worker_returncode=proc.returncode,
+            termination=termination,
+        )
+    outcome = dict(
+        phase="completed" if proc.returncode == 0 else "failed",
+        returncode=proc.returncode,
+    )
+    if _signal_group(proc.pid, 0):
+        outcome.update(
+            orphaned_descendants_killed=True,
+            termination=_kill_group(proc, grace_seconds),
+        )
+    return outcome
+
+
 def run_bounded(command, *, timeout_seconds, log, evidence, grace_seconds=15):
     """Terminate the entire dedicated process group, including stuck native code.
 
@@ -71,32 +101,7 @@ def run_bounded(command, *, timeout_seconds, log, evidence, grace_seconds=15):
     )
     try:
         save(evidence, result)
-        try:
-            proc.wait(timeout=timeout_seconds)
-        except subprocess.TimeoutExpired:
-            _signal_group(proc.pid, signal.SIGTERM)
-            try:
-                proc.wait(timeout=grace_seconds)
-            except subprocess.TimeoutExpired:
-                pass
-            # A leader that honours TERM proves nothing about its descendants.
-            termination = _kill_group(proc, grace_seconds)
-            result.update(
-                phase="timed_out",
-                returncode=124,
-                worker_returncode=proc.returncode,
-                termination=termination,
-            )
-        else:
-            result.update(
-                phase="completed" if proc.returncode == 0 else "failed",
-                returncode=proc.returncode,
-            )
-            if _signal_group(proc.pid, 0):
-                result.update(
-                    orphaned_descendants_killed=True,
-                    termination=_kill_group(proc, grace_seconds),
-                )
+        result.update(_await_deadline(proc, timeout_seconds, grace_seconds))
     except BaseException as exc:
         # A controller interruption must not leave an unbounded research child.
         result.update(

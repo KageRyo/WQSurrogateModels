@@ -129,7 +129,8 @@ def test_cleanup_waits_are_bounded_for_unkillable_worker(tmp_path, monkeypatch):
     finally:
         for proc in launched:
             reap(proc, timeout=10)  # Reap the real, already SIGKILLed child.
-    assert result["phase"] == "timed_out" and result["returncode"] == 124
+    assert result["phase"] == "timed_out"
+    assert result["returncode"] == 124
     assert result["termination"] == "unconfirmed"
     assert json.loads((tmp_path / "execution.json").read_text())["termination"] == (
         "unconfirmed"
@@ -144,7 +145,8 @@ def test_normal_exit_is_completed_not_timeout(tmp_path):
             log=log,
             evidence=tmp_path / "execution.json",
         )
-    assert result["phase"] == "completed" and result["returncode"] == 0
+    assert result["phase"] == "completed"
+    assert result["returncode"] == 0
 
 
 class FakeRemote:
