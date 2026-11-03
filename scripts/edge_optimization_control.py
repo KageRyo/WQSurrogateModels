@@ -23,8 +23,40 @@ def save(path, value):
     atomic_json(path, value)
 
 
+def _signal_group(pgid, sig):
+    """Signal the dedicated group; False once no member remains."""
+    try:
+        os.killpg(pgid, sig)
+    except ProcessLookupError:
+        return False
+    return True
+
+
+def _kill_group(proc, grace_seconds):
+    """SIGKILL the whole group with bounded waits; never block on an unkillable task.
+
+    Returns "confirmed" only when the leader is reaped and no group member
+    (including reparented descendants) remains; otherwise "unconfirmed".
+    """
+    _signal_group(proc.pid, signal.SIGKILL)
+    try:
+        proc.wait(timeout=grace_seconds)
+    except subprocess.TimeoutExpired:
+        return "unconfirmed"  # E.g. an uninterruptible kernel wait.
+    deadline = time.monotonic() + grace_seconds
+    while _signal_group(proc.pid, 0):
+        if time.monotonic() >= deadline:
+            return "unconfirmed"
+        time.sleep(0.05)
+    return "confirmed"
+
+
 def run_bounded(command, *, timeout_seconds, log, evidence, grace_seconds=15):
-    """Terminate the entire dedicated process group, including stuck native code."""
+    """Terminate the entire dedicated process group, including stuck native code.
+
+    Every operation after launch is supervised, so even a failed first evidence
+    write cannot leave an unsupervised research child; every wait is bounded.
+    """
     timeout_seconds = positive_seconds(timeout_seconds)
     grace_seconds = positive_seconds(grace_seconds)
     started = time.monotonic()
@@ -37,36 +69,47 @@ def run_bounded(command, *, timeout_seconds, log, evidence, grace_seconds=15):
         deadline_seconds=timeout_seconds,
         started_epoch=time.time(),
     )
-    save(evidence, result)
     try:
+        save(evidence, result)
         try:
             proc.wait(timeout=timeout_seconds)
+        except subprocess.TimeoutExpired:
+            _signal_group(proc.pid, signal.SIGTERM)
+            try:
+                proc.wait(timeout=grace_seconds)
+            except subprocess.TimeoutExpired:
+                pass
+            # A leader that honours TERM proves nothing about its descendants.
+            termination = _kill_group(proc, grace_seconds)
+            result.update(
+                phase="timed_out",
+                returncode=124,
+                worker_returncode=proc.returncode,
+                termination=termination,
+            )
+        else:
             result.update(
                 phase="completed" if proc.returncode == 0 else "failed",
                 returncode=proc.returncode,
             )
-        except subprocess.TimeoutExpired:
-            os.killpg(proc.pid, signal.SIGTERM)
-            try:
-                proc.wait(timeout=grace_seconds)
-            except subprocess.TimeoutExpired:
-                os.killpg(proc.pid, signal.SIGKILL)
-                proc.wait()
-            result.update(
-                phase="timed_out", returncode=124, worker_returncode=proc.returncode
-            )
-    except BaseException:
+            if _signal_group(proc.pid, 0):
+                result.update(
+                    orphaned_descendants_killed=True,
+                    termination=_kill_group(proc, grace_seconds),
+                )
+    except BaseException as exc:
         # A controller interruption must not leave an unbounded research child.
-        try:
-            os.killpg(proc.pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
-        proc.wait()
-        result.update(phase="controller_interrupted", returncode=proc.returncode)
-        raise
-    finally:
+        result.update(
+            phase="controller_interrupted",
+            error=type(exc).__name__,
+            termination=_kill_group(proc, grace_seconds),
+            returncode=proc.returncode,
+        )
         result["elapsed_seconds"] = time.monotonic() - started
-        save(evidence, result)
+        save(evidence, result)  # A second write failure chains to the first.
+        raise
+    result["elapsed_seconds"] = time.monotonic() - started
+    save(evidence, result)
     return result
 
 
