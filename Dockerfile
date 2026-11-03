@@ -25,15 +25,22 @@ COPY models/production_model_manifest.json ./models/production_model_manifest.js
 # libraries explicitly when the mounted production manifest selects them.
 ARG INSTALL_MODEL_EXTRAS=false
 ARG MODEL_EXTRAS=""
+# Dependencies install only from hash-locked wheels; the application runs
+# from the copied source tree, so no setup script executes during the build.
 RUN if [ -n "$MODEL_EXTRAS" ]; then \
-      uv sync --locked --no-dev --extra "$MODEL_EXTRAS"; \
+      uv sync --locked --no-dev --no-build --no-install-project --extra "$MODEL_EXTRAS"; \
     elif [ "$INSTALL_MODEL_EXTRAS" = "true" ]; then \
-      uv sync --locked --no-dev --extra models; \
+      uv sync --locked --no-dev --no-build --no-install-project --extra models; \
     else \
-      uv sync --locked --no-dev; \
+      uv sync --locked --no-dev --no-build --no-install-project; \
     fi
 
-ENV PATH="/app/.venv/bin:$PATH"
+ENV PATH="/app/.venv/bin:$PATH" \
+    PYTHONPATH="/app/src"
+
+RUN groupadd --system --gid 10001 watermirror \
+    && useradd --system --uid 10001 --gid 10001 --no-create-home watermirror
+USER 10001:10001
 
 EXPOSE 8001
 

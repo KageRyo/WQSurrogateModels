@@ -38,3 +38,21 @@ runs.
 The workflow does not publish on branch pushes or pull requests. A release
 event must be published for production, and manual dispatch is restricted to
 TestPyPI from `main`.
+
+## Build supply chain
+
+The build job installs development and packaging tools from `uv.lock` with
+`--locked --no-build --no-install-project`, so every dependency is a
+hash-verified wheel and no third-party setup script runs. Tests import the
+source tree through `PYTHONPATH=src`. The wheel and source distribution are
+built by `uv build --build-constraints requirements-build.txt --require-hashes`,
+which pins the setuptools build backend by hash. Workflow actions are pinned to
+full commit SHAs; Dependabot updates the pins.
+
+When `[build-system].requires` changes, update `requirements-build.in` and
+regenerate the constraints:
+
+```bash
+uv pip compile requirements-build.in --python-version 3.12 --generate-hashes \
+  --universal -o requirements-build.txt
+```
