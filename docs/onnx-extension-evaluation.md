@@ -1,7 +1,10 @@
 # ONNX missing-input and model-family extension
 
-Status: the 14-path x86/Nano measurement matrix and local backup completed on
-2026-11-03. SVM numerical follow-up is also complete; final review remains pending. This is a separately dated
+Status: The 14-path x86/Nano measurement matrix, local backup,
+SVM numerical follow-up, and final review were completed on
+2026-11-03. The results were reviewed and merged in [PR #84](https://github.com/KageRyo/WQSurrogateModels/pull/84).
+
+This is a separately dated
 extension of the archived [RF/ONNX evaluation](edge-optimization-results.md),
 not a production replacement or a rerun of the original 610 jobs.
 
