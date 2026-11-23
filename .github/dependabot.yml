@@ -12,6 +12,21 @@ updates:
           - "version-update:semver-minor"
           - "version-update:semver-major"
 
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
+    versioning-strategy: "lockfile-only"
+    exclude-paths:
+      - "requirements-*.in"
+      - "requirements-*.txt"
+    ignore:
+      - dependency-name: "scikit-learn"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-major"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
