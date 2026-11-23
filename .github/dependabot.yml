@@ -21,6 +21,14 @@ updates:
     exclude-paths:
       - "requirements-*.in"
       - "requirements-*.txt"
+    groups:
+      uv-minor-and-patch:
+        applies-to: "version-updates"
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
     ignore:
       - dependency-name: "scikit-learn"
         update-types:
