@@ -6,11 +6,25 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 3
+    # Dependabot resolves with Python 3.10 from requires-python, so it cannot
+    # resolve the Python 3.11 ARM64 ONNX image locks; update those by hand.
+    exclude-paths:
+      - "requirements-edge-onnx-runtime.in"
+      - "requirements-edge-onnx-runtime.txt"
+      - "requirements-edge-onnxmltools.txt"
+    # Versions recorded by the archived experiments and model artifacts; change
+    # them only with a new recorded run. Dependabot alerts still report them.
     ignore:
+      - dependency-name: "numpy"
+      - dependency-name: "pandas"
+      - dependency-name: "scipy"
       - dependency-name: "scikit-learn"
-        update-types:
-          - "version-update:semver-minor"
-          - "version-update:semver-major"
+      - dependency-name: "joblib"
+      - dependency-name: "xgboost"
+      - dependency-name: "lightgbm"
+      - dependency-name: "onnx"
+      - dependency-name: "onnxruntime"
+      - dependency-name: "skl2onnx"
 
   - package-ecosystem: "uv"
     directory: "/"
