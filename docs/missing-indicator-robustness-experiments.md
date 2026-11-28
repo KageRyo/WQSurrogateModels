@@ -1,9 +1,8 @@
 # Missing-Indicator Robustness Experiments
 
-This workflow evaluates WQI5 surrogate behavior under single-indicator and
-multi-indicator missing conditions. It is an incomplete-input sensitivity
-experiment, not temporal forecasting and not a substitute for complete-input
-deterministic WQI5 computation.
+This workflow measures how closely WQI5 surrogate models estimate the score when
+one or more indicators are missing. The deterministic WQI5 calculation with all
+indicators is the reference.
 
 ## Data Split
 
