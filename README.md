@@ -142,14 +142,14 @@ paths only; it does not contain serialized model parameters or executable model
 binaries. Each selected artifact has a SHA-256 digest, version, training seed,
 feature schema, evaluation metadata, and runtime-compatibility notes. The
 runtime verifies the checksum before loading a selected surrogate artifact.
-Locally generated surrogate artifacts require:
+Locally generated surrogate artifacts require all five indicators:
 
 ```text
 DO, BOD, NH3N, EC, SS
 ```
 
-They should not be interpreted as models for incomplete-input cases. Experiment
-bundles and serialized model artifacts remain in ignored local directories.
+Experiment bundles and serialized model artifacts remain in ignored local
+directories.
 
 ## PyPI Package Scope
 
